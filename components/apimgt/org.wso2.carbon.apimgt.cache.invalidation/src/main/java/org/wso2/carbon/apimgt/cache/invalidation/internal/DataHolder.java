@@ -18,22 +18,22 @@
 
 package org.wso2.carbon.apimgt.cache.invalidation.internal;
 
+import org.wso2.carbon.apimgt.cache.invalidation.utils.JMSTransportHandler;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.CacheInvalidationConfiguration;
+import org.wso2.carbon.event.output.adapter.core.OutputEventAdapterService;
 
 import java.util.UUID;
 
-/**
- *This class holds the services and data which used in internally.
- */
 public class DataHolder {
 
     private static final String nodeId = UUID.randomUUID().toString();
     private static final DataHolder instance = new DataHolder();
+    private OutputEventAdapterService outputEventAdapterService;
     private APIManagerConfigurationService apiManagerConfigurationService;
     private Boolean started = false;
+    private JMSTransportHandler jmsTransportHandler;
     private CacheInvalidationConfiguration cacheInvalidationConfiguration;
-
     private DataHolder() {
 
     }
@@ -63,6 +63,16 @@ public class DataHolder {
         }
     }
 
+    public OutputEventAdapterService getOutputEventAdapterService() {
+
+        return outputEventAdapterService;
+    }
+
+    public void setOutputEventAdapterService(OutputEventAdapterService outputEventAdapterService) {
+
+        this.outputEventAdapterService = outputEventAdapterService;
+    }
+
     public boolean isStarted() {
 
         return started;
@@ -70,7 +80,19 @@ public class DataHolder {
 
     public void setStarted(Boolean started) {
 
-        this.started = started;
+        synchronized (this.started) {
+            this.started = started;
+        }
+    }
+
+    public JMSTransportHandler getJmsTransportHandler() {
+
+        return jmsTransportHandler;
+    }
+
+    public void setJmsTransportHandler(JMSTransportHandler jmsTransportHandler) {
+
+        this.jmsTransportHandler = jmsTransportHandler;
     }
 
     public CacheInvalidationConfiguration getCacheInvalidationConfiguration() {

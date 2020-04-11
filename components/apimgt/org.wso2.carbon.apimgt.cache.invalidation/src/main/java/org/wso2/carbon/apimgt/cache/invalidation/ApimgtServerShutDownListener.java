@@ -18,16 +18,19 @@
 
 package org.wso2.carbon.apimgt.cache.invalidation;
 
-public class CachingConstants {
+import org.wso2.carbon.apimgt.cache.invalidation.internal.DataHolder;
+import org.wso2.carbon.core.ServerShutdownHandler;
 
-    public static final String CACHING_EVENT_PUBLISHER = "cachingEventPublisher";
-    public static final String CACHING_EVENT_TYPE = "wso2event";
-    public static final String CACHING_EVENT_FORMAT = "wso2event";
-    public static final String BINARY = "Binary";
-    public static final String TYPE = "type";
-    public static final String VALUE = "value";
+public class ApimgtServerShutDownListener implements ServerShutdownHandler {
 
-    private CachingConstants() {
+    @Override
+    public void invoke() {
 
+        if (DataHolder.getInstance().getCacheInvalidationConfiguration() != null &&
+                DataHolder.getInstance().getCacheInvalidationConfiguration().isEnabled() &&
+                DataHolder.getInstance().getJmsTransportHandler() != null) {
+            DataHolder.getInstance().getJmsTransportHandler().stopJMSListener();
+            DataHolder.getInstance().setStarted(false);
+        }
     }
 }

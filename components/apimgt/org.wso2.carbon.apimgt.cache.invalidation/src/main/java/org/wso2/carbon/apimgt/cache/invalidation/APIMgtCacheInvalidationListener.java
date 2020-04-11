@@ -44,9 +44,6 @@ import javax.jms.Topic;
 
 import static org.wso2.carbon.caching.impl.CachingConstants.CLEAR_ALL_PREFIX;
 
-/**
- * This class Used to Listen the JMS events.
- */
 public class APIMgtCacheInvalidationListener implements MessageListener {
 
     private static final Log log = LogFactory.getLog(APIMgtCacheInvalidationListener.class);
@@ -101,6 +98,9 @@ public class APIMgtCacheInvalidationListener implements MessageListener {
         if (!DataHolder.getNodeId().equals(nodeId) &&
                 cacheInvalidationConfiguration.getDomain().equals(clusterDomain)) {
             try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Received [" + this + "] ");
+                }
                 PrivilegedCarbonContext.startTenantFlow();
                 PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                 carbonContext.setTenantId(tenantId);

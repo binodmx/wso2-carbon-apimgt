@@ -18,16 +18,23 @@
 
 package org.wso2.carbon.apimgt.cache.invalidation;
 
-public class CachingConstants {
+import org.wso2.carbon.apimgt.cache.invalidation.internal.DataHolder;
+import org.wso2.carbon.core.ServerStartupObserver;
 
-    public static final String CACHING_EVENT_PUBLISHER = "cachingEventPublisher";
-    public static final String CACHING_EVENT_TYPE = "wso2event";
-    public static final String CACHING_EVENT_FORMAT = "wso2event";
-    public static final String BINARY = "Binary";
-    public static final String TYPE = "type";
-    public static final String VALUE = "value";
+public class APImgtServerStartupListener implements ServerStartupObserver {
 
-    private CachingConstants() {
+    @Override
+    public void completingServerStartup() {
 
+    }
+
+    @Override
+    public void completedServerStartup() {
+        if (DataHolder.getInstance().getCacheInvalidationConfiguration() != null &&
+                DataHolder.getInstance().getCacheInvalidationConfiguration().isEnabled() &&
+                DataHolder.getInstance().getJmsTransportHandler() != null) {
+            DataHolder.getInstance().getJmsTransportHandler().subscribeForJmsEvents();
+            DataHolder.getInstance().setStarted(true);
+        }
     }
 }
