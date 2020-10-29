@@ -35,7 +35,7 @@ import org.apache.synapse.MessageContext;
 import org.apache.synapse.commons.json.JsonUtil;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.rest.AbstractHandler;
-import org.apache.synapse.rest.RESTConstants;
+import org.apache.synapse.transport.passthru.PassThroughConstants;
 import org.apache.synapse.transport.passthru.Pipe;
 import org.apache.synapse.transport.passthru.util.RelayUtils;
 import org.everit.json.schema.Schema;
@@ -109,18 +109,16 @@ public class SchemaValidator extends AbstractHandler {
             if (logger.isDebugEnabled()) {
                 logger.debug("Content type of the request message: " + contentType);
             }
-            Pipe pipe = (Pipe)axis2MC.getProperty("pass-through.pipe");
-            if (pipe != null) {
-                String payloadContent;
-                if (getMessageContent(messageContext) != null) {
-                    payloadContent = getMessageContent(messageContext).toString();
-                } else {
-                    payloadContent = IOUtils.toString(pipe.getInputStream());
-                }
-                JsonUtil.getNewJsonPayload(axis2MC, payloadContent, true, true);
-            }
             if (!APIMgtGatewayConstants.APPLICATION_JSON.equals(contentType)) {
                 return true;
+            }
+            Pipe pipe = (Pipe)axis2MC.getProperty(PassThroughConstants.PASS_THROUGH_PIPE);
+            if (pipe != null) {
+                if (getMessageContent(messageContext) == null) {
+                    String payloadContent = IOUtils.toString(pipe.getInputStream());
+                    JsonUtil.getNewJsonPayload(axis2MC, payloadContent, true, true);
+                    messageContext.setProperty(PassThroughConstants.MESSAGE_BUILDER_INVOKED, Boolean.TRUE);
+                }
             }
             JsonElement payloadObject = getMessageContent(messageContext);
             if (!APIConstants.SupportedHTTPVerbs.GET.name().equals(requestMethod) &&
@@ -278,13 +276,7 @@ public class SchemaValidator extends AbstractHandler {
      */
     private JsonElement getMessageContent(MessageContext messageContext) {
         JsonElement payloadObject = null;
-        org.apache.axis2.context.MessageContext axis2Context = ((Axis2MessageContext) messageContext)
-                .getAxis2MessageContext();
-        if (JsonUtil.hasAJsonPayload(axis2Context)) {
-            String jsonString = JsonUtil.jsonPayloadToString(axis2Context);
-            JsonParser jsonParser = new JsonParser();
-            payloadObject = jsonParser.parse(jsonString);
-        } else if (messageContext.getEnvelope().getBody() != null) {
+        if (messageContext.getEnvelope().getBody() != null) {
             Object objFirstElement = messageContext.getEnvelope().getBody().getFirstElement();
             if (objFirstElement != null) {
                 OMElement xmlResponse = messageContext.getEnvelope().getBody().getFirstElement();
@@ -342,11 +334,6 @@ public class SchemaValidator extends AbstractHandler {
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext)
                 messageContext).getAxis2MessageContext();
         String resourcePath = messageContext.getProperty(APIMgtGatewayConstants.API_ELECTED_RESOURCE).toString();
-        String subPath = messageContext.getProperty(RESTConstants.REST_SUB_REQUEST_PATH).toString();
-        if ("/".equals(subPath.substring(subPath.length() - 1))) {
-            resourcePath = resourcePath + "/";
-        }
-
         String requestMethod = axis2MC.getProperty(APIMgtGatewayConstants.HTTP_REQUEST_METHOD).toString();
         String schema;
         String Swagger = swagger;
