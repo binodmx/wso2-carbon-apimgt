@@ -4862,6 +4862,7 @@ public final class APIUtil {
     public static void createDevOpsRole(String roleName, int tenantId) throws APIManagementException {
 
         Permission[] devOpsPermissions = new Permission[]{
+                new Permission(APIConstants.Permissions.LOGIN, UserMgtConstants.EXECUTE_ACTION),
                 new Permission(APIConstants.Permissions.API_CREATE, UserMgtConstants.EXECUTE_ACTION),
                 new Permission(APIConstants.Permissions.API_PUBLISH, UserMgtConstants.EXECUTE_ACTION),
                 new Permission(APIConstants.Permissions.API_SUBSCRIBE, UserMgtConstants.EXECUTE_ACTION),
@@ -11279,7 +11280,6 @@ public final class APIUtil {
     }
 
     public static String getTokenEndpointsByType(String type) {
-
         APIManagerConfiguration config =
                 ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration();
         Map<String, Environment> environments = config.getApiGatewayEnvironments();
@@ -11332,6 +11332,12 @@ public final class APIUtil {
         }
         if (map.containsKey(APIConstants.GATEWAY_ENV_TYPE_HYBRID)) {
             return map.get(APIConstants.GATEWAY_ENV_TYPE_HYBRID);
+        }
+        if (map.containsKey(APIConstants.GATEWAY_ENV_TYPE_PRODUCTION)) {
+            return map.get(APIConstants.GATEWAY_ENV_TYPE_PRODUCTION);
+        }
+        if (map.containsKey(APIConstants.GATEWAY_ENV_TYPE_SANDBOX)) {
+            return map.get(APIConstants.GATEWAY_ENV_TYPE_SANDBOX);
         }
         return map.get(type);
     }
@@ -11637,6 +11643,25 @@ public final class APIUtil {
         } catch (UserStoreException e) {
             APIUtil.handleException("Couldn't read tenant configuration from User Store", e);
         }
+
+        //append original role to the role mapping list
+        Set<Map.Entry<String, JsonElement>> roleMappingEntries = newRoleMappingJson.entrySet();
+        for (Map.Entry<String, JsonElement> entry: roleMappingEntries) {
+            List<String> currentRoles = Arrays.asList(String.valueOf(entry.getValue()).split(","));
+            boolean isOriginalRoleAlreadyInroles = false;
+            for (String role: currentRoles) {
+                if (role.equals(entry.getKey())) {
+                    isOriginalRoleAlreadyInroles = true;
+                    break;
+                }
+            }
+
+            if (!isOriginalRoleAlreadyInroles) {
+                String newRoles = entry.getKey() + "," + entry.getValue();
+                newRoleMappingJson.replace(entry.getKey(), entry.getValue(), newRoles);
+            }
+        }
+
         existingTenantConfObject.remove(APIConstants.REST_API_ROLE_MAPPINGS_CONFIG);
         JsonElement jsonElement = new JsonParser().parse(String.valueOf(newRoleMappingJson));
         existingTenantConfObject.add(APIConstants.REST_API_ROLE_MAPPINGS_CONFIG, jsonElement);

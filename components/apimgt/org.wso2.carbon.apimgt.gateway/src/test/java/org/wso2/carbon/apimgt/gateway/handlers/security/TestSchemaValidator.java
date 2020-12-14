@@ -228,7 +228,7 @@ public class TestSchemaValidator {
         Mockito.when(messageContext.getConfiguration()).thenReturn(synapseConfiguration);
         Mockito.when((String) messageContext.getProperty((APIMgtGatewayConstants.API_ELECTED_RESOURCE))).
                 thenReturn(resourcePath);
-        Mockito.when((String) messageContext.getProperty((RESTConstants.REST_SUB_REQUEST_PATH))).
+        Mockito.when((String) messageContext.getProperty(RESTConstants.REST_SUB_REQUEST_PATH)).
                 thenReturn(resourcePath);
         Mockito.when(synapseConfiguration.getLocalRegistry()).thenReturn(map);
         Mockito.when(map.get(ApiId)).thenReturn(entry);

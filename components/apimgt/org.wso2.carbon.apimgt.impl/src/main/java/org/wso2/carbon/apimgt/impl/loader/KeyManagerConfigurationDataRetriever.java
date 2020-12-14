@@ -56,7 +56,7 @@ public class KeyManagerConfigurationDataRetriever extends TimerTask {
                     HttpClient httpClient = APIUtil.getHttpClient(port, protocol);
                     HttpResponse httpResponse = null;
                     int retryCount = 0;
-                    boolean retry;
+                    boolean retry = false;
                     do {
                         try {
                             httpResponse = httpClient.execute(method);
@@ -82,8 +82,18 @@ public class KeyManagerConfigurationDataRetriever extends TimerTask {
                                 }
                                 retry = false;
                             } else {
-                                retry = true;
+                                log.warn("Retrying to get Key Manager configuration.");
+                                if (log.isDebugEnabled()) {
+                                    log.debug("http status code: " + httpResponse.getStatusLine().getStatusCode());
+                                }
                                 retryCount++;
+                                int maxRetries = 15;
+                                if (retryCount < maxRetries) {
+                                    retry = true;
+                                    long retryTimeout = 15l;
+                                    log.warn("Retrying after " + retryTimeout + " seconds...");
+                                    Thread.sleep(retryTimeout * 1000);
+                                }
                             }
                         } catch (IOException ex) {
                             retryCount++;

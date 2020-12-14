@@ -140,9 +140,12 @@ public class OAS3Parser extends APIDefinition {
                 boolean hasXmlPayload = false;
                 //for setting only one initializing if condition per response code
                 boolean respCodeInitialized = false;
-                for (Map.Entry<PathItem.HttpMethod, Operation> HTTPMethodMap : operationMap.entrySet()) {
+                for (Map.Entry<PathItem.HttpMethod, Operation> httpMethodMap : operationMap.entrySet()) {
                     //add verb to apiResourceMediationPolicyObject
-                    apiResourceMediationPolicyObject.setVerb(String.valueOf(HTTPMethodMap.getKey()));
+                    if (op.equals(httpMethodMap.getValue())) {
+                        apiResourceMediationPolicyObject.setVerb(String.valueOf(httpMethodMap.getKey()));
+                        break;
+                    }
                 }
                 for (String responseEntry : op.getResponses().keySet()) {
                     if (!responseEntry.equals("default")) {
@@ -186,10 +189,10 @@ public class OAS3Parser extends APIDefinition {
                 if (op.getExtensions() != null && op.getExtensions().get
                         (APIConstants.SWAGGER_X_MEDIATION_SCRIPT) == null) {
                     if (op.getExtensions().get(APIConstants.SWAGGER_X_MEDIATION_SCRIPT) == null) {
-                        op.addExtension(APIConstants.SWAGGER_X_MEDIATION_SCRIPT, genCode);
+                        op.addExtension(APIConstants.SWAGGER_X_MEDIATION_SCRIPT, finalScript);
                     }
                 } else if (op.getExtensions() == null) {
-                    op.addExtension(APIConstants.SWAGGER_X_MEDIATION_SCRIPT, genCode);
+                    op.addExtension(APIConstants.SWAGGER_X_MEDIATION_SCRIPT, finalScript);
                 }
                 apiResourceMediationPolicyList.add(apiResourceMediationPolicyObject);
             }
@@ -1727,18 +1730,19 @@ public class OAS3Parser extends APIDefinition {
         Boolean isOptional = OASParserUtil.getAppSecurityStateFromSwagger(extensions);
         if (!applicationSecurity.isEmpty()) {
             String securityList = api.getApiSecurity();
+            securityList = securityList == null ? "" : securityList;
             for (String securityType : applicationSecurity) {
-                if (APIConstants.DEFAULT_API_SECURITY_OAUTH2.equals(securityType)) {
+                if (APIConstants.DEFAULT_API_SECURITY_OAUTH2.equals(securityType) && !securityList.contains(APIConstants.DEFAULT_API_SECURITY_OAUTH2)) {
                     securityList = securityList + "," + APIConstants.DEFAULT_API_SECURITY_OAUTH2;
                 }
-                if (APIConstants.API_SECURITY_BASIC_AUTH.equals(securityType)) {
+                if (APIConstants.API_SECURITY_BASIC_AUTH.equals(securityType) && !securityList.contains(APIConstants.API_SECURITY_BASIC_AUTH)) {
                     securityList = securityList + "," + APIConstants.API_SECURITY_BASIC_AUTH;
                 }
-                if (APIConstants.API_SECURITY_API_KEY.equals(securityType)) {
+                if (APIConstants.API_SECURITY_API_KEY.equals(securityType) && !securityList.contains(APIConstants.API_SECURITY_API_KEY)) {
                     securityList = securityList + "," + APIConstants.API_SECURITY_API_KEY;
                 }
             }
-            if (!isOptional) {
+            if (!(isOptional || securityList.contains(APIConstants.MANDATORY))) {
                 securityList = securityList + "," + APIConstants.MANDATORY;
             }
             api.setApiSecurity(securityList);
@@ -1750,9 +1754,9 @@ public class OAS3Parser extends APIDefinition {
             if (StringUtils.isBlank(securityList)) {
                 securityList = APIConstants.DEFAULT_API_SECURITY_OAUTH2;
             }
-            if (APIConstants.OPTIONAL.equals(mutualSSL)) {
+            if (APIConstants.OPTIONAL.equals(mutualSSL) && !securityList.contains(APIConstants.API_SECURITY_MUTUAL_SSL)) {
                 securityList = securityList + "," + APIConstants.API_SECURITY_MUTUAL_SSL;
-            } else if (APIConstants.MANDATORY.equals(mutualSSL)) {
+            } else if (APIConstants.MANDATORY.equals(mutualSSL) && !securityList.contains(APIConstants.API_SECURITY_MUTUAL_SSL_MANDATORY)) {
                 securityList = securityList + "," + APIConstants.API_SECURITY_MUTUAL_SSL + "," +
                         APIConstants.API_SECURITY_MUTUAL_SSL_MANDATORY;
             }
