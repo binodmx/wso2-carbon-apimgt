@@ -332,6 +332,10 @@ public class ApisApiServiceImpl implements ApisApiService {
         APIProvider apiProvider = RestApiUtil.getLoggedInUserProvider();
         String username = RestApiUtil.getLoggedInUsername();
         List<String> apiSecuritySchemes = body.getSecurityScheme();//todo check list vs string
+        String context = body.getContext();
+        //Make sure context starts with "/". ex: /pizza
+        context = context.startsWith("/") ? context : ("/" + context);
+
         if (!apiProvider.isClientCertificateBasedAuthenticationConfigured() && apiSecuritySchemes != null) {
             for (String apiSecurityScheme : apiSecuritySchemes) {
                 if (apiSecurityScheme.contains(APIConstants.API_SECURITY_MUTUAL_SSL)) {
@@ -355,13 +359,16 @@ public class ApisApiServiceImpl implements ApisApiService {
         }
         if (body.getContext() == null) {
             RestApiUtil.handleBadRequest("Parameter: \"context\" cannot be null", log);
-        } else if (body.getContext().endsWith("/")) {
+        }
+        if (body.getContext().endsWith("/")) {
             RestApiUtil.handleBadRequest("Context cannot end with '/' character", log);
         }
+
         if (apiProvider.isApiNameWithDifferentCaseExist(body.getName())) {
             RestApiUtil.handleBadRequest("Error occurred while adding API. API with name " + body.getName()
                     + " already exists.", log);
         }
+
         if (body.getAuthorizationHeader() == null) {
             body.setAuthorizationHeader(APIUtil
                     .getOAuthConfigurationFromAPIMConfig(APIConstants.AUTHORIZATION_HEADER));
@@ -388,10 +395,10 @@ public class ApisApiServiceImpl implements ApisApiService {
             for (String version : apiVersions) {
                 if (version.equalsIgnoreCase(body.getVersion())) {
                     //If version already exists
-                    if (apiProvider.isDuplicateContextTemplate(body.getContext())) {
+                    if (apiProvider.isDuplicateContextTemplate(context)) {
                         RestApiUtil.handleResourceAlreadyExistsError("Error occurred while " +
                                 "adding the API. A duplicate API already exists for "
-                                + body.getName() + "-" + body.getVersion(), log);
+                                + context, log);
                     } else {
                         RestApiUtil.handleBadRequest("Error occurred while adding API. API with name " +
                                 body.getName() + " already exists with different " +
@@ -401,9 +408,9 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
         } else {
             //If no any previous version exists
-            if (apiProvider.isDuplicateContextTemplate(body.getContext())) {
+            if (apiProvider.isDuplicateContextTemplate(context)) {
                 RestApiUtil.handleBadRequest("Error occurred while adding the API. A duplicate API context " +
-                        "already exists for " + body.getContext(), log);
+                        "already exists for " + context, log);
             }
         }
 
@@ -3749,8 +3756,13 @@ public class ApisApiServiceImpl implements ApisApiService {
             if (StringUtils.isNotBlank(url)) {
                 apiToAdd.setWsdlUrl(url);
             } else if (fileDetail != null && fileInputStream != null) {
-                ResourceFile wsdlResource = new ResourceFile(fileInputStream,
-                        fileDetail.getContentType().toString());
+                ResourceFile wsdlResource;
+                if (APIConstants.APPLICATION_ZIP.equals(fileDetail.getContentType().toString()) ||
+                        APIConstants.APPLICATION_X_ZIP_COMPRESSED.equals(fileDetail.getContentType().toString())) {
+                    wsdlResource = new ResourceFile(fileInputStream, APIConstants.APPLICATION_ZIP);
+                } else {
+                    wsdlResource = new ResourceFile(fileInputStream, fileDetail.getContentType().toString());
+                }
                 apiToAdd.setWsdlResource(wsdlResource);
             }
 
@@ -3817,10 +3829,11 @@ public class ApisApiServiceImpl implements ApisApiService {
             } else if (fileInputStream != null) {
                 String filename = fileDetail.getContentDisposition().getFilename();
                 if (filename.endsWith(".zip")) {
-                    swaggerStr = SOAPOperationBindingUtils.getSoapOperationMapping(wsdlArchiveExtractedPath);;
+                    swaggerStr = SOAPOperationBindingUtils.getSoapOperationMapping(wsdlArchiveExtractedPath, url);
                 } else if (filename.endsWith(".wsdl")) {
-                    byte[] wsdlContent = APIUtil.toByteArray(fileInputStream);
-                    swaggerStr = SOAPOperationBindingUtils.getSoapOperationMapping(wsdlContent);
+                    wsdlArchiveExtractedPath = wsdlArchiveExtractedPath.substring(0,
+                            wsdlArchiveExtractedPath.lastIndexOf('/'));
+                    swaggerStr = SOAPOperationBindingUtils.getSoapOperationMapping(wsdlArchiveExtractedPath, url);
                 } else {
                     throw new APIManagementException(ExceptionCodes.UNSUPPORTED_WSDL_FILE_EXTENSION);
                 }
@@ -3828,7 +3841,7 @@ public class ApisApiServiceImpl implements ApisApiService {
             String updatedSwagger = updateSwagger(createdApi.getUUID(), swaggerStr);
             SequenceGenerator.generateSequencesFromSwagger(updatedSwagger, apiToAdd.getId());
             return createdApi;
-        } catch (FaultGatewaysException | IOException e) {
+        } catch (FaultGatewaysException  e) {
             throw new APIManagementException("Error while importing WSDL to create a SOAP-to-REST API", e);
         }
     }
@@ -3891,8 +3904,13 @@ public class ApisApiServiceImpl implements ApisApiService {
             api.setWsdlResource(null);
             apiProvider.updateWsdlFromUrl(api);
         } else {
-            ResourceFile wsdlResource = new ResourceFile(fileInputStream,
-                    fileDetail.getContentType().toString());
+            ResourceFile wsdlResource;
+            if (APIConstants.APPLICATION_ZIP.equals(fileDetail.getContentType().toString()) ||
+                    APIConstants.APPLICATION_X_ZIP_COMPRESSED.equals(fileDetail.getContentType().toString())) {
+                wsdlResource = new ResourceFile(fileInputStream, APIConstants.APPLICATION_ZIP);
+            } else {
+                wsdlResource = new ResourceFile(fileInputStream, fileDetail.getContentType().toString());
+            }
             api.setWsdlResource(wsdlResource);
             api.setWsdlUrl(null);
             apiProvider.updateWsdlFromResourceFile(api);
