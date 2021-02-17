@@ -2991,8 +2991,8 @@ public class ApiMgtDAO {
      * @param keyManagerName
      */
     public void updateApplicationKeyTypeMapping(Application application, String keyType,
-                                                String keyManagerName) throws APIManagementException {
-        OAuthApplicationInfo app = application.getOAuthApp(keyType,keyManagerName);
+                                                String keyManagerId) throws APIManagementException {
+        OAuthApplicationInfo app = application.getOAuthApp(keyType,keyManagerId);
         String consumerKey = null;
         if (app != null) {
             consumerKey = app.getClientId();
@@ -3008,12 +3008,12 @@ public class ApiMgtDAO {
                 connection.setAutoCommit(false);
                 ps = connection.prepareStatement(addApplicationKeyMapping);
                 ps.setString(1, consumerKey);
-                OAuthApplicationInfo oAuthApp = application.getOAuthApp(keyType, keyManagerName);
+                OAuthApplicationInfo oAuthApp = application.getOAuthApp(keyType, keyManagerId);
                 String content = new Gson().toJson(oAuthApp);
                 ps.setBinaryStream(2, new ByteArrayInputStream(content.getBytes()));
                 ps.setInt(3, application.getId());
                 ps.setString(4, keyType);
-                ps.setString(5, keyManagerName);
+                ps.setString(5, keyManagerId);
                 ps.executeUpdate();
                 connection.commit();
             } catch (SQLException e) {
@@ -4642,7 +4642,7 @@ public class ApiMgtDAO {
         try {
             connection = APIMgtDBUtil.getConnection();
             String driverName = connection.getMetaData().getDriverName();
-            if (driverName.contains("MS SQL") || driverName.contains("Microsoft") || driverName.contains("Oracle")) {
+            if (driverName.contains("Oracle")) {
                 offset = start + offset;
             }
             // sortColumn, sortOrder variable values has sanitized in jaggery level (applications-list.jag)for security.
@@ -5092,6 +5092,17 @@ public class ApiMgtDAO {
                         } catch (APIManagementException e) {
                             log.error("Error while Deleting Client Application", e);
                         }
+                    } else {
+                        KeyManagerConfigurationDTO config = getKeyManagerConfigurationByUUID(keyManagerName);
+                        if (config != null) {
+                            keyManagerName = config.getName();
+                            keyManager = KeyManagerHolder.getKeyManagerInstance(tenantDomain, keyManagerName);
+                            try {
+                                keyManager.deleteMappedApplication(consumerKey);
+                            } catch (APIManagementException e) {
+                                log.error("Error while Deleting Client Application", e);
+                            }
+                        }
                     }
                     // OAuth app is deleted if only it has been created from API Store. For mapped clients we don't
                     // call delete.
@@ -5199,6 +5210,11 @@ public class ApiMgtDAO {
                 while (resultSet.next()) {
                     String consumerKey = resultSet.getString("CONSUMER_KEY");
                     String keyManager = resultSet.getString("KEY_MANAGER");
+
+                    KeyManagerConfigurationDTO keyManagerConfiguration = getKeyManagerConfigurationByUUID(keyManager);
+                    if (keyManagerConfiguration != null) {
+                        keyManager = keyManagerConfiguration.getName();
+                    }
                     consumerKeysOfApplication.put(consumerKey, keyManager);
                 }
             }
@@ -7968,6 +7984,16 @@ public class ApiMgtDAO {
                         application.getCallbackUrl(), rs
                                 .getString("TOKEN_SCOPE"),
                         rs.getString("INPUTS"), application.getTokenType(),tenantDomain, keyManagerName);
+                if (request.getOAuthApplicationInfo().getParameter("username") == null) {
+                    KeyManagerConfigurationDTO config = getKeyManagerConfigurationByUUID(keyManagerName);
+                    if (config != null) {
+                        request = ApplicationUtils.createOauthAppRequest(application.getName(), null,
+                                application.getCallbackUrl(), rs
+                                        .getString("TOKEN_SCOPE"),
+                                rs.getString("INPUTS"), application.getTokenType(),tenantDomain,
+                                config.getName());
+                    }
+                }
                 workflowDTO.setAppInfoDTO(request);
             }
         } catch (SQLException e) {
@@ -8547,6 +8573,43 @@ public class ApiMgtDAO {
         return null;
     }
 
+    public KeyManagerConfigurationDTO getKeyManagerConfigurationByUUID(String uuid)
+            throws APIManagementException {
+        try (Connection conn = APIMgtDBUtil.getConnection()) {
+            return  getKeyManagerConfigurationByUUID(conn, uuid);
+        } catch (SQLException | IOException e) {
+            throw new APIManagementException(
+                    "Error while retrieving key manager configuration for key manager uuid: " + uuid, e);
+        }
+    }
+
+    private KeyManagerConfigurationDTO getKeyManagerConfigurationByUUID(Connection connection ,String uuid)
+            throws SQLException, IOException {
+        final String query = "SELECT * FROM AM_KEY_MANAGER WHERE UUID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, uuid);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()){
+                    KeyManagerConfigurationDTO keyManagerConfigurationDTO = new KeyManagerConfigurationDTO();
+                    keyManagerConfigurationDTO.setUuid(resultSet.getString("UUID"));
+                    keyManagerConfigurationDTO.setName(resultSet.getString("NAME"));
+                    keyManagerConfigurationDTO.setDisplayName(resultSet.getString("DISPLAY_NAME"));
+                    keyManagerConfigurationDTO.setDescription(resultSet.getString("DESCRIPTION"));
+                    keyManagerConfigurationDTO.setType(resultSet.getString("TYPE"));
+                    keyManagerConfigurationDTO.setEnabled(resultSet.getBoolean("ENABLED"));
+                    keyManagerConfigurationDTO.setTenantDomain(resultSet.getString("TENANT_DOMAIN"));
+                    try (InputStream configuration = resultSet.getBinaryStream("CONFIGURATION")) {
+                        String configurationContent = IOUtils.toString(configuration);
+                        Map map = new Gson().fromJson(configurationContent, Map.class);
+                        keyManagerConfigurationDTO.setAdditionalProperties(map);
+                    }
+                    return keyManagerConfigurationDTO;
+                }
+            }
+        }
+        return null;
+    }
+
     public void addKeyManagerConfiguration(KeyManagerConfigurationDTO keyManagerConfigurationDTO)
             throws APIManagementException {
 
@@ -8736,6 +8799,38 @@ public class ApiMgtDAO {
             throw new APIManagementException("Error while Retrieving Key Mappings ", e);
         }
         return apiKeyList;
+    }
+
+    public APIKey getKeyMappingsFromApplicationIdKeyManagerAndKeyType(int applicationId, String keyManager,
+            String keyType) throws APIManagementException {
+        try (Connection connection = APIMgtDBUtil.getConnection();
+                PreparedStatement preparedStatement = connection
+                        .prepareStatement(SQLConstants.GET_KEY_MAPPING_INFO_FROM_APP_ID_KEY_MANAGER_KEY_TYPE)) {
+            preparedStatement.setInt(1, applicationId);
+            preparedStatement.setString(2, keyManager);
+            preparedStatement.setString(3, keyType);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    APIKey apiKey = new APIKey();
+                    apiKey.setMappingId(resultSet.getString("UUID"));
+                    apiKey.setConsumerKey(resultSet.getString("CONSUMER_KEY"));
+                    apiKey.setKeyManager(resultSet.getString("KEY_MANAGER"));
+                    apiKey.setType(resultSet.getString("KEY_TYPE"));
+                    apiKey.setState(resultSet.getString("STATE"));
+                    try (InputStream appInfo = resultSet.getBinaryStream("APP_INFO")) {
+                        if (appInfo != null) {
+                            apiKey.setAppMetaData(IOUtils.toString(appInfo));
+                        }
+                    } catch (IOException e) {
+                        log.error("Error while retrieving metadata", e);
+                    }
+                    return apiKey;
+                }
+            }
+        } catch (SQLException e) {
+            throw new APIManagementException("Error while Retrieving Key Mappings ", e);
+        }
+        return null;
     }
 
     public APIKey getKeyMappingFromApplicationIdAndKeyMappingId(int applicationId, String keyMappingId)

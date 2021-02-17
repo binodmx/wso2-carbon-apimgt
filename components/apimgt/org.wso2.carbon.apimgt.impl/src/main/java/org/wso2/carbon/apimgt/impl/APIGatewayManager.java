@@ -119,6 +119,7 @@ public class APIGatewayManager {
 
         Map<String, String> failedGatewaysMap = new HashMap<String, String>(0);
         Set<String> publishedGateways = new HashSet<>();
+        Set<URITemplate> operationList = null;
 
         if (debugEnabled) {
             log.debug("API to be published: " + api.getId());
@@ -131,6 +132,9 @@ public class APIGatewayManager {
         }
 
         if (api.getEnvironments() != null) {
+            if (APIConstants.GRAPHQL_API.equals(api.getType())) {
+                operationList = api.getUriTemplates();
+            }
             for (String environmentName : api.getEnvironments()) {
                 Environment environment = environments.get(environmentName);
                 //If the environment is removed from the configuration, continue without publishing
@@ -143,6 +147,9 @@ public class APIGatewayManager {
                 }
                 failedGatewaysMap = publishAPIToGatewayEnvironment(environment, api, builder, tenantDomain, false,
                         publishedGateways, failedGatewaysMap);
+                if (APIConstants.GRAPHQL_API.equals(api.getType())) {
+                    api.setUriTemplates(operationList);
+                }
             }
         }
 
@@ -439,17 +446,52 @@ public class APIGatewayManager {
         boolean isSecureVaultEnabled =
                 Boolean.parseBoolean(ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().
                         getAPIManagerConfiguration().getFirstProperty(APIConstants.API_SECUREVAULT_ENABLE));
-        if (api.isEndpointSecured() && isSecureVaultEnabled) {
-            String secureVaultAlias =
-                    api.getId().getProviderName() + "--" + api.getId().getApiName() + api.getId().getVersion();
 
-            CredentialDto credentialDto = new CredentialDto();
-            credentialDto.setAlias(secureVaultAlias);
-            credentialDto.setPassword(api.getEndpointUTPassword());
-            gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
-                    gatewayAPIDTO.getCredentialsToBeAdd()));
+        if (isSecureVaultEnabled) {
+            JSONObject endpointConfig = new JSONObject(api.getEndpointConfig());
+
+            if (endpointConfig.has(APIConstants.ENDPOINT_SECURITY)) {
+                JSONObject endpoints = (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
+                JSONObject productionEndpointSecurity = (JSONObject)
+                        endpoints.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
+                JSONObject sandboxEndpointSecurity = (JSONObject) endpoints.get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
+
+                boolean isProductionEndpointSecured = (boolean)
+                        productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
+                boolean isSandboxEndpointSecured = (boolean)
+                        sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
+                String secureVaultAlias = api.getId().getProviderName() + "--" + api.getId().getApiName() +
+                        api.getId().getVersion();
+                //for production endpoints
+                if (isProductionEndpointSecured) {
+                    CredentialDto credentialDto = new CredentialDto();
+                    credentialDto.setAlias(secureVaultAlias.concat("--").concat(APIConstants.
+                            ENDPOINT_SECURITY_PRODUCTION));
+                    credentialDto.setPassword((String)
+                            productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD));
+                    gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
+                            gatewayAPIDTO.getCredentialsToBeAdd()));
+                    if (debugEnabled) {
+                        log.debug("SecureVault alias " +  secureVaultAlias + "--production" + " is created for " +
+                                api.getId().getApiName());
+                    }
+                }
+                // for sandbox endpoints
+                if (isSandboxEndpointSecured) {
+                    CredentialDto credentialDto = new CredentialDto();
+                    credentialDto.setAlias(secureVaultAlias.concat("--").concat(APIConstants.
+                            ENDPOINT_SECURITY_SANDBOX));
+                    credentialDto.setPassword((String)
+                            sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD));
+                    gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
+                            gatewayAPIDTO.getCredentialsToBeAdd()));
+                    if (debugEnabled) {
+                        log.debug("SecureVault alias " +  secureVaultAlias + "--sandbox" + " is created for " +
+                                api.getId().getApiName());
+                    }
+                }
+            }
         }
-
     }
 
     private CredentialDto[] addCredentialsToList(CredentialDto credential, CredentialDto[] credentials) {
@@ -921,6 +963,7 @@ public class APIGatewayManager {
         gatewayAPIDTO.setVersion(api.getId().getVersion());
         gatewayAPIDTO.setProvider(api.getId().getProviderName());
         gatewayAPIDTO.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        gatewayAPIDTO.setOverride(true);
         try {
             String production_endpoint = null;
             String sandbox_endpoint = null;

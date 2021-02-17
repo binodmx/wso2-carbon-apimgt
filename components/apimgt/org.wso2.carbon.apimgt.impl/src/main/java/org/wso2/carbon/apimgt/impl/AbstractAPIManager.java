@@ -77,6 +77,7 @@ import org.wso2.carbon.apimgt.impl.dto.WorkflowDTO;
 import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;
 import org.wso2.carbon.apimgt.impl.indexing.indexer.DocumentIndexer;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.impl.notifier.events.ApplicationEvent;
 import org.wso2.carbon.apimgt.impl.token.ClaimsRetriever;
 import org.wso2.carbon.apimgt.impl.utils.APIAPIProductNameComparator;
 import org.wso2.carbon.apimgt.impl.utils.APINameComparator;
@@ -1712,7 +1713,15 @@ public abstract class AbstractAPIManager implements APIManager {
         defaultApp.setTokenType(APIConstants.TOKEN_TYPE_JWT);
         defaultApp.setUUID(UUID.randomUUID().toString());
         defaultApp.setDescription(APIConstants.DEFAULT_APPLICATION_DESCRIPTION);
-        apiMgtDAO.addApplication(defaultApp, subscriber.getName());
+        int applicationId = apiMgtDAO.addApplication(defaultApp, subscriber.getName());
+
+        ApplicationEvent applicationEvent = new ApplicationEvent(UUID.randomUUID().toString(),
+                System.currentTimeMillis(), APIConstants.EventType.APPLICATION_CREATE.name(), tenantId,
+                tenantDomain, applicationId, defaultApp.getUUID(), defaultApp.getName(),
+                defaultApp.getTokenType(),
+                defaultApp.getTier(), defaultApp.getGroupId(), defaultApp.getApplicationAttributes(),
+                subscriber.getName());
+        APIUtil.sendNotification(applicationEvent, APIConstants.NotifierType.APPLICATION.name());
     }
 
     public void updateSubscriber(Subscriber subscriber)
@@ -1838,6 +1847,28 @@ public abstract class AbstractAPIManager implements APIManager {
         Application application = apiMgtDAO.getApplicationByUUID(uuid);
         if (application != null) {
             Set<APIKey> keys = getApplicationKeys(application.getId());
+            for (APIKey key : keys) {
+                if (APIConstants.JWT.equals(application.getTokenType())) {
+                    key.setAccessToken("");
+                }
+                application.addKey(key);
+            }
+        }
+        return application;
+    }
+
+    /**
+     * Returns the corresponding application given the uuid with keys for a specific tenant.
+     *
+     * @param uuid uuid of the Application.
+     * @param tenantDomain domain of the accessed store.
+     * @return it will return Application corresponds to the uuid provided.
+     * @throws APIManagementException
+     */
+    public Application getApplicationByUUID(String uuid, String tenantDomain) throws APIManagementException {
+        Application application = apiMgtDAO.getApplicationByUUID(uuid);
+        if (application != null) {
+            Set<APIKey> keys = getApplicationKeys(application.getId(), tenantDomain);
             for (APIKey key : keys) {
                 if (APIConstants.JWT.equals(application.getTokenType())) {
                     key.setAccessToken("");
@@ -2942,8 +2973,8 @@ public abstract class AbstractAPIManager implements APIManager {
                         String apiArtifactId = apiResource.getUUID();
                         if (apiArtifactId != null) {
                             GenericArtifact apiArtifact = apiArtifactManager.getGenericArtifact(apiArtifactId);
-                            if (apiArtifact.getAttribute(APIConstants.API_OVERVIEW_TYPE).
-                                    equals(APIConstants.AuditLogConstants.API_PRODUCT)) {
+                            if (APIConstants.API_PRODUCT.equals(
+                                    apiArtifact.getAttribute(APIConstants.API_OVERVIEW_TYPE))) {
                                 associatedAPIProduct = APIUtil.getAPIProduct(apiArtifact, registry);
                             } else {
                                 associatedAPI = APIUtil.getAPI(apiArtifact, registry);
@@ -2965,8 +2996,8 @@ public abstract class AbstractAPIManager implements APIManager {
                     APIProduct apiProduct;
                     if (apiArtifactId != null) {
                         GenericArtifact apiArtifact = apiArtifactManager.getGenericArtifact(apiArtifactId);
-                        if (apiArtifact.getAttribute(APIConstants.API_OVERVIEW_TYPE).
-                                equals(APIConstants.API_PRODUCT)) {
+                        if (APIConstants.API_PRODUCT.
+                                equals(apiArtifact.getAttribute(APIConstants.API_OVERVIEW_TYPE))) {
                             apiProduct = APIUtil.getAPIProduct(apiArtifact, registry);
                             apiProductSet.add(apiProduct);
                         } else {
@@ -3100,13 +3131,42 @@ public abstract class AbstractAPIManager implements APIManager {
      * @throws APIManagementException
      */
     protected Set<APIKey> getApplicationKeys(int applicationId) throws APIManagementException {
+        return getApplicationKeys(applicationId, null);
+    }
+
+    /**
+     * Returns the key associated with given application id.
+     *
+     * @param applicationId Id of the Application.
+     * @return APIKey The key of the application.
+     * @throws APIManagementException
+     */
+    protected Set<APIKey> getApplicationKeys(int applicationId, String xWso2Tenant) throws APIManagementException {
 
         Set<APIKey> apiKeyList = apiMgtDAO.getKeyMappingsFromApplicationId(applicationId);
+        Set<APIKey> resultantApiKeyList = new HashSet<>();
         for (APIKey apiKey : apiKeyList) {
             String keyManagerName = apiKey.getKeyManager();
             String consumerKey = apiKey.getConsumerKey();
             if (StringUtils.isNotEmpty(consumerKey)) {
+                String tenantDomain = this.tenantDomain;
+                if (StringUtils.isNotEmpty(xWso2Tenant)) {
+                    tenantDomain = xWso2Tenant;
+                }
                 KeyManagerConfigurationDTO keyManagerConfigurationDTO = apiMgtDAO.getKeyManagerConfigurationByName(tenantDomain, keyManagerName);
+                if (keyManagerConfigurationDTO == null) {
+                    keyManagerConfigurationDTO = apiMgtDAO.getKeyManagerConfigurationByUUID(keyManagerName);
+                    if (keyManagerConfigurationDTO != null) {
+                        keyManagerName = keyManagerConfigurationDTO.getName();
+                    } else {
+                        log.error("Key Manager: " + keyManagerName + " not found in database.");
+                        continue;
+                    }
+                }
+                if (tenantDomain != null && !tenantDomain.equalsIgnoreCase(
+                        keyManagerConfigurationDTO.getTenantDomain())) {
+                        continue;
+                }
                 if (keyManagerConfigurationDTO  != null && keyManagerConfigurationDTO.isEnabled()) {
                     KeyManager keyManager = KeyManagerHolder.getKeyManagerInstance(tenantDomain, keyManagerName);
                     if (keyManager != null) {
@@ -3161,13 +3221,15 @@ public abstract class AbstractAPIManager implements APIManager {
                                 log.debug("Access token does not exist for Consumer Key: " + consumerKey);
                             }
                         }
+                        apiKey.setKeyManager(keyManagerConfigurationDTO.getName());
+                        resultantApiKeyList.add(apiKey);
                     } else {
                         log.error("Key Manager " + keyManagerName + " not initialized in tenant " + tenantDomain);
                     }
                 }
             }
         }
-        return apiKeyList;
+        return resultantApiKeyList;
     }
 
     /**
