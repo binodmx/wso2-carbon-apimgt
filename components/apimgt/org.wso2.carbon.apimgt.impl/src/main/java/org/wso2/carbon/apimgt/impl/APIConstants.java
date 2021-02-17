@@ -576,6 +576,8 @@ public final class APIConstants {
     public static final String IDENTITY_TOKEN_ENDPOINT_CONTEXT = "/oauth2/token";
     public static final String GATEWAY_SIGNED_JWT_CACHE = "SignedJWTParseCache";
 
+    public static final String DEFAULT_RESERVED_USERNAME = "apim_reserved_user";
+
     public static final String DEFAULT_WEBSOCKET_VERSION = "defaultVersion";
     public static final String ENCRYPTED_VALUE = "encrypted";
     public static final String VALUE = "value";
@@ -976,6 +978,8 @@ public final class APIConstants {
     public static final String SUBSCRIPTION_TO_SPECIFIC_TENANTS = "specific_tenants";
     public static final String NO_PERMISSION_ERROR = "noPermissions";
     public static final String JSON_PARSE_ERROR = "parseErrors";
+
+    public static final String ACCOUNT_LOCKED_CLAIM = "http://wso2.org/claims/identity/accountLocked";
 
     //TODO: move this to a common place (& Enum) to be accessible by all components
     public static class KeyValidationStatus {
