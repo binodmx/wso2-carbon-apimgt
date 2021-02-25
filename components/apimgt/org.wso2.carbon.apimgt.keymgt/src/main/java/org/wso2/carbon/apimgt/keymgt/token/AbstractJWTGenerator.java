@@ -284,14 +284,9 @@ public abstract class AbstractJWTGenerator implements TokenGenerator {
 
     public byte[] signJWT(String assertion, String endUserName) throws APIManagementException {
 
-        String tenantDomain = null;
+        String tenantDomain = tenantBasedSigningEnabled ? MultitenantUtils.getTenantDomain(endUserName) :
+                MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         try {
-            if (tenantBasedSigningEnabled) {
-                //get tenant domain
-                tenantDomain = MultitenantUtils.getTenantDomain(endUserName);
-            } else {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
             int tenantId = APIUtil.getTenantIdFromTenantDomain(tenantDomain);
             Key privateKey = null;
             if (!(privateKeys.containsKey(tenantId))) {
@@ -305,11 +300,7 @@ public abstract class AbstractJWTGenerator implements TokenGenerator {
                     //obtain private key
                     privateKey = tenantKSM.getPrivateKey(jksName, tenantDomain);
                 } else {
-                    try {
-                        privateKey = tenantKSM.getDefaultPrivateKey();
-                    } catch (Exception e) {
-                        log.error("Error while obtaining private key for super tenant", e);
-                    }
+                    privateKey = tenantKSM.getDefaultPrivateKey();
                 }
                 if (privateKey != null) {
                     privateKeys.put(tenantId, privateKey);
@@ -322,8 +313,9 @@ public abstract class AbstractJWTGenerator implements TokenGenerator {
             }
             return APIUtil.signJwt(assertion, (PrivateKey) privateKey, signatureAlgorithm);
         } catch (RegistryException e) {
-            String error = "Error in loading tenant registry for " + tenantDomain;
-            throw new APIManagementException(error, e);
+            throw new APIManagementException("Error while loading tenant registry for " + tenantDomain, e);
+        } catch (Exception e) {
+            throw new APIManagementException("Error while obtaining private key for tenant: " + tenantDomain);
         }
     }
 
@@ -376,15 +368,10 @@ public abstract class AbstractJWTGenerator implements TokenGenerator {
      */
     protected String addCertToHeader(String endUserName) throws APIManagementException {
 
+        //get tenant domain
+        String tenantDomain = tenantBasedSigningEnabled ? MultitenantUtils.getTenantDomain(endUserName) :
+                MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         try {
-            //get tenant domain
-            String tenantDomain;
-            if (tenantBasedSigningEnabled) {
-                //get tenant domain
-                tenantDomain = MultitenantUtils.getTenantDomain(endUserName);
-            } else {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
             int tenantId = APIUtil.getTenantIdFromTenantDomain(tenantDomain);
             Certificate publicCert;
             if (!(publicCerts.containsKey(tenantId))) {
@@ -409,13 +396,15 @@ public abstract class AbstractJWTGenerator implements TokenGenerator {
                 publicCert = publicCerts.get(tenantId);
             }
             if (publicCert == null) {
-                throw new APIManagementException("Error in obtaining keystore for tenantDomain = " + tenantDomain);
+                throw new APIManagementException("Error while obtaining public certificate from keystore for tenant: "
+                        + tenantDomain);
             } else {
                 return APIUtil.generateHeader(publicCert, signatureAlgorithm);
             }
+        } catch (RegistryException e) {
+            throw new APIManagementException("Error while loading registry for tenant: " + tenantDomain, e);
         } catch (Exception e) {
-            String error = "Error in obtaining tenant's keystore";
-            throw new APIManagementException(error, e);
+            throw new APIManagementException("Error while obtaining keystore for tenant: " + tenantDomain, e);
         }
     }
 
