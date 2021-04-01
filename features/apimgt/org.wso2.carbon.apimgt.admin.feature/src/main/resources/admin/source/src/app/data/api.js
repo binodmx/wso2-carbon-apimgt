@@ -19,7 +19,6 @@ import Utils from './Utils';
 import Resource from './Resource';
 import cloneDeep from 'lodash.clonedeep';
 import APIClientFactory from 'AppData/APIClientFactory';
-import Configurations from 'Config';
 
 /**
  * An abstract representation of an API
@@ -397,10 +396,8 @@ class API extends Resource {
      * Get a list of applications from all users
      */
     getApplicationList() {
-        const limit = Configurations.app.applicationCount
         return this.client.then((client) => {
             return client.apis['Application (Collection)'].get_applications(
-                {limit},
                 this._requestMetaData(),
             );
         });
