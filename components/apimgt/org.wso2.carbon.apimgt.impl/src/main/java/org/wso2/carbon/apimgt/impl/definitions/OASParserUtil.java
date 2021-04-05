@@ -580,8 +580,14 @@ public class OASParserUtil {
     private static void setRefOfRequestBody(RequestBody requestBody, SwaggerUpdateContext context) {
         if (requestBody != null) {
             Content content = requestBody.getContent();
-
-            extractReferenceFromContent(content, context);
+            if (content != null) {
+                extractReferenceFromContent(content, context);
+            } else {
+                String ref = requestBody.get$ref();
+                if (ref != null) {
+                    extractReferenceWithoutSchema(ref, context);
+                }
+            }
         }
     }
 
@@ -589,8 +595,14 @@ public class OASParserUtil {
         if (responses != null) {
             for (ApiResponse response : responses.values()) {
                 Content content = response.getContent();
-
-                extractReferenceFromContent(content, context);
+                if (content != null) {
+                    extractReferenceFromContent(content, context);
+                } else {
+                    String ref = response.get$ref();
+                    if (ref != null) {
+                        extractReferenceWithoutSchema(ref, context);
+                    }
+                }
             }
         }
     }
