@@ -37,6 +37,7 @@ import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -46,6 +47,7 @@ import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
@@ -139,6 +141,7 @@ public class OASParserUtil {
 
     private static final String REF_PREFIX = "#/components/";
     private static final String ARRAY_DATA_TYPE = "array";
+    private static final String OBJECT_DATA_TYPE = "object";
 
     static class SwaggerUpdateContext {
         private final Paths paths = new Paths();
@@ -661,15 +664,28 @@ public class OASParserUtil {
     private static void extractReferenceFromSchema(Schema schema, SwaggerUpdateContext context) {
         if (schema != null) {
             String ref = schema.get$ref();
+            List<String> references = new ArrayList<String>();
             if (ref == null) {
                 if (ARRAY_DATA_TYPE.equalsIgnoreCase(schema.getType())) {
                     ArraySchema arraySchema = (ArraySchema) schema;
                     ref = arraySchema.getItems().get$ref();
+                } else if (OBJECT_DATA_TYPE.equalsIgnoreCase(schema.getType())) {
+                    ObjectSchema os = (ObjectSchema) schema;
+                    for (String propertyName : os.getProperties().keySet()) {
+                        if (os.getProperties().get(propertyName) instanceof ComposedSchema) {
+                            ComposedSchema cs = (ComposedSchema) os.getProperties().get(propertyName);
+                            references.add(cs.getAllOf().get(0).get$ref());
+                        }
+                    }
                 }
             }
 
             if (ref != null) {
                 addToReferenceObjectMap(ref, context);
+            } else if (!references.isEmpty()) {
+                for (String reference : references) {
+                    addToReferenceObjectMap(reference, context);
+                }
             }
 
             // Process schema properties if present
