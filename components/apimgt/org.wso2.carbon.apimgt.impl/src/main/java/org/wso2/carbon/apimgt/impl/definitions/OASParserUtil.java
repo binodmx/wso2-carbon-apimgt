@@ -670,11 +670,31 @@ public class OASParserUtil {
                     ArraySchema arraySchema = (ArraySchema) schema;
                     ref = arraySchema.getItems().get$ref();
                 } else if (OBJECT_DATA_TYPE.equalsIgnoreCase(schema.getType())) {
-                    ObjectSchema os = (ObjectSchema) schema;
-                    for (String propertyName : os.getProperties().keySet()) {
-                        if (os.getProperties().get(propertyName) instanceof ComposedSchema) {
-                            ComposedSchema cs = (ComposedSchema) os.getProperties().get(propertyName);
-                            references.add(cs.getAllOf().get(0).get$ref());
+                    references = addSchemaOfSchema(schema);
+                } else if (schema instanceof ComposedSchema) {
+                    if (((ComposedSchema) schema).getAllOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getAllOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
+                        }
+                    } else if (((ComposedSchema) schema).getAnyOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getAnyOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
+                        }
+                    } else if (((ComposedSchema) schema).getOneOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getOneOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
                         }
                     }
                 }
@@ -682,7 +702,7 @@ public class OASParserUtil {
 
             if (ref != null) {
                 addToReferenceObjectMap(ref, context);
-            } else if (!references.isEmpty()) {
+            } else if (!references.isEmpty() && references.size() != 0) {
                 for (String reference : references) {
                     addToReferenceObjectMap(reference, context);
                 }
@@ -697,6 +717,32 @@ public class OASParserUtil {
                 }
             }
         }
+    }
+
+    private static List<String> addSchemaOfSchema(Schema schema) {
+        List<String> references = new ArrayList<String>();
+        ObjectSchema os = (ObjectSchema) schema;
+        if (os.getProperties() != null) {
+            for (String propertyName : os.getProperties().keySet()) {
+                if (os.getProperties().get(propertyName) instanceof ComposedSchema) {
+                    ComposedSchema cs = (ComposedSchema) os.getProperties().get(propertyName);
+                    if (cs.getAllOf() != null) {
+                        for (Schema sc : cs.getAllOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    } else if (cs.getAnyOf() != null) {
+                        for (Schema sc : cs.getAnyOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    } else if (cs.getOneOf() != null) {
+                        for (Schema sc : cs.getOneOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    }
+                }
+            }
+        }
+        return references;
     }
 
     private static void addToReferenceObjectMap(String ref, SwaggerUpdateContext context) {
