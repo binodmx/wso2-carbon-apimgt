@@ -227,8 +227,11 @@ class SubscriptionTableData extends React.Component {
                 apiInfo, status, throttlingPolicy, subscriptionId, apiId, requestedThrottlingPolicy
             },
         } = this.props;
-        const { openMenu, isMonetizedAPI, isDynamicUsagePolicy, openMenuEdit, selectedTier } = this.state;
-        const link = <Link to={'/apis/' + apiId}>{apiInfo.name + ' - ' + apiInfo.version}</Link>;
+        const { openMenu, isMonetizedAPI, isDynamicUsagePolicy, openMenuEdit, selectedTier, tiers, } = this.state;
+        const link = <Link
+                    to={tiers.length === 0 ? '': '/apis/' + apiId}
+                    style={{cursor: tiers.length === 0 ? 'default': ''}}
+                    >{apiInfo.name + ' - ' + apiInfo.version}</Link>;
 
         return (
             <TableRow hover>
@@ -247,6 +250,7 @@ class SubscriptionTableData extends React.Component {
                             color="default"
                             onClick={this.handleRequestOpenEditMenu}
                             startIcon={<Icon>edit</Icon>}
+                            disabled={tiers.length === 0}
                         >
                             <FormattedMessage
                                 id='Applications.Details.SubscriptionTableData.edit.text'
@@ -341,8 +345,22 @@ class SubscriptionTableData extends React.Component {
                                         defaultMessage='Cancel'
                                     />
                                 </Button>
-                                <Button variant="contained" disabled={(status === 'BLOCKED' || status === 'ON_HOLD' || status === 'REJECTED')} dense color='primary' onClick={() => this.handleSubscriptionTierUpdate(apiId,
-                                    subscriptionId, selectedTier, status, throttlingPolicy)}>
+                                <Button
+                                    variant="contained"
+                                    disabled={(
+                                        status === 'BLOCKED' ||
+                                        status === 'ON_HOLD' ||
+                                        status === 'REJECTED'
+                                        )}
+                                    dense
+                                    color='primary'
+                                    onClick={() => this.handleSubscriptionTierUpdate(
+                                        apiId,
+                                        subscriptionId,
+                                        selectedTier,
+                                        status,
+                                        throttlingPolicy)}
+                                    >
                                     <FormattedMessage
                                         id='Applications.Details.SubscriptionTableData.update'
                                         defaultMessage='Update'
@@ -391,7 +409,7 @@ class SubscriptionTableData extends React.Component {
                                 </Button>
                             </DialogActions>
                         </Dialog>
-                    <Invoice subscriptionId={subscriptionId} isMonetizedAPI={isMonetizedAPI} isDynamicUsagePolicy={isDynamicUsagePolicy} />
+                    <Invoice tiers={tiers} subscriptionId={subscriptionId} isMonetizedAPI={isMonetizedAPI} isDynamicUsagePolicy={isDynamicUsagePolicy} />
                 </TableCell>
             </TableRow>
         );
