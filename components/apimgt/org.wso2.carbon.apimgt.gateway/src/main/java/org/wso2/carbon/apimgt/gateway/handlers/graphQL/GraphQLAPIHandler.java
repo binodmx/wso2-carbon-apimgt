@@ -193,6 +193,9 @@ public class GraphQLAPIHandler extends AbstractHandler {
     public void getNestedLevelOperations(List<Selection> selectionList, ArrayList<String> supportedFields,
                                 ArrayList<String> operationArray) {
         for (Selection selection : selectionList) {
+            if (!(selection instanceof Field)) {
+                continue;
+            }
             Field levelField = (Field) selection;
             if (!operationArray.contains(levelField.getName()) &&
                     supportedFields.contains(levelField.getName())) {
