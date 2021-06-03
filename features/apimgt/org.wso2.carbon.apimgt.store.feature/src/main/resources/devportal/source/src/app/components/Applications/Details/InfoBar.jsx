@@ -267,34 +267,6 @@ class InfoBar extends React.Component {
         this.toggleDeleteConfirmation = this.toggleDeleteConfirmation.bind(this);
     }
 
-    /**
-     * @memberof InfoBar
-     */
-    componentDidMount() {
-        const client = new API();
-        const { applicationId } = this.props;
-        // Get application
-        const promisedApplication = client.getApplication(applicationId);
-
-        promisedApplication
-            .then((response) => {
-                this.setState({ applicationOwner: response.obj.owner });
-                return Promise.all([response]);
-            })
-            .then((response) => {
-                const [application, tier] = response.map(data => data.obj);
-                this.setState({ application });
-            })
-            .catch((error) => {
-                if (process.env.NODE_ENV !== 'production') {
-                    console.error(error);
-                }
-                const { status } = error;
-                if (status === 404) {
-                    this.setState({ notFound: true });
-                }
-            });
-    }
 
     /**
      * Toggles the showOverview state
@@ -323,8 +295,7 @@ class InfoBar extends React.Component {
      * @memberof InfoBar
      */
     handleAppDelete() {
-        const { applicationId, intl } = this.props;
-        const { application } = this.state;
+        const { applicationId, intl, application } = this.props;
         const promisedDelete = Application.deleteApp(applicationId);
         let message = intl.formatMessage({
             defaultMessage: 'Application {name} deleted successfully!',
@@ -357,10 +328,11 @@ class InfoBar extends React.Component {
      */
     render() {
         const {
-            classes, theme, applicationId,
+             classes, theme, applicationId, application
         } = this.props;
+        const applicationOwner = this.props.application.owner;
         const {
-            application, tierDescription, showOverview, notFound, isDeleteOpen, applicationOwner,
+            tierDescription, showOverview, notFound, isDeleteOpen,
         } = this.state;
         const {
             custom: {
