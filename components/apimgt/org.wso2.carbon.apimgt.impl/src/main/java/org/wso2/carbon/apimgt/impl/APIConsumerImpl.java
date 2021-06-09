@@ -2594,10 +2594,21 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
                                                       String keyManagerName) throws APIManagementException {
 
         String callBackURL = null;
-        if (StringUtils.isNotEmpty(keyManagerName) &&
-                !apiMgtDAO.isKeyManagerConfigurationExistByName(keyManagerName, tenantDomain)) {
+        String keyManagerId = null;
+        KeyManagerConfigurationDTO keyManagerConfiguration =
+                apiMgtDAO.getKeyManagerConfigurationByName(tenantDomain, keyManagerName);
+        if (keyManagerConfiguration == null) {
+            keyManagerConfiguration = apiMgtDAO.getKeyManagerConfigurationByUUID(keyManagerName);
+            if (keyManagerConfiguration != null) {
+                keyManagerId = keyManagerName;
+                keyManagerName = keyManagerConfiguration.getName();
+            }
+        } else {
+            keyManagerId = keyManagerConfiguration.getUuid();
+        }
+        if (keyManagerConfiguration == null || !keyManagerConfiguration.isEnabled()) {
             throw new APIManagementException(
-                    "Key Manager " + keyManagerName + "Couldn't find in tenant " + tenantDomain + ".",
+                    "Key Manager " + keyManagerName + " doesn't exist in Tenant " + tenantDomain,
                     ExceptionCodes.KEY_MANAGER_NOT_FOUND);
         }
         OAuthAppRequest oauthAppRequest = ApplicationUtils
@@ -2614,7 +2625,7 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
                     ExceptionCodes.KEY_MANAGER_NOT_FOUND);
         }
         // Checking if clientId is mapped with another application.
-        if (apiMgtDAO.isMappingExistsforConsumerKey(keyManagerName, clientId)) {
+        if (apiMgtDAO.isMappingExistsforConsumerKey(keyManagerId, clientId)) {
             String message = "Consumer Key " + clientId + " is used for another Application.";
             log.error(message);
             throw new APIManagementException(message);
@@ -2628,7 +2639,7 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
         //Do application mapping with consumerKey.
         String keyMappingId = UUID.randomUUID().toString();
         apiMgtDAO.createApplicationKeyTypeMappingForManualClients(keyType, applicationName, userName, clientId,
-                keyManagerName, keyMappingId);
+                keyManagerId, keyMappingId);
         Object enableTokenGeneration =
                 keyManager.getKeyManagerConfiguration().getParameter(APIConstants.KeyManager.ENABLE_TOKEN_GENERATION);
 
