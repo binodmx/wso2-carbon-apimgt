@@ -303,7 +303,6 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.cache.Cache;
 import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
@@ -4930,7 +4929,6 @@ public final class APIUtil {
             throw new APIManagementException("Error while creating role: " + roleName, e);
         }
     }
-
     public void setupSelfRegistration(APIManagerConfiguration config, int tenantId) throws APIManagementException {
 
         boolean enabled = Boolean.parseBoolean(config.getFirstProperty(APIConstants.SELF_SIGN_UP_ENABLED));
@@ -11853,6 +11851,164 @@ public final class APIUtil {
             return Boolean.parseBoolean(crossTenantSubscriptionProperty);
         }
         return false;
+    }
+
+    public static JSONObject handleEndpointSecurity(API api, JSONObject endpointSecurity)
+                                    throws APIManagementException {
+        String tenantDomain = MultitenantUtils
+                                        .getTenantDomain(APIUtil.replaceEmailDomainBack(api.getId().getProviderName()));
+        if (APIUtil.isExposeEndpointPasswordEnabled(tenantDomain)) {
+            return endpointSecurity;
+        }
+        JSONObject endpointSecurityElement = new JSONObject();
+        endpointSecurityElement.putAll(endpointSecurity);
+        if (endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
+            JSONObject sandboxEndpointSecurity = (JSONObject) endpointSecurityElement
+                                            .get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
+            if (sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD) != null) {
+                sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_PASSWORD, "");
+                if (sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_TYPE)
+                                                .equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                    sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_ID, "");
+                    sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_SECRET, "");
+                }
+            }
+        }
+        if (endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
+            JSONObject productionEndpointSecurity = (JSONObject) endpointSecurityElement
+                                            .get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
+            if (productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD) != null) {
+                productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_PASSWORD, "");
+                if (productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_TYPE)
+                                                .equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                    productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_ID, "");
+                    productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_SECRET, "");
+                }
+            }
+        }
+        return endpointSecurityElement;
+    }
+
+    /**
+     * Check whether the config for exposing endpoint security password when getting API is enabled
+     * or not in tenant-conf.json in registry.
+     *
+     * @return boolean as config enabled or not
+     * @throws APIManagementException
+     */
+    public static boolean isExposeEndpointPasswordEnabled(String tenantDomainName)
+                                    throws APIManagementException {
+        org.json.simple.JSONObject apiTenantConfig;
+        try {
+            APIMRegistryServiceImpl apimRegistryService = new APIMRegistryServiceImpl();
+            String content = apimRegistryService.getConfigRegistryResourceContent(tenantDomainName,
+                                            APIConstants.API_TENANT_CONF_LOCATION);
+            if (content != null) {
+                JSONParser parser = new JSONParser();
+                apiTenantConfig = (org.json.simple.JSONObject) parser.parse(content);
+                if (apiTenantConfig != null) {
+                    Object value = apiTenantConfig.get(APIConstants.API_TENANT_CONF_EXPOSE_ENDPOINT_PASSWORD);
+                    if (value != null) {
+                        return Boolean.parseBoolean(value.toString());
+                    }
+                }
+            }
+        } catch (UserStoreException e) {
+            String msg = "UserStoreException thrown when getting API tenant config from registry while reading " +
+                                            "ExposeEndpointPassword config";
+            throw new APIManagementException(msg, e);
+        } catch (org.wso2.carbon.registry.core.exceptions.RegistryException e) {
+            String msg = "RegistryException thrown when getting API tenant config from registry while reading " +
+                                            "ExposeEndpointPassword config";
+            throw new APIManagementException(msg, e);
+        } catch (ParseException e) {
+            String msg = "ParseException thrown when parsing API tenant config from registry while reading " +
+                                            "ExposeEndpointPassword config";
+            throw new APIManagementException(msg, e);
+        }
+        return false;
+    }
+
+    public static String getDefaultAPILevelPolicy(int tenantId) throws APIManagementException {
+
+        Map<String, Tier> apiPolicies = getTiersFromPolicies(PolicyConstants.POLICY_LEVEL_API, tenantId);
+        if (apiPolicies.size() > 0) {
+            String defaultTier =
+                    getTenantConfigPropertyValue(APIConstants.API_TENANT_CONF_DEFAULT_API_TIER, tenantId);
+            if (StringUtils.isNotEmpty(defaultTier) && apiPolicies.containsKey(defaultTier)) {
+                return defaultTier;
+            }
+            if (isEnabledUnlimitedTier()) {
+                return APIConstants.UNLIMITED_TIER;
+            }
+            return apiPolicies.keySet().toArray()[0].toString();
+        }
+        return null;
+    }
+
+    public static String getDefaultApplicationLevelPolicy(int tenantId) throws APIManagementException {
+
+        Map<String, Tier> applicationLevelPolicies = getTiersFromPolicies(PolicyConstants.POLICY_LEVEL_APP,
+                tenantId);
+        if (applicationLevelPolicies.size() > 0) {
+            String defaultTier =
+                    getTenantConfigPropertyValue(APIConstants.API_TENANT_CONF_DEFAULT_APPLICATION_TIER, tenantId);
+            if (StringUtils.isNotEmpty(defaultTier) && applicationLevelPolicies.containsKey(defaultTier)) {
+                return defaultTier;
+            }
+            if (isEnabledUnlimitedTier()) {
+                return APIConstants.UNLIMITED_TIER;
+            }
+            return applicationLevelPolicies.keySet().toArray()[0].toString();
+        }
+        return null;
+    }
+
+    public static String getDefaultSubscriptionPolicy(int tenantId) throws APIManagementException {
+
+        Map<String, Tier> subscriptionPolicies = getTiersFromPolicies(PolicyConstants.POLICY_LEVEL_SUB, tenantId);
+        if (subscriptionPolicies.size() > 0) {
+            String defaultTier =
+                    getTenantConfigPropertyValue(APIConstants.API_TENANT_CONF_DEFAULT_SUBSCRIPTION_TIER, tenantId);
+            if (StringUtils.isNotEmpty(defaultTier) && subscriptionPolicies.containsKey(defaultTier)) {
+                return defaultTier;
+            }
+            if (isEnabledUnlimitedTier()) {
+                return APIConstants.UNLIMITED_TIER;
+            }
+            return subscriptionPolicies.keySet().toArray()[0].toString();
+        }
+        return null;
+    }
+
+    public static boolean checkPolicyConfiguredAsDefault(String policyName, String policyLevel, String tenantDomain)
+            throws APIManagementException {
+
+        String configKey = null;
+        if (PolicyConstants.POLICY_LEVEL_API.equalsIgnoreCase(policyLevel)) {
+            configKey = APIConstants.API_TENANT_CONF_DEFAULT_API_TIER;
+        } else if (PolicyConstants.POLICY_LEVEL_SUB.equalsIgnoreCase(policyLevel)) {
+            configKey = APIConstants.API_TENANT_CONF_DEFAULT_SUBSCRIPTION_TIER;
+        } else if (PolicyConstants.POLICY_LEVEL_APP.equalsIgnoreCase(policyLevel)) {
+            configKey = APIConstants.API_TENANT_CONF_DEFAULT_APPLICATION_TIER;
+        }
+        if (StringUtils.isNotEmpty(configKey)) {
+            String defaultPolicyValue = getTenantConfigPropertyValue(configKey,
+                    getTenantIdFromTenantDomain(tenantDomain));
+            return StringUtils.equalsIgnoreCase(defaultPolicyValue, policyName);
+        }
+        return false;
+    }
+
+
+    private static String getTenantConfigPropertyValue(String propertyName, int tenantId)
+            throws APIManagementException {
+
+        JSONObject tenantConfig = getTenantConfig(tenantId);
+        if (tenantConfig.containsKey(propertyName)) {
+            return tenantConfig.get(propertyName).toString();
+        }
+        return null;
     }
 }
 

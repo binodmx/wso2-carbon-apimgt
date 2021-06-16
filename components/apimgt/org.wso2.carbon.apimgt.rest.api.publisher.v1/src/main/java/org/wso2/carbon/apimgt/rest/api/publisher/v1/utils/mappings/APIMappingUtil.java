@@ -115,7 +115,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -911,7 +910,7 @@ public class APIMappingUtil {
                                 sandboxEndpointSecurity);
                         endpointConfigJson.put(APIConstants.ENDPOINT_SECURITY, endpointSecurity);
                     }
-                    JSONObject jsonObject = handleEndpointSecurity(model,
+                    JSONObject jsonObject = APIUtil.handleEndpointSecurity(model,
                             (JSONObject) endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY));
                     endpointConfigJson.put(APIConstants.ENDPOINT_SECURITY, jsonObject);
                 }
@@ -1448,10 +1447,11 @@ public class APIMappingUtil {
      * This method returns graphQL operations with the old data.
      * @param uriTemplates uriTemplates
      * @param operations operations
+     * @param tenantId
      * @return operations
      */
     public static List<APIOperationsDTO> getOperationListWithOldData(Set<URITemplate> uriTemplates, List<APIOperationsDTO>
-            operations) {
+            operations, int tenantId) throws APIManagementException {
         for (APIOperationsDTO operation : operations) {
             for (URITemplate uriTemplate : uriTemplates) {
                 if (operation.getVerb().equalsIgnoreCase(uriTemplate.getHTTPVerb()) &&
@@ -1462,7 +1462,7 @@ public class APIMappingUtil {
                             Collectors.toList()));
                 }
                 if (operation.getThrottlingPolicy() == null) {
-                   operation.setThrottlingPolicy(APIConstants.UNLIMITED_TIER);
+                   operation.setThrottlingPolicy(APIUtil.getDefaultAPILevelPolicy(tenantId));
                 }
             }
         }
@@ -1929,22 +1929,18 @@ public class APIMappingUtil {
         }
 
         String defaultThrottlingPolicy = APIConstants.UNLIMITED_TIER;
-        if (!APIUtil.isEnabledUnlimitedTier()) {
             // Set an available value if the Unlimited policy is disabled
             String tenantDomain = RestApiUtil.getLoggedInUserTenantDomain();
             try {
-                Map<String, Tier> tierMap = APIUtil.getTiers(APIConstants.TIER_RESOURCE_TYPE, tenantDomain);
-                if (tierMap.size() > 0) {
-                    defaultThrottlingPolicy = tierMap.keySet().toArray()[0].toString();
-                } else {
+                defaultThrottlingPolicy =
+                        APIUtil.getDefaultAPILevelPolicy(APIUtil.getTenantIdFromTenantDomain(tenantDomain));
+
+                if (StringUtils.isNotEmpty(defaultThrottlingPolicy)) {
                     log.error("No throttle policies available in the tenant " + tenantDomain);
                 }
             } catch (APIManagementException e) {
-                log.error("Error while getting throttle policies for tenant " + tenantDomain);
+                log.error("Error while getting default policy for tenant " + tenantDomain);
             }
-
-        }
-
         for (String verb : supportedMethods) {
             APIOperationsDTO operationsDTO = new APIOperationsDTO();
             operationsDTO.setTarget("/*");
@@ -2740,40 +2736,5 @@ public class APIMappingUtil {
         } else {
             ((APIProduct)model).setApiCategories(apiCategories);
         }
-    }
-
-    private static JSONObject handleEndpointSecurity(API api, JSONObject endpointSecurity) throws APIManagementException {
-        String tenantDomain = MultitenantUtils.getTenantDomain(APIUtil.replaceEmailDomainBack(api.getId()
-                .getProviderName()));
-        if (checkEndpointSecurityPasswordEnabled(tenantDomain)) {
-            return endpointSecurity;
-        }
-        JSONObject endpointSecurityElement = new JSONObject();
-        endpointSecurityElement.putAll(endpointSecurity);
-        if (endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_SANDBOX)!= null){
-            JSONObject sandboxEndpointSecurity =
-                    (JSONObject) endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
-            if (sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD) != null){
-                sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_PASSWORD,"");
-                if (sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_TYPE)
-                        .equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                    sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_ID, "");
-                    sandboxEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_SECRET, "");
-                }
-            }
-        }
-        if (endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
-            JSONObject productionEndpointSecurity =
-                    (JSONObject) endpointSecurityElement.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
-            if (productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PASSWORD) != null) {
-                productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_PASSWORD, "");
-                if (productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_TYPE)
-                        .equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                    productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_ID, "");
-                    productionEndpointSecurity.put(APIConstants.ENDPOINT_SECURITY_CLIENT_SECRET, "");
-                }
-            }
-        }
-        return endpointSecurityElement;
     }
 }
