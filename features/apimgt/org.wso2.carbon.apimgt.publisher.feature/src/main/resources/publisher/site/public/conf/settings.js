@@ -27,8 +27,10 @@ const AppConfig = {
             enabled: true, // If enabled, user will be logged out from the App when logged out from the IDP (eg: SSO logout from a different App).
             timeout: 4000 // Defines the timeout for the above periodical session status check
         },
-        propertyDisplaySuffix: '__display'
-    }
+        propertyDisplaySuffix: '__display',
+        alertMaxAPIGetLimit: 5000,
+        alertMaxAPIProductGetLimit: 5000,
+    },
 };
 
 if (typeof module !== 'undefined') {
