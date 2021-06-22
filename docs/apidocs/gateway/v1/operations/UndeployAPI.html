@@ -2,14 +2,15 @@
     <h1><a name="Undeploy API"></a>Undeploy API</h1>
 
             <hr/>
-            <h4 class="operation-heading"><a name="undeployApiPost"></a>Uneploy the API in the gateway</h4> <code>POST https://apis.wso2.com/api/am/gateway/v1/undeploy-api</code>
+            <h4 class="operation-heading"><a name="undeployApiPost"></a>Uneploy the API from the gateway</h4> <code>POST https://apis.wso2.com/api/am/gateway/v1/undeploy-api</code>
             <p class="marked"></p>
 
-            <p class="marked">This operation is used to undeploy an API in the gateway.
+            <p class="marked">This operation is used to undeploy an API from the gateway. If the Tenant domain is not provided carbon.super will
+be picked as the Tenant domain.
 </p>
 
             <h4 class="section-heading">OAuth 2.0 Scope</h4>
-                <code>apim:api_publish</code>
+                <p>Not required</p>
 
             <h4 class="section-heading">
                 Examples
@@ -70,14 +71,14 @@
                             
                         </td>
                         <td class="param-name">
-                            <p>label</p>
+                            <p>version</p>
                             <p class="param-required">
                                 required
                                 
                             </p>
                         </td>
                         <td>
-                            <p class="param-description marked">Label of the API Gateway
+                            <p class="param-description marked">version of the API
 </p>
                         </td>
                         <td>
@@ -98,16 +99,14 @@
                             
                         </td>
                         <td class="param-name">
-                            <p>apiId</p>
+                            <p>tenantDomain</p>
                             <p class="param-required">
-                                required
                                 
+                                optional
                             </p>
                         </td>
                         <td>
-                            <p class="param-description marked">**API ID** consisting of the **UUID** of the API.
-The combination of the provider of the API, name of the API and the version is also accepted as a valid API I.
-Should be formatted as **provider-name-version**.
+                            <p class="param-description marked">Tenant Domain of the API
 </p>
                         </td>
                         <td>
@@ -147,17 +146,8 @@ Should be formatted as **provider-name-version**.
                         </td>
                     </tr>
                     <tr>
-                        <td class="parameter"><p class="marked">202</p></td>
-                        <td class="parameter"><p class="marked">Accepted. The request has been accepted. </p></td>
-                        <td class="parameter">
-                            <span class="parameter">
-                                    <a href="#!/models#DeployResponse">DeployResponse</a>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
                         <td class="parameter"><p class="marked">400</p></td>
-                        <td class="parameter"><p class="marked">Bad Request. Invalid request or validation error </p></td>
+                        <td class="parameter"><p class="marked">Bad Request. Invalid request or validation error.</p></td>
                         <td class="parameter">
                             <span class="parameter">
                                     <a href="#!/models#Error">Error</a>
@@ -166,16 +156,7 @@ Should be formatted as **provider-name-version**.
                     </tr>
                     <tr>
                         <td class="parameter"><p class="marked">404</p></td>
-                        <td class="parameter"><p class="marked">Not Found. Requested API does not exist. </p></td>
-                        <td class="parameter">
-                            <span class="parameter">
-                                    <a href="#!/models#Error">Error</a>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="parameter"><p class="marked">412</p></td>
-                        <td class="parameter"><p class="marked">Precondition Failed. The request has not been performed because one of the preconditions is not met. </p></td>
+                        <td class="parameter"><p class="marked">Not Found. The specified resource does not exist.</p></td>
                         <td class="parameter">
                             <span class="parameter">
                                     <a href="#!/models#Error">Error</a>
