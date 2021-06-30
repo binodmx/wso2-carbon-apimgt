@@ -1717,7 +1717,8 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                     log.debug("Using the previous username and password for endpoint security");
                 }
             }
-            throw new APIManagementException("Endpoint Security credentials can't be empty");
+            throw new APIManagementException("Endpoint Security credentials can't be empty",
+                            ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
                 }
 
             }String endpointConfig = api.getEndpointConfig();
@@ -1739,20 +1740,38 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                             EndpointSecurity oldEndpointSecurity = new ObjectMapper().convertValue(
                                     oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION),
                                     EndpointSecurity.class);
-                            if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
-                                    StringUtils.isBlank(endpointSecurity.getPassword())) {
+                            if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled()) {
+                                if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_BASIC)
+                                        || endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_DIGEST)) {
+                                    if (StringUtils.isBlank(endpointSecurity.getPassword())) {
                                 if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
                                 endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
                                 } else {
-                                    throw new APIManagementException("Endpoint Security credentials can't be empty");
-                                }
-                                if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                                    endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
-                                    endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
-                                    endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
-                                    endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
-                                    endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
-                                    endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
+                                    throw new APIManagementException("Endpoint Security credentials can't be " +
+                                                    "empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                        }
+                                    }
+                                } else if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                    if (APIConstants.OAuthConstants.PASSWORD.equalsIgnoreCase(endpointSecurity.getGrantType())) {
+                                        if (StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                            if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
+                                                endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                                endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                            } else {
+                                                throw new APIManagementException("Endpoint Security credentials can't" +
+                                                        " be empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                            }
+                                        }
+                                    }
+                                    if (StringUtils.isBlank(endpointSecurity.getClientSecret())) {
+                                        if (oldEndpointSecurity.getClientId().equals(endpointSecurity.getClientId())) {
+                                            endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
+                                            endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
+                                        } else {
+                                            throw new APIManagementException("Endpoint Security credentials can't" +
+                                                    " be empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                        }
+                                    }
                                 }
                             }
                             endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, new JSONParser()
@@ -1767,21 +1786,40 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                             EndpointSecurity oldEndpointSecurity = new ObjectMapper()
                                     .convertValue(oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
                                             EndpointSecurity.class);
-                            if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
-                                    StringUtils.isBlank(endpointSecurity.getPassword())) {if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
-                                endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
-                                endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                } else {
-                                    throw new APIManagementException("Endpoint Security credentials can't be empty");
-                                }if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                                    endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
-                                    endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
-                                    endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
-                                    endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
-                                    endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
-                                    endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
+                            if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_BASIC)
+                                    || endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_DIGEST)) {
+                                if (StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                    if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
+                                        endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                        endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                    } else {
+                                        throw new APIManagementException("Endpoint Security credentials can't be " +
+                                                "empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                    }
+                                }
+                            } else if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                if (APIConstants.OAuthConstants.PASSWORD.equalsIgnoreCase(endpointSecurity.getGrantType())) {
+                                    if (StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                        if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
+                                            endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                            endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                        } else {
+                                            throw new APIManagementException("Endpoint Security credentials can't" +
+                                                    " be empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                        }
+                                    }
+                                }
+                                if (StringUtils.isBlank(endpointSecurity.getClientSecret())) {
+                                    if (oldEndpointSecurity.getClientId().equals(endpointSecurity.getClientId())) {
+                                        endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
+                                        endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
+                                    } else {
+                                        throw new APIManagementException("Endpoint Security credentials can't" +
+                                                " be empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
+                                    }
                                 }
                             }
+
                             endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX,
                                     new JSONParser()
                                             .parse(new ObjectMapper().writeValueAsString(endpointSecurity)));
