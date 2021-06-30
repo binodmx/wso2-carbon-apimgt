@@ -1706,17 +1706,21 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         try {
             if (api.isEndpointSecured() && StringUtils.isBlank(api.getEndpointUTPassword()) &&
                     !StringUtils.isBlank(oldApi.getEndpointUTPassword())) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Given endpoint security password is empty");
-                }
-                api.setEndpointUTUsername(oldApi.getEndpointUTUsername());
-                api.setEndpointUTPassword(oldApi.getEndpointUTPassword());
+                if (oldApi.getEndpointUTUsername().equals(api.getEndpointUTUsername())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Given endpoint security password is empty");
+                    }
+                    api.setEndpointUTUsername(oldApi.getEndpointUTUsername());
+                    api.setEndpointUTPassword(oldApi.getEndpointUTPassword());
 
                 if (log.isDebugEnabled()) {
                     log.debug("Using the previous username and password for endpoint security");
                 }
             }
-            String endpointConfig = api.getEndpointConfig();
+            throw new APIManagementException("Endpoint Security credentials can't be empty");
+                }
+
+            }String endpointConfig = api.getEndpointConfig();
             String oldEndpointConfig = oldApi.getEndpointConfig();
             if (StringUtils.isNotEmpty(endpointConfig) && StringUtils.isNotEmpty(oldEndpointConfig)) {
                 JSONObject endpointConfigJson = (JSONObject) new JSONParser().parse(endpointConfig);
@@ -1737,9 +1741,12 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                                     EndpointSecurity.class);
                             if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
                                     StringUtils.isBlank(endpointSecurity.getPassword())) {
-                                endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
                                 endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                } else {
+                                    throw new APIManagementException("Endpoint Security credentials can't be empty");
+                                }
+                                if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
                                     endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
                                     endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
                                     endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
@@ -1761,10 +1768,12 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                                     .convertValue(oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
                                             EndpointSecurity.class);
                             if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
-                                    StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                    StringUtils.isBlank(endpointSecurity.getPassword())) {if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
                                 endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
                                 endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                } else {
+                                    throw new APIManagementException("Endpoint Security credentials can't be empty");
+                                }if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
                                     endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
                                     endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
                                     endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
