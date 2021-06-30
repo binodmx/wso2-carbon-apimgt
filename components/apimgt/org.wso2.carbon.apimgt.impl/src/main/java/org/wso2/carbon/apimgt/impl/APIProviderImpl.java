@@ -1702,6 +1702,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
     }
 
     private void updateEndpointSecurity(API oldApi, API api) throws APIManagementException {
+
         try {
             if (api.isEndpointSecured() && StringUtils.isBlank(api.getEndpointUTPassword()) &&
                     !StringUtils.isBlank(oldApi.getEndpointUTPassword())) {
@@ -1714,73 +1715,72 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                 if (log.isDebugEnabled()) {
                     log.debug("Using the previous username and password for endpoint security");
                 }
-            } else {
-                String endpointConfig = api.getEndpointConfig();
-                String oldEndpointConfig = oldApi.getEndpointConfig();
-                if (StringUtils.isNotEmpty(endpointConfig) && StringUtils.isNotEmpty(oldEndpointConfig)) {
-                    JSONObject endpointConfigJson = (JSONObject) new JSONParser().parse(endpointConfig);
-                    JSONObject oldEndpointConfigJson = (JSONObject) new JSONParser().parse(oldEndpointConfig);
-                    if ((endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY) != null) &&
-                            (oldEndpointConfigJson.get(APIConstants.ENDPOINT_SECURITY) != null)) {
-                        JSONObject endpointSecurityJson =
-                                (JSONObject) endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY);
-                        JSONObject oldEndpointSecurityJson =
-                                (JSONObject) oldEndpointConfigJson.get(APIConstants.ENDPOINT_SECURITY);
-                        if (endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
-                            if (oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
-                                EndpointSecurity endpointSecurity = new ObjectMapper().convertValue(
-                                        endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION),
-                                        EndpointSecurity.class);
-                                EndpointSecurity oldEndpointSecurity = new ObjectMapper().convertValue(
-                                        oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION),
-                                        EndpointSecurity.class);
-                                if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
-                                        StringUtils.isBlank(endpointSecurity.getPassword())) {
-                                    endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
-                                    endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                    if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                                        endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
-                                        endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
-                                        endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
-                                        endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
-                                        endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
-                                        endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
-                                    }
+            }
+            String endpointConfig = api.getEndpointConfig();
+            String oldEndpointConfig = oldApi.getEndpointConfig();
+            if (StringUtils.isNotEmpty(endpointConfig) && StringUtils.isNotEmpty(oldEndpointConfig)) {
+                JSONObject endpointConfigJson = (JSONObject) new JSONParser().parse(endpointConfig);
+                JSONObject oldEndpointConfigJson = (JSONObject) new JSONParser().parse(oldEndpointConfig);
+                if ((endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY) != null) &&
+                        (oldEndpointConfigJson.get(APIConstants.ENDPOINT_SECURITY) != null)) {
+                    JSONObject endpointSecurityJson =
+                            (JSONObject) endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY);
+                    JSONObject oldEndpointSecurityJson =
+                            (JSONObject) oldEndpointConfigJson.get(APIConstants.ENDPOINT_SECURITY);
+                    if (endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
+                        if (oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
+                            EndpointSecurity endpointSecurity = new ObjectMapper().convertValue(
+                                    endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION),
+                                    EndpointSecurity.class);
+                            EndpointSecurity oldEndpointSecurity = new ObjectMapper().convertValue(
+                                    oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION),
+                                    EndpointSecurity.class);
+                            if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
+                                    StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                    endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
+                                    endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
+                                    endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
+                                    endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
+                                    endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
+                                    endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
                                 }
-                                endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, new JSONParser()
-                                        .parse(new ObjectMapper().writeValueAsString(endpointSecurity)));
                             }
-                        }
-                        if (endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
-                            if (oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
-                                EndpointSecurity endpointSecurity = new ObjectMapper()
-                                        .convertValue(endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
-                                                EndpointSecurity.class);
-                                EndpointSecurity oldEndpointSecurity = new ObjectMapper()
-                                        .convertValue(oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
-                                                EndpointSecurity.class);
-                                if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
-                                        StringUtils.isBlank(endpointSecurity.getPassword())) {
-                                    endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
-                                    endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                    if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
-                                        endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
-                                        endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
-                                        endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
-                                        endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
-                                        endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
-                                        endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
-                                    }
-                                }
-                                endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX,
-                                        new JSONParser()
-                                                .parse(new ObjectMapper().writeValueAsString(endpointSecurity)));
-                            }
-                            endpointConfigJson.replace(APIConstants.ENDPOINT_SECURITY,endpointSecurityJson);
+                            endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, new JSONParser()
+                                    .parse(new ObjectMapper().writeValueAsString(endpointSecurity)));
                         }
                     }
-                    api.setEndpointConfig(endpointConfigJson.toJSONString());
+                    if (endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
+                        if (oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
+                            EndpointSecurity endpointSecurity = new ObjectMapper()
+                                    .convertValue(endpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
+                                            EndpointSecurity.class);
+                            EndpointSecurity oldEndpointSecurity = new ObjectMapper()
+                                    .convertValue(oldEndpointSecurityJson.get(APIConstants.ENDPOINT_SECURITY_SANDBOX),
+                                            EndpointSecurity.class);
+                            if (endpointSecurity.isEnabled() && oldEndpointSecurity.isEnabled() &&
+                                    StringUtils.isBlank(endpointSecurity.getPassword())) {
+                                endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                if (endpointSecurity.getType().equals(APIConstants.ENDPOINT_SECURITY_TYPE_OAUTH)) {
+                                    endpointSecurity.setUniqueIdentifier(oldEndpointSecurity.getUniqueIdentifier());
+                                    endpointSecurity.setGrantType(oldEndpointSecurity.getGrantType());
+                                    endpointSecurity.setTokenUrl(oldEndpointSecurity.getTokenUrl());
+                                    endpointSecurity.setClientId(oldEndpointSecurity.getClientId());
+                                    endpointSecurity.setClientSecret(oldEndpointSecurity.getClientSecret());
+                                    endpointSecurity.setCustomParameters(oldEndpointSecurity.getCustomParameters());
+                                }
+                            }
+                            endpointSecurityJson.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX,
+                                    new JSONParser()
+                                            .parse(new ObjectMapper().writeValueAsString(endpointSecurity)));
+                        }
+                        endpointConfigJson.replace(APIConstants.ENDPOINT_SECURITY, endpointSecurityJson);
+                    }
                 }
+                api.setEndpointConfig(endpointConfigJson.toJSONString());
             }
         } catch (ParseException | JsonProcessingException e) {
             throw new APIManagementException(
