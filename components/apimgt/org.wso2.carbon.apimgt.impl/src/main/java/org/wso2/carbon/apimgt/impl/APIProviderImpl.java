@@ -1713,15 +1713,15 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                     api.setEndpointUTUsername(oldApi.getEndpointUTUsername());
                     api.setEndpointUTPassword(oldApi.getEndpointUTPassword());
 
-                if (log.isDebugEnabled()) {
-                    log.debug("Using the previous username and password for endpoint security");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Using the previous username and password for endpoint security");
+                    }
                 }
+                throw new APIManagementException("Endpoint Security credentials can't be empty",
+                        ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
             }
-            throw new APIManagementException("Endpoint Security credentials can't be empty",
-                            ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
-                }
 
-            }String endpointConfig = api.getEndpointConfig();
+            String endpointConfig = api.getEndpointConfig();
             String oldEndpointConfig = oldApi.getEndpointConfig();
             if (StringUtils.isNotEmpty(endpointConfig) && StringUtils.isNotEmpty(oldEndpointConfig)) {
                 JSONObject endpointConfigJson = (JSONObject) new JSONParser().parse(endpointConfig);
@@ -1744,10 +1744,11 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                                 if (endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_BASIC)
                                         || endpointSecurity.getType().equalsIgnoreCase(APIConstants.ENDPOINT_SECURITY_TYPE_DIGEST)) {
                                     if (StringUtils.isBlank(endpointSecurity.getPassword())) {
-                                if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
-                                endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
-                                } else {
-                                    throw new APIManagementException("Endpoint Security credentials can't be " +
+                                        if (oldEndpointSecurity.getUsername().equals(endpointSecurity.getUsername())) {
+                                            endpointSecurity.setUsername(oldEndpointSecurity.getUsername());
+                                            endpointSecurity.setPassword(oldEndpointSecurity.getPassword());
+                                        } else {
+                                            throw new APIManagementException("Endpoint Security credentials can't be " +
                                                     "empty", ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
                                         }
                                     }
