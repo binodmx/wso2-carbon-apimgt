@@ -1717,7 +1717,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                         log.debug("Using the previous username and password for endpoint security");
                     }
                 }
-                throw new APIManagementException("Endpoint Security credentials can't be empty",
+                throw new APIManagementException("Endpoint Security credentials can't be empty.",
                         ExceptionCodes.INVALID_ENDPOINT_CREDENTIALS);
             }
 
