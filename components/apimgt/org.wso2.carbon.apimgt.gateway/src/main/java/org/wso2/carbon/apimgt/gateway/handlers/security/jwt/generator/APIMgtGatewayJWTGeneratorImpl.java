@@ -18,6 +18,8 @@
 package org.wso2.carbon.apimgt.gateway.handlers.security.jwt.generator;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.gateway.dto.JWTInfoDto;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
@@ -88,14 +90,16 @@ public class APIMgtGatewayJWTGeneratorImpl extends AbstractAPIMgtGatewayJWTGener
     public Map<String, Object> populateCustomClaims(JWTInfoDto jwtInfoDto) {
 
         String[] restrictedClaims = {"iss", "sub", "aud", "exp", "nbf", "iat", "jti", "application", "tierInfo",
-                "subscribedAPIs"};
+                "subscribedAPIs", "aut"};
         JWTConfigurationDto jwtConfigurationDto =
                 ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
         Map<String, Object> claims = new HashMap<>();
         Set<String> jwtExcludedClaims = jwtConfigurationDto.getJWTExcludedClaims();
+        Map<String, String> keyManagerUserClaims = getUserClaimsFromKeyManager(jwtInfoDto);
         jwtExcludedClaims.addAll(Arrays.asList(restrictedClaims));
         Map<String, Object> jwtToken = jwtInfoDto.getJwtValidationInfo().getClaims();
         if (jwtToken != null) {
+            jwtToken.putAll(keyManagerUserClaims);
             for (Map.Entry<String, Object> jwtClaimEntry : jwtToken.entrySet()) {
                 if (!jwtExcludedClaims.contains(jwtClaimEntry.getKey())) {
                     claims.put(jwtClaimEntry.getKey(), jwtClaimEntry.getValue());

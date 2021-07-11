@@ -42,6 +42,7 @@ import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -10272,15 +10273,13 @@ public final class APIUtil {
     public static String generateHeader(Certificate publicCert, String signatureAlgorithm) throws APIManagementException {
 
         try {
-            //generate the SHA-1 thumbprint of the certificate
-            MessageDigest digestValue = MessageDigest.getInstance("SHA-1");
+            MessageDigest digestValue = MessageDigest.getInstance(APIConstants.SHA_256);
             byte[] der = publicCert.getEncoded();
             digestValue.update(der);
             byte[] digestInBytes = digestValue.digest();
             String publicCertThumbprint = hexify(digestInBytes);
-            String base64UrlEncodedThumbPrint;
-            base64UrlEncodedThumbPrint = java.util.Base64.getUrlEncoder()
-                    .encodeToString(publicCertThumbprint.getBytes("UTF-8"));
+            String base64UrlEncodedThumbPrint = Base64.encodeBase64URLSafeString(publicCertThumbprint.
+                    getBytes(Charsets.UTF_8));
             StringBuilder jwtHeader = new StringBuilder();
             /*
              * Sample header

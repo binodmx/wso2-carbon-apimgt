@@ -19,26 +19,35 @@ package org.wso2.carbon.apimgt.gateway.handlers.security.jwt.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
+import org.wso2.carbon.apimgt.api.model.KeyManager;
 import org.wso2.carbon.apimgt.gateway.dto.JWTInfoDto;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
-import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.impl.dto.JWTValidationInfo;
+import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;
 import org.wso2.carbon.apimgt.impl.token.ClaimsRetriever;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.impl.utils.SigningUtil;
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Abstract class to Gateway JWT Generator.
+ */
 public abstract class AbstractAPIMgtGatewayJWTGenerator {
     private static final Log log = LogFactory.getLog(AbstractAPIMgtGatewayJWTGenerator.class);
     private static final String NONE = "NONE";
@@ -55,8 +64,7 @@ public abstract class AbstractAPIMgtGatewayJWTGenerator {
     public AbstractAPIMgtGatewayJWTGenerator() {
 
         JWTConfigurationDto jwtConfigurationDto =
-                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().
-                        getAPIManagerConfiguration().getJwtConfigurationDto();
+                ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
         dialectURI = jwtConfigurationDto.getConsumerDialectUri();
         if (dialectURI == null) {
             dialectURI = ClaimsRetriever.DEFAULT_DIALECT_URI;
@@ -151,8 +159,7 @@ public abstract class AbstractAPIMgtGatewayJWTGenerator {
             if (ttl != -1) {
                 return ttl;
             }
-            APIManagerConfiguration config = ServiceReferenceHolder.getInstance().
-                    getAPIManagerConfigurationService().getAPIManagerConfiguration();
+            APIManagerConfiguration config = ServiceReferenceHolder.getInstance().getAPIManagerConfiguration();
 
             String gwTokenCacheConfig = config.getFirstProperty(APIConstants.GATEWAY_TOKEN_CACHE_ENABLED);
             boolean isGWTokenCacheEnabled = Boolean.parseBoolean(gwTokenCacheConfig);
@@ -221,7 +228,7 @@ public abstract class AbstractAPIMgtGatewayJWTGenerator {
                 }
             } else if (Boolean.parseBoolean(System.getProperty(FORMAT_JSON_ARRAY_PROPERTY)) &&
                     claimVal instanceof String && claimVal.toString().contains("[\"")
-                    && claimVal.toString().contains("\"]")){
+                    && claimVal.toString().contains("\"]")) {
                 try {
                     List<String> arrayList = mapper.readValue(claimVal.toString(), List.class);
                     jwtClaimSetBuilder.claim(claimEntry.getKey(), arrayList);
@@ -250,6 +257,37 @@ public abstract class AbstractAPIMgtGatewayJWTGenerator {
         return dialectURI;
     }
 
-    public abstract Map<String,Object> populateStandardClaims(JWTInfoDto jwtInfoDto);
-    public abstract Map<String,Object> populateCustomClaims(JWTInfoDto jwtInfoDto);
+    public abstract Map<String, Object> populateStandardClaims(JWTInfoDto jwtInfoDto);
+
+    public abstract Map<String, Object> populateCustomClaims(JWTInfoDto jwtInfoDto);
+
+    protected Map<String, String> getUserClaimsFromKeyManager(JWTInfoDto jwtInfoDto) {
+
+        JWTConfigurationDto jwtConfigurationDto =
+                ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
+        if (jwtConfigurationDto.isEnableUserClaimRetrievalFromUserStore()) {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            JWTValidationInfo jwtValidationInfo = jwtInfoDto.getJwtValidationInfo();
+            if (jwtValidationInfo != null) {
+                KeyManager keyManagerInstance = KeyManagerHolder.getKeyManagerInstance(tenantDomain,
+                        jwtValidationInfo.getKeyManager());
+                if (keyManagerInstance != null) {
+                    Map<String, Object> properties = new HashMap<>();
+                    if (jwtValidationInfo.getRawPayload() != null) {
+                        properties.put(APIConstants.KeyManager.ACCESS_TOKEN, jwtValidationInfo.getRawPayload());
+                    }
+                    if (!StringUtils.isEmpty(dialectURI)) {
+                        properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
+                    }
+                    try {
+                        return keyManagerInstance.getUserClaims(jwtInfoDto.getEnduser(), properties);
+                    } catch (APIManagementException e) {
+                        log.error("Error while retrieving User claims from Key Manager ", e);
+                    }
+                }
+            }
+        }
+
+        return new HashMap<>();
+    }
 }
