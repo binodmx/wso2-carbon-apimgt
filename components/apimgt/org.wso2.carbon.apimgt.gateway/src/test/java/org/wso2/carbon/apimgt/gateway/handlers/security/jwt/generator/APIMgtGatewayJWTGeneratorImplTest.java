@@ -24,10 +24,10 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
-import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.token.ClaimsRetriever;
 
 @RunWith(PowerMockRunner.class)
@@ -43,10 +43,7 @@ public class APIMgtGatewayJWTGeneratorImplTest {
         ServiceReferenceHolder serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
         PowerMockito.mockStatic(ServiceReferenceHolder.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
-        Mockito.when(serviceReferenceHolder.getAPIManagerConfigurationService())
-                .thenReturn(apiManagerConfigurationService);
-        Mockito.when(apiManagerConfigurationService.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
-
+        Mockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
         JWTConfigurationDto jwtConfigurationDto = Mockito.mock(JWTConfigurationDto.class);
         Mockito.when(apiManagerConfiguration.getJwtConfigurationDto()).thenReturn(jwtConfigurationDto);
 

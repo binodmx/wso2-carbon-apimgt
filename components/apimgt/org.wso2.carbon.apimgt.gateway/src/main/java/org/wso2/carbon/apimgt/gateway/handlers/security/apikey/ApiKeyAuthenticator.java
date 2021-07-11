@@ -72,6 +72,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -589,7 +590,7 @@ public class ApiKeyAuthenticator implements Authenticator {
 
     private JWTValidationInfo getJwtValidationInfo(SignedJWTInfo signedJWTInfo) {
         JWTValidationInfo jwtValidationInfo = new JWTValidationInfo();
-        jwtValidationInfo.setClaims(signedJWTInfo.getJwtClaimsSet().getClaims());
+        jwtValidationInfo.setClaims(new HashMap<>(signedJWTInfo.getJwtClaimsSet().getClaims()));
         jwtValidationInfo.setUser(signedJWTInfo.getJwtClaimsSet().getSubject());
         return jwtValidationInfo;
     }

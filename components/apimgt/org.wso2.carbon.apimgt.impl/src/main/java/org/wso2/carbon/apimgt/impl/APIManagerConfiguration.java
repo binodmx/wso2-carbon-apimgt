@@ -63,7 +63,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
@@ -1319,6 +1318,11 @@ public class APIManagerConfiguration {
                                 jwtConfigurationDto.getJWTExcludedClaims().add(claim.getText());
                             }
                         }
+                    }
+                    OMElement claimRetrievalElement =
+                            configurationElement.getFirstChildWithName(new QName(APIConstants.ENABLE_USER_CLAIMS_RETRIEVAL_FROM_KEY_MANAGER));
+                    if (claimRetrievalElement != null) {
+                        jwtConfigurationDto.setEnableUserClaimRetrievalFromUserStore(Boolean.parseBoolean(claimRetrievalElement.getText()));
                     }
                 }
             }
