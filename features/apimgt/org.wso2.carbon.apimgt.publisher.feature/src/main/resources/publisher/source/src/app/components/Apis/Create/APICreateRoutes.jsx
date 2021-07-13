@@ -35,9 +35,8 @@ const styles = {
     },
 };
 
-
 /**
- *
+ * API Resource UI routing
  * Handle routing for all types of API create creations, If you want to add new API type create page,
  * Please use `APICreateBase` and `DefaultAPIForm` components to do so , Don't wrap `APICreateDefault` component
  * @param {*} props

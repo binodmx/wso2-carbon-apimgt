@@ -5,9 +5,10 @@ import ListKeyManagers from './ListKeyManagers';
 import AddEditKeyManager from './AddEditKeyManager';
 
 /**
- * Render a list
+ * Render the routing of key manager UI
  * @returns {JSX} Header AppBar components.
  */
+
 function KeyManagers() {
     return (
         <Switch>
