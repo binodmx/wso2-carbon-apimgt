@@ -24,6 +24,7 @@ import org.wso2.carbon.apimgt.gateway.dto.JWTInfoDto;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,6 +83,11 @@ public class APIMgtGatewayJWTGeneratorImpl extends AbstractAPIMgtGatewayJWTGener
         Map<String, String> appAttributes = jwtInfoDto.getAppAttributes();
         if (appAttributes != null && !appAttributes.isEmpty()) {
             claims.put(dialect + "applicationAttributes", appAttributes);
+        }
+        if (jwtInfoDto.getJwtValidationInfo() != null && jwtInfoDto.getJwtValidationInfo().getClaims() != null
+                && jwtInfoDto.getJwtValidationInfo().getClaims().get("sub") != null) {
+            String sub = (String) jwtInfoDto.getJwtValidationInfo().getClaims().get("sub");
+            claims.put("sub", MultitenantUtils.getTenantAwareUsername(sub));
         }
         return claims;
     }
