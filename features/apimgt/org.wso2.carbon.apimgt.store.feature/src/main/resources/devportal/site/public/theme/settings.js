@@ -23,6 +23,9 @@ const Settings = {
             timeout: 4000, // Defines the timeout for the above periodical session status check
         },
         propertyDisplaySuffix: '__display',
+        markdown: {
+            skipHtml: true,
+        }
     },
     grantTypes: {
         authorization_code: 'Code',
