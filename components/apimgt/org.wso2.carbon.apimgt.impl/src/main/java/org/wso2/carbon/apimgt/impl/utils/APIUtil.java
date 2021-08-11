@@ -7342,7 +7342,8 @@ public final class APIUtil {
             poolManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         } else {
             poolManager = new PoolingHttpClientConnectionManager();
-        } return poolManager;
+        }
+        return poolManager;
     }
 
     private static SSLConnectionSocketFactory createSocketFactory() throws APIManagementException {
@@ -7991,19 +7992,6 @@ public final class APIUtil {
     }
 
     /**
-     * Used to get if it is enabled to pass the request parameters to AWS Lambda function in api-manager.xml
-     *
-     * @return true if PassRequestParamsToLambdaFunction is set to true in api-manager.xml
-     */
-    public static boolean passRequestParamsToLambdaFunction() {
-
-        String isEnabled =
-                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
-                        .getFirstProperty(APIConstants.PASS_REQUEST_PARAMS_TO_LAMBDA_FUNCTION);
-        return Boolean.parseBoolean(isEnabled);
-    }
-
-    /**
      * Used to get CORS Configuration enabled from api-manager.xml
      *
      * @return true if CORS-Configuration is enabled in api-manager.xml
@@ -8017,6 +8005,18 @@ public final class APIUtil {
         return Boolean.parseBoolean(corsEnabled);
     }
 
+    /**
+     * Used to get if it is enabled to pass the request parameters to AWS Lambda function in api-manager.xml
+     *
+     * @return true if PassRequestParamsToLambdaFunction is set to true in api-manager.xml
+     */
+    public static boolean passRequestParamsToLambdaFunction() {
+
+        String isEnabled =
+                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
+                        .getFirstProperty(APIConstants.PASS_REQUEST_PARAMS_TO_LAMBDA_FUNCTION);
+        return Boolean.parseBoolean(isEnabled);
+    }
     /**
      * Used to get access control allowed origins define in api-manager.xml
      *
@@ -11756,6 +11756,7 @@ public final class APIUtil {
     /**
      * Copy of the getAPI(GovernanceArtifact artifact, Registry registry) method with reduced DB calls for api
      * publisher list view listing.
+     *
      * @param artifact
      * @param registry
      * @return
