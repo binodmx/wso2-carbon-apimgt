@@ -36,6 +36,7 @@ import API from 'AppData/api';
 import APIProduct from 'AppData/APIProduct';
 import APIContext from 'AppComponents/Apis/Details/components/ApiContext';
 import Utils from 'AppData/Utils';
+import Configurations from 'Config';
 
 const ReactMarkdown = lazy(() => import('react-markdown' /* webpackChunkName: "ViewReactMD" */));
 
@@ -109,6 +110,7 @@ function View(props) {
     const [doc, setDoc] = useState(null);
     const [isFileAvailable, setIsFileAvailable] = useState(true);
     const restAPI = isAPIProduct ? new APIProduct() : new API();
+    const skipHtml = Configurations.app.markdown.skipHtml;
 
     useEffect(() => {
         const docPromise = restAPI.getDocument(api.id, documentId);
@@ -253,7 +255,7 @@ function View(props) {
                     <Paper className={classes.paper}>
                         {doc.sourceType === 'MARKDOWN' && (
                             <Suspense fallback={<CircularProgress />}>
-                                <ReactMarkdown escapeHtml={false} source={code} />
+                                <ReactMarkdown skipHtml={skipHtml} source={code} />
                             </Suspense>
                         )}
                         {doc.sourceType === 'INLINE' && <ReactSafeHtml html={code} />}
