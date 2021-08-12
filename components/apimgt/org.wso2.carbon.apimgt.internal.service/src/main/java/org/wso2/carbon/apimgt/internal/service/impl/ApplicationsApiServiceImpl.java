@@ -34,7 +34,7 @@ public class ApplicationsApiServiceImpl implements ApplicationsApiService {
     public Response applicationsGet(String xWSO2Tenant, Integer appId, MessageContext messageContext) {
 
         SubscriptionValidationDAO subscriptionValidationDAO = new SubscriptionValidationDAO();
-        if (appId != null) {
+        if (appId != null && appId > 0) {
             List<Application> application = subscriptionValidationDAO.getApplicationById(appId);
             return Response.ok().entity(SubscriptionValidationDataUtil.fromApplicationToApplicationListDTO(application)
             ).build();

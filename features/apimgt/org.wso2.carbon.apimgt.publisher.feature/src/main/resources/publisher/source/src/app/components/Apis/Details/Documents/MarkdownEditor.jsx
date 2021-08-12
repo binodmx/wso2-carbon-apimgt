@@ -33,7 +33,6 @@ import Api from 'AppData/api';
 import Alert from 'AppComponents/Shared/Alert';
 import APIContext from 'AppComponents/Apis/Details/components/ApiContext';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Configurations from 'Config';
 
 const MonacoEditor = lazy(() => import('react-monaco-editor' /* webpackChunkName: "MDMonacoEditor" */));
 const ReactMarkdown = lazy(() => import('react-markdown' /* webpackChunkName: "MDReactMarkdown" */));
@@ -72,7 +71,6 @@ function Transition(props) {
 }
 
 function MarkdownEditor(props) {
-    const skipHtml = Configurations.app.markdown.skipHtml;
     const { intl, showAtOnce, history } = props;
     const { api, isAPIProduct } = useContext(APIContext);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -198,7 +196,7 @@ function MarkdownEditor(props) {
                         <Grid item xs={6}>
                             <div className={classes.markdownViewWrapper}>
                                 <Suspense fallback={<CircularProgress />}>
-                                    <ReactMarkdown skipHtml={skipHtml} source={code} />
+                                    <ReactMarkdown escapeHtml={false} source={code} />
                                 </Suspense>
                             </div>
                         </Grid>
