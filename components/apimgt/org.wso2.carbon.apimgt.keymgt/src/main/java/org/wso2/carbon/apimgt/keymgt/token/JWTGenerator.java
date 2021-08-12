@@ -26,13 +26,11 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.model.KeyManager;
 import org.wso2.carbon.apimgt.impl.APIConstants;
-import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
-import org.wso2.carbon.apimgt.impl.MethodStats;
-import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
 import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.token.ClaimsRetriever;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.MethodStats;
 import org.wso2.carbon.apimgt.keymgt.model.entity.Application;
 import org.wso2.carbon.apimgt.keymgt.service.TokenValidationContext;
 import org.wso2.carbon.claim.mgt.ClaimManagementException;
@@ -132,8 +130,8 @@ public class JWTGenerator extends AbstractJWTGenerator {
     public Map<String, String> populateCustomClaims(TokenValidationContext validationContext)
             throws APIManagementException {
 
-        Map<String, String> customClaims = new HashMap<>();
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, String> customClaims = new HashMap<String, String>();
+        Map<String, Object> properties = new HashMap<String, Object>();
 
         String accessToken = validationContext.getAccessToken();
         if (accessToken != null) {
@@ -142,29 +140,20 @@ public class JWTGenerator extends AbstractJWTGenerator {
 
         String username = validationContext.getValidationInfoDTO().getEndUserName();
         int tenantId = APIUtil.getTenantId(username);
-        APIManagerConfiguration apiManagerConfiguration =
-                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService()
-                        .getAPIManagerConfiguration();
-        JWTConfigurationDto jwtConfigurationDto = apiManagerConfiguration.getJwtConfigurationDto();
-        if (jwtConfigurationDto.isEnableUserClaims()) {
-            if (accessToken != null) {
-                properties.put(APIConstants.KeyManager.ACCESS_TOKEN, accessToken);
-            }
+
         String dialectURI = ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService()
-                .getAPIManagerConfiguration().getFirstProperty(APIConstants.CONSUMER_DIALECT_URI);
+                .getAPIManagerConfiguration().getJwtConfigurationDto().getConsumerDialectUri();
         if (!StringUtils.isEmpty(dialectURI)) {
             properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
-        }
             String keymanagerName = validationContext.getValidationInfoDTO().getKeyManager();
-            KeyManager keymanager = KeyManagerHolder
-                    .getKeyManagerInstance(validationContext.getTenantDomain(), keymanagerName);
-            if (keymanager != null) {
+            KeyManager keymanager = KeyManagerHolder.getKeyManagerInstance(APIUtil.getTenantDomainFromTenantId(tenantId),
+                    keymanagerName);
             customClaims = keymanager.getUserClaims(username, properties);
             if (log.isDebugEnabled()) {
                 log.debug("Retrieved claims :" + customClaims);
             }
         }
-        }
+        
         ClaimsRetriever claimsRetriever = getClaimsRetriever();
         if (claimsRetriever != null) {
             customClaims.putAll(claimsRetriever.getClaims(username));
