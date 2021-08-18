@@ -91,7 +91,6 @@ public class AWSLambdaMediator extends AbstractMediator {
         InvokeResult invokeResult;
         if (passRequestParamsToLambdaFunction) {
             JsonObject payload = new JsonObject();
-
             // set headers
             JsonObject headers = new JsonObject();
             TreeMap transportHeaders =
@@ -124,7 +123,6 @@ public class AWSLambdaMediator extends AbstractMediator {
             payload.add(BODY_PARAMETER, new JsonParser().parse(body).getAsJsonObject());
             payload.addProperty(HTTP_METHOD, (String) messageContext.getProperty(APIConstants.REST_METHOD));
             payload.addProperty(PATH, (String) messageContext.getProperty(APIConstants.API_ELECTED_RESOURCE));
-
             if (log.isDebugEnabled()) {
                 log.debug("Passing the payload " + payload.toString() + " to AWS Lambda function with resource name "
                         + resourceName);

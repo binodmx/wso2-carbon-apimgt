@@ -170,7 +170,7 @@ function Overview(props) {
                                             <TableCell>
                                                 {application.throttlingPolicy}
                                                 {' '}
-                                                <span className= {tierDisabled ? classes.disabledTier : ""}>{`(${tierDescription})`}</span>
+                                                <span className= {tierDisabled ? classes.disabledTier: ""}>{`(${tierDescription})`}</span>
                                             </TableCell>
                                         )}
                                 </TableRow>
