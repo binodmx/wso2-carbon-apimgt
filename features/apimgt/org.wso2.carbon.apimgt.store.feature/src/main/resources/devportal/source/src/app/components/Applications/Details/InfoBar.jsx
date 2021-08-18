@@ -267,7 +267,6 @@ class InfoBar extends React.Component {
         this.toggleDeleteConfirmation = this.toggleDeleteConfirmation.bind(this);
     }
 
-
     /**
      * Toggles the showOverview state
      * @param {boolean} todo toggle state
@@ -328,7 +327,7 @@ class InfoBar extends React.Component {
      */
     render() {
         const {
-             classes, theme, applicationId, application
+            classes, theme, applicationId, application
         } = this.props;
         const applicationOwner = this.props.application.owner;
         const {

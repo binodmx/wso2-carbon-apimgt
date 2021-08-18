@@ -243,9 +243,11 @@ public abstract class AbstractAPIMgtGatewayJWTGenerator {
         JWTClaimsSet jwtClaimsSet = jwtClaimSetBuilder.build();
         return jwtClaimsSet.toJSONObject().toString();
     }
+
     public String encode(byte[] stringToBeEncoded) throws APIManagementException {
         return java.util.Base64.getUrlEncoder().encodeToString(stringToBeEncoded);
     }
+
     public String getDialectURI() {
         return dialectURI;
     }
