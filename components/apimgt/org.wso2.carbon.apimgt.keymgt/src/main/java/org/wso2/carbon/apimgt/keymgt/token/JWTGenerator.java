@@ -19,6 +19,7 @@ package org.wso2.carbon.apimgt.keymgt.token;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -141,7 +142,6 @@ public class JWTGenerator extends AbstractJWTGenerator {
 
         String username = validationContext.getValidationInfoDTO().getEndUserName();
         int tenantId = APIUtil.getTenantId(username);
-
         APIManagerConfiguration apiManagerConfiguration =
                 ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService()
                         .getAPIManagerConfiguration();
@@ -150,20 +150,20 @@ public class JWTGenerator extends AbstractJWTGenerator {
             if (accessToken != null) {
                 properties.put(APIConstants.KeyManager.ACCESS_TOKEN, accessToken);
             }
-            String dialectURI = ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService()
-                    .getAPIManagerConfiguration().getFirstProperty(APIConstants.CONSUMER_DIALECT_URI);
-            if (!StringUtils.isEmpty(dialectURI)) {
-                properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
-            }
+        String dialectURI = ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService()
+                .getAPIManagerConfiguration().getFirstProperty(APIConstants.CONSUMER_DIALECT_URI);
+        if (!StringUtils.isEmpty(dialectURI)) {
+            properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
+        }
             String keymanagerName = validationContext.getValidationInfoDTO().getKeyManager();
             KeyManager keymanager = KeyManagerHolder
                     .getKeyManagerInstance(validationContext.getTenantDomain(), keymanagerName);
             if (keymanager != null) {
-                customClaims = keymanager.getUserClaims(username, properties);
-                if (log.isDebugEnabled()) {
-                    log.debug("Retrieved claims :" + customClaims);
-                }
+            customClaims = keymanager.getUserClaims(username, properties);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved claims :" + customClaims);
             }
+        }
         }
         ClaimsRetriever claimsRetriever = getClaimsRetriever();
         if (claimsRetriever != null) {

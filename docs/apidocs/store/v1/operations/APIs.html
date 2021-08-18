@@ -663,34 +663,6 @@ variant of the resourec.
                     <tr>
                         <td class="parameter">
                             
-                            <span class="param-in">Query </span>
-                            
-                            
-                            
-                        </td>
-                        <td class="param-name">
-                            <p>clusterName</p>
-                            <p class="param-required">
-                                
-                                optional
-                            </p>
-                        </td>
-                        <td>
-                            <p class="param-description marked">Name of the container managed cluster name.
-</p>
-                        </td>
-                        <td>
-                            <span class="param-type">
-                                String
-                            </span>
-                        </td>
-                        <td>
-                            <p class="marked"></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="parameter">
-                            
                             
                             
                             <span class="param-in">Header </span>
@@ -993,7 +965,7 @@ Each retrieved API is represented with a minimal amount of attributes. If you wa
 This operation supports retriving APIs of other tenants. The required tenant domain need to be specified as a header &#x60;X-WSO2-Tenant&#x60;. If not specified super tenant&#39;s APIs will be retrieved. If you used an Authorization header, the user&#39;s tenant associated with the access token will be used.
 
 **NOTE:**
-* By default, this operation retrieves Published APIs and Prototyped APIs. In order to retrieve only Prototyped APIs, you need to use **query** parameter and specify **status:PROTOTYPED**. To retrieve Published APIs, use **query** parameter and specify **status:PUBLISHED**.
+* By default, this operation retrieves Published APIs. In order to retrieve Prototyped APIs, you need to use **query** parameter and specify **status:PROTOTYPED**.
 * This operation does not require an Authorization header by default. But if it is provided, it will be validated and checked for permissions of the user, hence you may be able to see APIs which are restricted for special permissions/roles.
 </p>
 

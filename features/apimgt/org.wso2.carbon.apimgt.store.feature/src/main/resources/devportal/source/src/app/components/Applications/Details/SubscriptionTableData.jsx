@@ -229,9 +229,9 @@ class SubscriptionTableData extends React.Component {
         } = this.props;
         const { openMenu, isMonetizedAPI, isDynamicUsagePolicy, openMenuEdit, selectedTier, tiers, } = this.state;
         const link = <Link
-            to={tiers.length === 0 ? '': '/apis/' + apiId}
-            style={{cursor: tiers.length === 0 ? 'default': ''}}
-            >{apiInfo.name + ' - ' + apiInfo.version}</Link>;
+                    to={tiers.length === 0 ? '': '/apis/' + apiId}
+                    style={{cursor: tiers.length === 0 ? 'default': ''}}
+                    >{apiInfo.name + ' - ' + apiInfo.version}</Link>;
 
         return (
             <TableRow hover>
@@ -359,7 +359,7 @@ class SubscriptionTableData extends React.Component {
                                         subscriptionId,
                                         selectedTier,
                                         status,
-                                    throttlingPolicy)}
+                                        throttlingPolicy)}
                                     >
                                     <FormattedMessage
                                         id='Applications.Details.SubscriptionTableData.update'

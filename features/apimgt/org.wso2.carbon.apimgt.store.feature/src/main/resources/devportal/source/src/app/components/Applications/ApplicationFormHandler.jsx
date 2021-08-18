@@ -266,7 +266,6 @@ class ApplicationFormHandler extends React.Component {
         const { applicationRequest, allAppAttributes } = this.state;
         const { intl, history } = this.props;
         const api = new API();
-
         // Set default values to application attributes if the value is empty
         const validCases = allAppAttributes.filter(a => a.hidden !== 'true' && a.required === 'true' && a.default);
         if (validCases.length > 0) {

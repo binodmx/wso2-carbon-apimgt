@@ -569,8 +569,8 @@ public final class APIUtil {
     /**
      * This method is used to execute an HTTP request
      *
-     * @param method     HttpRequest Type
-     * @param httpClient HttpClient
+     * @param method       HttpRequest Type
+     * @param httpClient   HttpClient
      * @return HTTPResponse
      * @throws IOException
      */
@@ -2678,7 +2678,7 @@ public final class APIUtil {
      * Returns an unfiltered map of API availability tiers as defined in the underlying governance
      * registry.
      *
-     * @return Map<String, Tier> an unfiltered Map of tier names and Tier objects - possibly empty
+     * @return Map<String ,   Tier> an unfiltered Map of tier names and Tier objects - possibly empty
      * @throws APIManagementException if an error occurs when loading tiers from the registry
      */
     public static Map<String, Tier> getAllTiers() throws APIManagementException {
@@ -2690,7 +2690,7 @@ public final class APIUtil {
      * Returns an unfiltered map of API availability tiers of the tenant as defined in the underlying governance
      * registry.
      *
-     * @return Map<String, Tier> an unfiltered Map of tier names and Tier objects - possibly empty
+     * @return Map<String ,   Tier> an unfiltered Map of tier names and Tier objects - possibly empty
      * @throws APIManagementException if an error occurs when loading tiers from the registry
      */
     public static Map<String, Tier> getAllTiers(int tenantId) throws APIManagementException {
@@ -2783,7 +2783,7 @@ public final class APIUtil {
      * Result will contains all the tiers including unauthenticated tier which is
      * filtered out in   getTiers}
      *
-     * @param registry     registry
+     * @param registry registry
      * @param tierLocation registry location of tiers config
      * @return Map<String, Tier> containing all available tiers
      * @throws RegistryException      when registry action fails
@@ -7308,7 +7308,7 @@ public final class APIUtil {
     /**
      * Return a http client instance
      *
-     * @param url - server url
+     * @param url      - server url
      * @return
      */
 
@@ -7668,7 +7668,7 @@ public final class APIUtil {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, String> getRESTAPIScopesForTenantWithoutRoleMappings(String tenantDomain)
-            throws APIManagementException {
+            throws APIManagementException{
         return APIUtil.getRESTAPIScopesFromConfig(APIUtil.getTenantRESTAPIScopesConfig(tenantDomain), null);
     }
 
@@ -10279,8 +10279,8 @@ public final class APIUtil {
     /**
      * Utility method to generate JWT header with public certificate thumbprint for signature verification.
      *
-     * @param publicCert            - The public certificate which needs to include in the header as thumbprint
-     * @param signatureAlgorithm    signature algorithm which needs to include in the header
+     * @param publicCert         - The public certificate which needs to include in the header as thumbprint
+     * @param signatureAlgorithm signature algorithm which needs to include in the header
      * @throws APIManagementException
      */
     public static String generateHeader(Certificate publicCert, String signatureAlgorithm) throws APIManagementException {
@@ -11707,10 +11707,10 @@ public final class APIUtil {
 
         //append original role to the role mapping list
         Set<Map.Entry<String, JsonElement>> roleMappingEntries = newRoleMappingJson.entrySet();
-        for (Map.Entry<String, JsonElement> entry : roleMappingEntries) {
+        for (Map.Entry<String, JsonElement> entry: roleMappingEntries) {
             List<String> currentRoles = Arrays.asList(String.valueOf(entry.getValue()).split(","));
             boolean isOriginalRoleAlreadyInroles = false;
-            for (String role : currentRoles) {
+            for (String role: currentRoles) {
                 if (role.equals(entry.getKey())) {
                     isOriginalRoleAlreadyInroles = true;
                     break;

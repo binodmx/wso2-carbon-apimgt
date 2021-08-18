@@ -561,6 +561,7 @@ public class Utils {
     }
 
     public static String getEncodedClientCertificate(X509Certificate certificate) throws CertificateEncodingException {
+
         byte[] encoded = Base64.encodeBase64(certificate.getEncoded());
         if (isClientCertificateEncoded()) {
             String base64EncodedString = APIConstants.BEGIN_CERTIFICATE_STRING.concat(new String(encoded)).concat("\n"
