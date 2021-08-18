@@ -30,7 +30,6 @@ import org.wso2.carbon.apimgt.impl.dto.JWTValidationInfo;
 import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +93,6 @@ public class APIMgtGatewayJWTGeneratorImpl extends AbstractAPIMgtGatewayJWTGener
             String sub = (String) jwtInfoDto.getJwtValidationInfo().getClaims().get("sub");
             claims.put("sub", MultitenantUtils.getTenantAwareUsername(sub));
         }
-
         return claims;
     }
 

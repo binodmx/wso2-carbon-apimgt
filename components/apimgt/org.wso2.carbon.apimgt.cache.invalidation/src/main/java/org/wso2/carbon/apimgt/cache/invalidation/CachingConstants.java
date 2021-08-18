@@ -19,7 +19,7 @@
 package org.wso2.carbon.apimgt.cache.invalidation;
 
 /**
- *This class contains constants.
+ * This class contains constants.
  */
 public class CachingConstants {
 
