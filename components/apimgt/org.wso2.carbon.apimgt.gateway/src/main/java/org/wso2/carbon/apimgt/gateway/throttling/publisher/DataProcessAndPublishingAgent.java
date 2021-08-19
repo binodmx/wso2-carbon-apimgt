@@ -184,6 +184,8 @@ public class DataProcessAndPublishingAgent implements Runnable {
         org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) messageContext)
                 .getAxis2MessageContext();
 
+
+
         if (ipAddress != null && ipAddress.length() > 0) {
             if (ipAddress.contains(":") && ipAddress.split(":").length == 2) {
                 log.warn("Client port will be ignored and only the IP address (IPV4) will concern from " + ipAddress);

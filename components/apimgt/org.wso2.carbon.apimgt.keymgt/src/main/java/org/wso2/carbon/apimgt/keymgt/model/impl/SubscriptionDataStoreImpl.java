@@ -115,7 +115,6 @@ public class SubscriptionDataStoreImpl implements SubscriptionDataStore {
                 if (application != null) {
                     return application;
                 }
-
                 try {
                     application = new SubscriptionDataLoaderImpl().getApplicationById(appId);
                 } catch (DataLoadingException e) {
