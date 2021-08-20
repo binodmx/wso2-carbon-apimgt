@@ -32,7 +32,6 @@ import org.wso2.carbon.apimgt.api.model.subscription.ApplicationPolicy;
 import org.wso2.carbon.apimgt.api.model.subscription.Subscription;
 import org.wso2.carbon.apimgt.api.model.subscription.SubscriptionPolicy;
 import org.wso2.carbon.apimgt.api.model.subscription.URLMapping;
-import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.internal.service.dto.APIDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.APIListDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ApiPolicyConditionGroupDTO;
@@ -60,12 +59,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Utility class for map Dto.
- */
 public class SubscriptionValidationDataUtil {
 
-    private static APIDTO fromAPItoDTO(API model, String tenantDomain) {
+    private static APIDTO fromAPItoDTO(API model) {
 
         APIDTO apidto = null;
         if (model != null) {
@@ -79,11 +75,7 @@ public class SubscriptionValidationDataUtil {
             apidto.setApiType(model.getApiType());
             apidto.setName(model.getName());
             apidto.setIsDefaultVersion(model.isDefaultVersion());
-            String uuid = APIUtil.getUUIDOfAPI(model.getProvider(), model.getName(), model.getVersion(), tenantDomain);
-            if (StringUtils.isNotEmpty(uuid)) {
-                apidto.setUuid(uuid);
-            }
-            Map<String, URLMapping> urlMappings = model.getAllResources();
+            Map<String,URLMapping> urlMappings = model.getAllResources();
             List<URLMappingDTO> urlMappingsDTO = new ArrayList<>();
             for (URLMapping urlMapping : urlMappings.values()) {
                 URLMappingDTO urlMappingDTO = new URLMappingDTO();
@@ -99,7 +91,7 @@ public class SubscriptionValidationDataUtil {
         return apidto;
     }
 
-    public static APIListDTO fromAPIToAPIListDTO(API model, String tenantDomain) {
+    public static APIListDTO fromAPIToAPIListDTO(API model) {
 
         APIListDTO apiListdto = new APIListDTO();
         if (model != null) {
@@ -112,11 +104,7 @@ public class SubscriptionValidationDataUtil {
             apidto.setApiType(model.getApiType());
             apidto.setName(model.getName());
             apidto.setIsDefaultVersion(model.isDefaultVersion());
-            String uuid = APIUtil.getUUIDOfAPI(model.getProvider(), model.getName(), model.getVersion(), tenantDomain);
-            if (StringUtils.isNotEmpty(uuid)) {
-                apidto.setUuid(uuid);
-            }
-            Map<String, URLMapping> urlMappings = model.getAllResources();
+            Map<String,URLMapping> urlMappings = model.getAllResources();
             List<URLMappingDTO> urlMappingsDTO = new ArrayList<>();
             for (URLMapping urlMapping : urlMappings.values()) {
                 URLMappingDTO urlMappingDTO = new URLMappingDTO();
@@ -136,13 +124,13 @@ public class SubscriptionValidationDataUtil {
         return apiListdto;
     }
 
-    public static APIListDTO fromAPIListToAPIListDTO(List<API> apiList, String tenantDomain) {
+    public static APIListDTO fromAPIListToAPIListDTO(List<API> apiList) {
 
         APIListDTO apiListDTO = new APIListDTO();
 
         if (apiList != null) {
             for (API api : apiList) {
-                apiListDTO.getList().add(fromAPItoDTO(api, tenantDomain));
+                apiListDTO.getList().add(fromAPItoDTO(api));
             }
             apiListDTO.setCount(apiList.size());
         } else {

@@ -26,7 +26,6 @@ import org.wso2.carbon.apimgt.keymgt.model.entity.Scope;
 import org.wso2.carbon.apimgt.keymgt.model.entity.Subscription;
 import org.wso2.carbon.apimgt.keymgt.model.entity.SubscriptionPolicy;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -143,22 +142,5 @@ public interface SubscriptionDataStore {
     Map<String, Scope> getScopesByTenant(String tenantDomain);
 
     boolean isScopesInitialized();
-
-    List<Subscription> getSubscriptionsByAPIId(int apiId);
-
-    List<ApplicationKeyMapping> getKeyMappingByApplicationId(int applicationId);
-
-    API getApiByNameAndVersion(String name, String version);
-
-    List<Application> getApplicationsByName(String name);
-
-    Application getApplicationByUUID(String uuid);
-
-    Subscription getSubscriptionByUUID(String apiUUID, String appUUID);
-
-    API getAPIByUUID(String apiId);
-
-    List<API> getAPIs();
-
 }
 
