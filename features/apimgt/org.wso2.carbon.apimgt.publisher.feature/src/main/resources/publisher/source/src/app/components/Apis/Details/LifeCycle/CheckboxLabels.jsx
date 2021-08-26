@@ -93,7 +93,7 @@ export default function CheckboxLabels(props) {
     return (
         <Paper className={classes.paperCenter}>
             <Grid xs={12}>
-                <Typography variant='h6'>
+                <Typography variant='h6' component='h4'>
                     <FormattedMessage
                         id='Apis.Details.Configuration.Configuration.requirements'
                         defaultMessage='Requirements'
@@ -109,7 +109,7 @@ export default function CheckboxLabels(props) {
             {(api.lifeCycleStatus === 'CREATED' || api.lifeCycleStatus === 'PROTOTYPED') && (
                 <>
                     <Grid xs={12} className={classes.labelsGrid}>
-                        <Typography variant='subtitle2'>
+                        <Typography variant='subtitle2' component='h5'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Configuration.publisher'
                                 defaultMessage='Publish'
@@ -129,7 +129,7 @@ export default function CheckboxLabels(props) {
                                     defaultMessage='Endpoint provided'
                                 />
                             </Typography>
-                            <Link to={'/apis/' + api.id + '/endpoints'}>
+                            <Link to={'/apis/' + api.id + '/endpoints'} aria-label='Endpoint provided'>
                                 <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                             </Link>
                         </Grid>
@@ -147,7 +147,7 @@ export default function CheckboxLabels(props) {
                                             defaultMessage='Business Plan(s) selected'
                                         />
                                     </Typography>
-                                    <Link to={'/apis/' + api.id + '/subscriptions'}>
+                                    <Link to={'/apis/' + api.id + '/subscriptions'} aria-label='Business Plan(s)'>
                                         <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                                     </Link>
                                 </Grid>
@@ -165,7 +165,10 @@ export default function CheckboxLabels(props) {
                                             defaultMessage='Certificate provided'
                                         />
                                     </Typography>
-                                    <Link to={'/apis/' + api.id + '/runtime-configuration'}>
+                                    <Link
+                                        to={'/apis/' + api.id + '/runtime-configuration'}
+                                        aria-label='Certificate provided'
+                                    >
                                         <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                                     </Link>
                                 </Grid>
@@ -183,7 +186,7 @@ export default function CheckboxLabels(props) {
                                     defaultMessage='Gateway Environment(s) selected'
                                 />
                             </Typography>
-                            <Link to={'/apis/' + api.id + '/environments'}>
+                            <Link to={'/apis/' + api.id + '/environments'} aria-label='Gateway Environment(s)'>
                                 <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                             </Link>
                         </Grid>
@@ -191,7 +194,7 @@ export default function CheckboxLabels(props) {
                     { api.type !== 'GRAPHQL' && (
                         <>
                             <Grid xs={12} className={classes.labelsGrid}>
-                                <Typography variant='subtitle2'>
+                                <Typography variant='subtitle2' component='h4'>
                                     <FormattedMessage
                                         id='Apis.Details.Configuration.Configuration.prototype'
                                         defaultMessage='Deploy as a Prototype'
@@ -211,7 +214,7 @@ export default function CheckboxLabels(props) {
                                             defaultMessage='Prototype Endpoint provided'
                                         />
                                     </Typography>
-                                    <Link to={'/apis/' + api.id + '/endpoints'}>
+                                    <Link to={'/apis/' + api.id + '/endpoints'} aria-label='Prototype Endpoint'>
                                         <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                                     </Link>
                                 </Grid>
@@ -227,7 +230,7 @@ export default function CheckboxLabels(props) {
                                             defaultMessage='Gateway Environment(s) selected'
                                         />
                                     </Typography>
-                                    <Link to={'/apis/' + api.id + '/environments'}>
+                                    <Link to={'/apis/' + api.id + '/environments'} aria-label='Gateway Environment(s)'>
                                         <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                                     </Link>
                                 </Grid>
@@ -259,7 +262,7 @@ export default function CheckboxLabels(props) {
                                     defaultMessage='Prototype Endpoint provided'
                                 />
                             </Typography>
-                            <Link to={'/apis/' + api.id + '/endpoints'}>
+                            <Link to={'/apis/' + api.id + '/endpoints'} aria-label='Prototype Endpoint'>
                                 <LaunchIcon style={{ marginLeft: '2px' }} color='primary' fontSize='small' />
                             </Link>
                         </Grid>

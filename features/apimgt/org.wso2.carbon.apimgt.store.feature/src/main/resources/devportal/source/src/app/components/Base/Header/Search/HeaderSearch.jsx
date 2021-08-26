@@ -139,6 +139,17 @@ class HeaderSearch extends React.Component {
     }
 
     /**
+     * Fix accessibility
+     * @func domReady
+     */
+     componentDidMount(fn) {
+        document.addEventListener('DOMContentLoaded', fn);
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            document.querySelector('[aria-autocomplete="list"]').removeAttribute('aria-autocomplete');
+        }
+    }
+
+    /**
      * To provide accessibility for Enter key upon suggestion selection
      * @param {React.SyntheticEvent} event event
      * @param {Object} suggestion This is either API object or document coming from search API call
@@ -311,6 +322,9 @@ class HeaderSearch extends React.Component {
                         onBlur: this.clearOnBlur,
                         isLoading,
                     }}
+                    containerProps={{
+                        'aria-label': 'Search for APIs',
+                    }}
                 />
                 <Tooltip
                     interactive
@@ -402,7 +416,7 @@ class HeaderSearch extends React.Component {
                         </React.Fragment>
                     }
                 >
-                    <IconButton className={classes.infoButton} aria-label='Search Options'>
+                    <IconButton className={classes.infoButton} aria-label='View Search Options'>
                         <InfoIcon />
                     </IconButton>
                 </Tooltip>

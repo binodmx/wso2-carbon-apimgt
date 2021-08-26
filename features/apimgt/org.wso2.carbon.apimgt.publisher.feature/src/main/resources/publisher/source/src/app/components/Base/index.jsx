@@ -80,7 +80,7 @@ const Base = ({ classes, children, header }) => {
         <>
             <div className={classes.wrapper}>
                 {header}
-                <div className={classes.contentWrapper}>{children}</div>
+                <main><div className={classes.contentWrapper}>{children}</div></main>
 
                 {footerActive && (<div className={classes.push} />)}
             </div>

@@ -117,10 +117,10 @@ class Header extends React.Component {
                                 <MenuIcon className={classes.menuIcon} />
                             </IconButton>
                         </Hidden>
-                        <Link to='/'>
+                        <Link to='/' aria-label='Go to home page'>
                             <img
                                 src={Configurations.app.context + theme.custom.logo}
-                                alt={theme.custom.title}
+                                alt={theme.custom.title.prefix + ' logo'}
                                 style={{ height: theme.custom.logoHeight, width: theme.custom.logoWidth }}
                             />
                         </Link>
@@ -130,7 +130,7 @@ class Header extends React.Component {
                             <HeaderSearch />
                         </Hidden>
                         <Hidden mdUp>
-                            <IconButton onClick={this.toggleSmSearch} color='inherit'>
+                            <IconButton onClick={this.toggleSmSearch} color='inherit' aria-label='Search button'>
                                 <SearchIcon className={classes.menuIcon} />
                             </IconButton>
                             {smScreen && <HeaderSearch toggleSmSearch={this.toggleSmSearch} smSearch={smScreen} />}

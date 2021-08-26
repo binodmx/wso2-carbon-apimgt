@@ -98,7 +98,11 @@ function Delete(props) {
 
     return (
         <div>
-            <Button onClick={toggleOpen} disabled={isRestricted(['apim:api_create'])}>
+            <Button
+                onClick={toggleOpen}
+                disabled={isRestricted(['apim:api_create'])}
+                aria-label={'Delete ' + scopeName}
+            >
                 <Icon>delete_forever</Icon>
                 <FormattedMessage
                     id='Scopes.Delete.Delete.scope.delete'

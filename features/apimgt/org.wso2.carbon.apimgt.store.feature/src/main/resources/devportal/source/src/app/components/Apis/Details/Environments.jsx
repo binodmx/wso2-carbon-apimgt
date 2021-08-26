@@ -216,7 +216,7 @@ class Environments extends React.Component {
                                             || endpoint.URLs.https !== null
                                             || endpoint.URLs.ws !== null
                                             || endpoint.URLs.wss !== null) && (
-                                                <Typography className={classes.heading}>
+                                                <Typography id='urls' component='label' className={classes.heading}>
                                                     <FormattedMessage
                                                         id='Apis.Details.InfoBar.gateway.urls'
                                                         defaultMessage='Gateway URLs'
@@ -239,6 +239,9 @@ class Environments extends React.Component {
                                                     InputLabelProps={{
                                                         shrink: true,
                                                         className: classes.bootstrapFormLabel,
+                                                    }}
+                                                    inputProps={{
+                                                        'aria-labelledby':'urls',
                                                     }}
                                                 />
                                                 <Tooltip
@@ -271,7 +274,7 @@ class Environments extends React.Component {
                                             <Grid item xs={12}>
                                                 <TextField
                                                     defaultValue={endpoint.URLs.https}
-                                                    id='bootstrap-input'
+                                                    id='environments-input'
                                                     InputProps={{
                                                         disableUnderline: true,
                                                         readOnly: true,
@@ -283,6 +286,9 @@ class Environments extends React.Component {
                                                     InputLabelProps={{
                                                         shrink: true,
                                                         className: classes.bootstrapFormLabel,
+                                                    }}
+                                                    inputProps={{
+                                                        'aria-labelledby':'urls',
                                                     }}
                                                 />
                                                 <Tooltip
@@ -404,7 +410,7 @@ class Environments extends React.Component {
                                                 endpoint.defaultVersionURLs.https !== null ||
                                                 endpoint.defaultVersionURLs.ws !== null ||
                                                 endpoint.defaultVersionURLs.wss !== null) && (
-                                                <Typography className={classes.heading}>
+                                                <Typography className={classes.heading} component='label' htmlFor='defaultGateway'>
                                                     <FormattedMessage
                                                         id='Apis.Details.InfoBar.default.gateway.urls'
                                                         defaultMessage='Default Gateway URLs'
@@ -416,7 +422,7 @@ class Environments extends React.Component {
                                                 <Grid item xs={12}>
                                                     <TextField
                                                         defaultValue={endpoint.defaultVersionURLs.http}
-                                                        id='bootstrap-input'
+                                                        id='defaultGateway'
                                                         InputProps={{
                                                             disableUnderline: true,
                                                             readOnly: true,
@@ -643,7 +649,7 @@ class Environments extends React.Component {
                                     <ExpansionPanelDetails>
                                         <Grid container item xs={12} spacing={2}>
                                             {cluster.ingressURL !== null && (
-                                                <Typography className={classes.heading}>
+                                                <Typography className={classes.heading} component='label' htmlFor='ingressUrl'>
                                                     <FormattedMessage
                                                         id='Apis.Details.InfoBar.gateway.ingressUrls'
                                                         defaultMessage='Cluster Ingress URLs'
@@ -654,7 +660,7 @@ class Environments extends React.Component {
                                                 <Grid item xs={12}>
                                                     <TextField
                                                         defaultValue={cluster.ingressURL}
-                                                        id='bootstrap-input'
+                                                        id='ingressUrl'
                                                         InputProps={{
                                                             disableUnderline: true,
                                                             readOnly: true,

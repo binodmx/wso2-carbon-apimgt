@@ -260,7 +260,10 @@ function Overview(props) {
             {!api.advertiseInfo.advertised && showCredentials && (
                 <Grid item xs={12} lg={6}>
                     <ExpansionPanel defaultExpanded>
-                        <ExpansionPanelSummary>
+                        <ExpansionPanelSummary
+                            aria-controls='panelSubscriptions-content'
+                            id='panelSubscriptions-header'
+                        >
                             <CustomIcon
                                 strokeColor={titleIconColor}
                                 className={classes.iconClass}
@@ -268,7 +271,7 @@ function Overview(props) {
                                 height={titleIconSize}
                                 icon='credentials'
                             />
-                            <Typography className={classes.heading} variant='h6'>
+                            <Typography className={classes.heading} variant='h6' component='h2'>
                                 <FormattedMessage
                                     id='Apis.Details.Overview.api.subscriptions'
                                     defaultMessage='Subscriptions'
@@ -298,7 +301,7 @@ function Overview(props) {
                                 <ExpansionPanelDetails classes={{ root: classes.expansionRoot }}>
                                     <Grid container className={classes.root} spacing={2}>
                                         <Grid item xs={12}>
-                                            <Typography variant='subtitle2'>
+                                            <Typography variant='subtitle2' component='h3'>
                                                 <FormattedMessage
                                                     id='Apis.Details.Overview.subscriptions.title'
                                                     defaultMessage='Subscriptions'
@@ -317,27 +320,21 @@ function Overview(props) {
                                                 <Grid item xs={12}>
                                                     {user ? (
                                                         <Box display='flex' flexDirection='column' mr={2}>
-                                                            <Link
+                                                            <Button
+                                                                variant='contained'
+                                                                color='primary'
+                                                                size='large'
+                                                                component={Link}
                                                                 to={'/apis/' + api.id + '/credentials'}
-                                                                style={
-                                                                    !api.isSubscriptionAvailable ?
-                                                                        { pointerEvents: 'none' } : null
-                                                                }
+                                                                disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL ||
+                                                                        isOnlyBasicAuth }
                                                             >
-                                                                <Button
-                                                                    variant='contained'
-                                                                    color='primary'
-                                                                    size='large'
-                                                                    disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL ||
-                                                                         isOnlyBasicAuth }
-                                                                >
-                                                                    <FormattedMessage
-                                                                        id={'Apis.Details.Overview.subscribe' +
-                                                                            'btn.link'}
-                                                                        defaultMessage='Subscribe'
-                                                                    />
-                                                                </Button>
-                                                            </Link>
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Overview.subscribe' +
+                                                                        'btn.link'}
+                                                                    defaultMessage='Subscribe'
+                                                                />
+                                                            </Button>
                                                             {subscribedApplications && (<Typography variant='caption' component='div'>
                                                                 {subscribedApplications.length === 0 ? (<FormattedMessage
                                                                     id='Apis.Details.Overview.subscribe.count.zero'
@@ -377,12 +374,13 @@ function Overview(props) {
                                                         </Box>
                                                     ) : (
                                                             <Box display='inline' mr={2}>
-                                                                <a href={app.context + '/services/configs'}>
                                                                     <Button
                                                                         variant='contained'
                                                                         color='primary'
                                                                         size='large'
                                                                         disabled={!api.isSubscriptionAvailable}
+                                                                        component='a'
+                                                                        href={app.context + '/services/configs'}
                                                                     >
                                                                         <FormattedMessage
                                                                             id={'Apis.Details.Overview.signin' +
@@ -390,7 +388,6 @@ function Overview(props) {
                                                                             defaultMessage='Sign in to Subscribe'
                                                                         />
                                                                     </Button>
-                                                                </a>
                                                             </Box>
                                                         )}
                                                 </Grid>
@@ -406,7 +403,10 @@ function Overview(props) {
             {api.type !== 'WS' && showTryout && (
                 <Grid item xs={12} lg={6}>
                     <ExpansionPanel defaultExpanded>
-                        <ExpansionPanelSummary>
+                        <ExpansionPanelSummary
+                            aria-controls='panelTryout-content'
+                            id='paneltryout-header'
+                        >
                             <CustomIcon
                                 strokeColor={titleIconColor}
                                 className={classes.iconClass}
@@ -414,7 +414,7 @@ function Overview(props) {
                                 height={titleIconSize}
                                 icon='credentials'
                             />
-                            <Typography id='APIOperationTitle' className={classes.heading} variant='h6'>
+                            <Typography id='APIOperationTitle' className={classes.heading} variant='h6' component='h2'>
                                 {getTitleForAPIOperationType(api.type)}
                             </Typography>
                         </ExpansionPanelSummary>
@@ -425,19 +425,20 @@ function Overview(props) {
                             <>
                                 <Divider />
                                 <ExpansionPanelActions className={classes.actionPanel}>
-                                    <Link to={'/apis/' + api.id + '/test'} className={classes.linkToTest}>
-                                        <Button
-                                            id='test'
-                                            size='small'
-                                            color='primary'
-                                            aria-labelledby='test APIOperationTitle'
-                                        >
-                                            <FormattedMessage
-                                                id='Apis.Details.Overview.resources.show.more'
-                                                defaultMessage='Test >>'
-                                            />
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        id='test'
+                                        size='small'
+                                        color='primary'
+                                        aria-labelledby='test APIOperationTitle'
+                                        className={classes.linkToTest}
+                                        component={Link}
+                                        to={'/apis/' + api.id + '/test'}
+                                    >
+                                        <FormattedMessage
+                                            id='Apis.Details.Overview.resources.show.more'
+                                            defaultMessage='Test >>'
+                                        />
+                                    </Button>
                                 </ExpansionPanelActions>
                             </>
                         )}
@@ -449,7 +450,10 @@ function Overview(props) {
                     {showComments && (
                         <Grid item xs={12} lg={6}>
                             <ExpansionPanel defaultExpanded>
-                                <ExpansionPanelSummary>
+                                <ExpansionPanelSummary
+                                    aria-controls='panelComments-content'
+                                    id='panelComments-header'
+                                >
                                     <CustomIcon
                                         strokeColor={titleIconColor}
                                         className={classes.iconClass}
@@ -457,7 +461,7 @@ function Overview(props) {
                                         height={titleIconSize}
                                         icon='comments'
                                     />
-                                    <Typography id='comments' className={classes.heading} variant='h6'>
+                                    <Typography id='comments' className={classes.heading} variant='h6' component='h2'>
                                         <FormattedMessage
                                             id='Apis.Details.Overview.comments.title'
                                             defaultMessage='Comments'
@@ -497,14 +501,20 @@ function Overview(props) {
                                 </ExpansionPanelDetails>
                                 <Divider />
                                 <ExpansionPanelActions className={classes.actionPanel}>
-                                    <Link to={'/apis/' + api.id + '/comments'} className={classes.button}>
-                                        <Button id='more' aria-labelledby='more comments' size='small' color='primary'>
-                                            <FormattedMessage
-                                                id='Apis.Details.Overview.comments.show.more'
-                                                defaultMessage='Show More >>'
-                                            />
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        id='more'
+                                        aria-labelledby='more comments'
+                                        size='small'
+                                        color='primary'
+                                        className={classes.button}
+                                        component={Link}
+                                        to={'/apis/' + api.id + '/comments'}
+                                    >
+                                        <FormattedMessage
+                                            id='Apis.Details.Overview.comments.show.more'
+                                            defaultMessage='Show More >>'
+                                        />
+                                    </Button>
                                 </ExpansionPanelActions>
                             </ExpansionPanel>
                         </Grid>
@@ -512,7 +522,10 @@ function Overview(props) {
                     {api.type !== 'WS' && showSdks && (
                         <Grid item xs={6}>
                             <ExpansionPanel defaultExpanded>
-                                <ExpansionPanelSummary>
+                                <ExpansionPanelSummary
+                                    aria-controls='panelsdk-content'
+                                    id='panelsdk-header'
+                                >
                                     <CustomIcon
                                         strokeColor={titleIconColor}
                                         className={classes.iconClass}
@@ -520,7 +533,7 @@ function Overview(props) {
                                         height={titleIconSize}
                                         icon='sdk'
                                     />
-                                    <Typography id='SDKGeneration' className={classes.heading} variant='h6'>
+                                    <Typography id='SDKGeneration' className={classes.heading} variant='h6' component='h2'>
                                         <FormattedMessage
                                             id='Apis.Details.Overview.sdk.generation.title'
                                             defaultMessage='SDK Generation'
@@ -545,19 +558,20 @@ function Overview(props) {
                                 </ExpansionPanelDetails>
                                 <Divider />
                                 <ExpansionPanelActions className={classes.actionPanel}>
-                                    <Link to={'/apis/' + api.id + '/sdk'} className={classes.linkToTest}>
-                                        <Button
-                                            id='SDKMore'
-                                            size='small'
-                                            color='primary'
-                                            aria-labelledby='SDKMore SDKGeneration'
-                                        >
-                                            <FormattedMessage
-                                                id='Apis.Details.Overview.sdk.generation.show.more'
-                                                defaultMessage='Show More >>'
-                                            />
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        id='SDKMore'
+                                        size='small'
+                                        color='primary'
+                                        aria-labelledby='SDKMore SDKGeneration'
+                                        className={classes.linkToTest}
+                                        component={Link}
+                                        to={'/apis/' + api.id + '/sdk'}
+                                    >
+                                        <FormattedMessage
+                                            id='Apis.Details.Overview.sdk.generation.show.more'
+                                            defaultMessage='Show More >>'
+                                        />
+                                    </Button>
                                 </ExpansionPanelActions>
                             </ExpansionPanel>
                         </Grid>
@@ -567,7 +581,10 @@ function Overview(props) {
             {showDocuments && (
                 <Grid item xs={12} lg={6}>
                     <ExpansionPanel defaultExpanded>
-                        <ExpansionPanelSummary>
+                        <ExpansionPanelSummary
+                            aria-controls='paneldocs-content'
+                            id='paneldocs-header'
+                        >
                             <CustomIcon
                                 strokeColor={titleIconColor}
                                 className={classes.iconClass}
@@ -576,7 +593,7 @@ function Overview(props) {
                                 icon='docs'
                             />
 
-                            <Typography id='Documents' className={classes.heading} variant='h6'>
+                            <Typography id='Documents' className={classes.heading} variant='h6' component='h2'>
                                 <FormattedMessage
                                     id='Apis.Details.Overview.documents.title'
                                     defaultMessage='Documents'
@@ -590,14 +607,20 @@ function Overview(props) {
                         </ExpansionPanelDetails>
                         <Divider />
                         <ExpansionPanelActions className={classes.actionPanel}>
-                            <Link to={'/apis/' + api.id + '/documents'} className={classes.button}>
-                                <Button id='DMore' size='small' color='primary' aria-labelledby='DMore Documents'>
-                                    <FormattedMessage
-                                        id='Apis.Details.Overview.comments.show.more'
-                                        defaultMessage='Show More >>'
-                                    />
-                                </Button>
-                            </Link>
+                            <Button
+                                id='DMore'
+                                size='small'
+                                color='primary'
+                                aria-labelledby='DMore Documents'
+                                className={classes.button}
+                                component={Link}
+                                to={'/apis/' + api.id + '/documents'}
+                            >
+                                <FormattedMessage
+                                    id='Apis.Details.Overview.comments.show.more'
+                                    defaultMessage='Show More >>'
+                                />
+                            </Button>
                         </ExpansionPanelActions>
                     </ExpansionPanel>
                 </Grid>

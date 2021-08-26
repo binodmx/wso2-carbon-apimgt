@@ -510,158 +510,160 @@ class Details extends Component {
                     }}
                 >
                     <div className={classes.LeftMenu}>
-                        <Link to={'/' + (isAPIProduct ? 'api-products' : 'apis') + '/'}>
-                            <div className={classes.leftLInkMain}>
-                                <CustomIcon
-                                    width={leftMenuIconMainSize}
-                                    height={leftMenuIconMainSize}
-                                    icon={isAPIProduct ? 'api-product' : 'api'}
+                        <nav arial-label='secondary navigation'>
+                            <Link to={'/' + (isAPIProduct ? 'api-products' : 'apis') + '/'} aria-label='ALL APIs'>
+                                <div className={classes.leftLInkMain}>
+                                    <CustomIcon
+                                        width={leftMenuIconMainSize}
+                                        height={leftMenuIconMainSize}
+                                        icon={isAPIProduct ? 'api-product' : 'api'}
+                                    />
+                                </div>
+                            </Link>
+                            <LeftMenuItem
+                                text={intl.formatMessage({
+                                    id: 'Apis.Details.index.overview',
+                                    defaultMessage: 'overview',
+                                })}
+                                to={pathPrefix + 'overview'}
+                                Icon={<DashboardIcon />}
+                            />
+                            <LeftMenuItem
+                                text={intl.formatMessage({
+                                    id: 'Apis.Details.index.design.configs',
+                                    defaultMessage: 'Design Configurations',
+                                })}
+                                route='configuration'
+                                to={pathPrefix + 'configuration'}
+                                Icon={<ConfigurationIcon />}
+                            />
+                            {!api.isWebSocket() && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.runtime.configs',
+                                        defaultMessage: 'Runtime Configurations',
+                                    })}
+                                    route='runtime-configuration'
+                                    to={pathPrefix + 'runtime-configuration'}
+                                    Icon={<RuntimeConfigurationIcon />}
                                 />
-                            </div>
-                        </Link>
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.overview',
-                                defaultMessage: 'overview',
-                            })}
-                            to={pathPrefix + 'overview'}
-                            Icon={<DashboardIcon />}
-                        />
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.design.configs',
-                                defaultMessage: 'Design Configurations',
-                            })}
-                            route='configuration'
-                            to={pathPrefix + 'configuration'}
-                            Icon={<ConfigurationIcon />}
-                        />
-                        {!api.isWebSocket() && (
+                            )}
+                            {api.isWebSocket() && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.runtime.configs',
+                                        defaultMessage: 'Runtime Configurations',
+                                    })}
+                                    route='runtime-configuration'
+                                    to={pathPrefix + 'runtime-configuration-websocket'}
+                                    Icon={<RuntimeConfigurationIcon />}
+                                />
+                            )}
+                            {this.getLeftMenuItemForResourcesByType(api.type)}
+                            {!isAPIProduct && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.endpoints',
+                                        defaultMessage: 'endpoints',
+                                    })}
+                                    to={pathPrefix + 'endpoints'}
+                                    Icon={<EndpointIcon />}
+                                />
+                            )}
                             <LeftMenuItem
                                 text={intl.formatMessage({
-                                    id: 'Apis.Details.index.runtime.configs',
-                                    defaultMessage: 'Runtime Configurations',
+                                    id: 'Apis.Details.index.subscriptions',
+                                    defaultMessage: 'subscriptions',
                                 })}
-                                route='runtime-configuration'
-                                to={pathPrefix + 'runtime-configuration'}
-                                Icon={<RuntimeConfigurationIcon />}
+                                to={pathPrefix + 'subscriptions'}
+                                Icon={<SubscriptionsIcon />}
                             />
-                        )}
-                        {api.isWebSocket() && (
+                            {!isAPIProduct && !isRestricted(['apim:api_publish'], api) && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.lifecycle',
+                                        defaultMessage: 'lifecycle',
+                                    })}
+                                    to={pathPrefix + 'lifecycle'}
+                                    Icon={<LifeCycleIcon />}
+                                />
+                            )}
+                            {this.getLeftMenuItemForDefinitionByType(api.type)}
                             <LeftMenuItem
                                 text={intl.formatMessage({
-                                    id: 'Apis.Details.index.runtime.configs',
-                                    defaultMessage: 'Runtime Configurations',
+                                    id: 'Apis.Details.index.environments',
+                                    defaultMessage: 'environments',
                                 })}
-                                route='runtime-configuration'
-                                to={pathPrefix + 'runtime-configuration-websocket'}
-                                Icon={<RuntimeConfigurationIcon />}
+                                route='environments'
+                                to={pathPrefix + 'environments'}
+                                Icon={<PersonPinCircleOutlinedIcon />}
                             />
-                        )}
-                        {this.getLeftMenuItemForResourcesByType(api.type)}
-                        {!isAPIProduct && (
+                            {!api.isWebSocket() && !isAPIProduct && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.left.menu.scope',
+                                        defaultMessage: 'Local Scopes',
+                                    })}
+                                    to={pathPrefix + 'scopes'}
+                                    Icon={<ScopesIcon />}
+                                />
+                            )}
                             <LeftMenuItem
                                 text={intl.formatMessage({
-                                    id: 'Apis.Details.index.endpoints',
-                                    defaultMessage: 'endpoints',
+                                    id: 'Apis.Details.index.business.info',
+                                    defaultMessage: 'business info',
                                 })}
-                                to={pathPrefix + 'endpoints'}
-                                Icon={<EndpointIcon />}
+                                to={pathPrefix + 'business info'}
+                                Icon={<BusinessIcon />}
                             />
-                        )}
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.subscriptions',
-                                defaultMessage: 'subscriptions',
-                            })}
-                            to={pathPrefix + 'subscriptions'}
-                            Icon={<SubscriptionsIcon />}
-                        />
-                        {!isAPIProduct && !isRestricted(['apim:api_publish'], api) && (
                             <LeftMenuItem
                                 text={intl.formatMessage({
-                                    id: 'Apis.Details.index.lifecycle',
-                                    defaultMessage: 'lifecycle',
+                                    id: 'Apis.Details.index.properties',
+                                    defaultMessage: 'properties',
                                 })}
-                                to={pathPrefix + 'lifecycle'}
-                                Icon={<LifeCycleIcon />}
+                                to={pathPrefix + 'properties'}
+                                Icon={<PropertiesIcon />}
                             />
-                        )}
-                        {this.getLeftMenuItemForDefinitionByType(api.type)}
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.environments',
-                                defaultMessage: 'environments',
-                            })}
-                            route='environments'
-                            to={pathPrefix + 'environments'}
-                            Icon={<PersonPinCircleOutlinedIcon />}
-                        />
-                        {!api.isWebSocket() && !isAPIProduct && (
                             <LeftMenuItem
                                 text={intl.formatMessage({
-                                    id: 'Apis.Details.index.left.menu.scope',
-                                    defaultMessage: 'Local Scopes',
+                                    id: 'Apis.Details.index.documents',
+                                    defaultMessage: 'documents',
                                 })}
-                                to={pathPrefix + 'scopes'}
-                                Icon={<ScopesIcon />}
+                                to={pathPrefix + 'documents'}
+                                Icon={<DocumentsIcon />}
                             />
-                        )}
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.business.info',
-                                defaultMessage: 'business info',
-                            })}
-                            to={pathPrefix + 'business info'}
-                            Icon={<BusinessIcon />}
-                        />
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.properties',
-                                defaultMessage: 'properties',
-                            })}
-                            to={pathPrefix + 'properties'}
-                            Icon={<PropertiesIcon />}
-                        />
-                        <LeftMenuItem
-                            text={intl.formatMessage({
-                                id: 'Apis.Details.index.documents',
-                                defaultMessage: 'documents',
-                            })}
-                            to={pathPrefix + 'documents'}
-                            Icon={<DocumentsIcon />}
-                        />
-                        {!api.isWebSocket() && !isAPIProduct && !api.isGraphql() && !isRestricted(['apim:api_publish'],
-                            api) && api.lifeCycleStatus !== 'PUBLISHED' && (
-                            <LeftMenuItem
-                                text={intl.formatMessage({
-                                    id: 'Apis.Details.index.Tryout',
-                                    defaultMessage: 'test console',
-                                })}
-                                to={pathPrefix + 'test-console'}
-                                iconText='test'
-                            />
-                        )}
-                        {!api.isWebSocket() && !isRestricted(['apim:api_publish'], api) && (
-                            <LeftMenuItem
-                                text={intl.formatMessage({
-                                    id: 'Apis.Details.index.monetization',
-                                    defaultMessage: 'monetization',
-                                })}
-                                to={pathPrefix + 'monetization'}
-                                Icon={<MonetizationIcon />}
-                            />
-                        )}
-                        {!isAPIProduct && settingsContext.externalStoresEnabled && (
-                            <LeftMenuItem
-                                text={intl.formatMessage({
-                                    id: 'Apis.Details.index.external-stores',
-                                    defaultMessage: 'external dev portals',
-                                })}
-                                to={pathPrefix + 'external-devportals'}
-                                Icon={<StoreIcon />}
-                            />
-                        )}
+                            {!api.isWebSocket() && !isAPIProduct && !api.isGraphql()
+                            && !isRestricted(['apim:api_publish'], api) && api.lifeCycleStatus !== 'PUBLISHED' && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.Tryout',
+                                        defaultMessage: 'test console',
+                                    })}
+                                    to={pathPrefix + 'test-console'}
+                                    iconText='test'
+                                />
+                            )}
+                            {!api.isWebSocket() && !isRestricted(['apim:api_publish'], api) && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.monetization',
+                                        defaultMessage: 'monetization',
+                                    })}
+                                    to={pathPrefix + 'monetization'}
+                                    Icon={<MonetizationIcon />}
+                                />
+                            )}
+                            {!isAPIProduct && settingsContext.externalStoresEnabled && (
+                                <LeftMenuItem
+                                    text={intl.formatMessage({
+                                        id: 'Apis.Details.index.external-stores',
+                                        defaultMessage: 'external dev portals',
+                                    })}
+                                    to={pathPrefix + 'external-devportals'}
+                                    Icon={<StoreIcon />}
+                                />
+                            )}
+                        </nav>
                     </div>
                     <div className={classes.content}>
                         <APIDetailsTopMenu api={api} isAPIProduct={isAPIProduct} imageUpdate={imageUpdate} />

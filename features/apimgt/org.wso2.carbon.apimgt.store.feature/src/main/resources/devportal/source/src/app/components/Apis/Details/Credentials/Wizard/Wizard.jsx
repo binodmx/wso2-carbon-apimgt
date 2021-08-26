@@ -171,7 +171,7 @@ class Wizard extends Component {
         const CurrentStepComponent = stepComponents[currentStep];
         return (
             <>
-                <Typography variant='h4' className={classes.titleSub}>
+                <Typography variant='h4' component='h2' className={classes.titleSub}>
                     <FormattedMessage
                         id={'Apis.Details.Credentials.Credentials'
                     + '.api.credentials.generate'}

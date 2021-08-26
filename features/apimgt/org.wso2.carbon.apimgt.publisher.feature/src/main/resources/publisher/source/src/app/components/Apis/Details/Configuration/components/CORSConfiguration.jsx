@@ -78,7 +78,7 @@ export default function CORSConfiguration(props) {
     return (
         <ExpansionPanel className={classes.expansionPanel}>
             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography className={classes.subHeading} variant='h6'>
+                <Typography className={classes.subHeading} variant='h6' component='h4'>
                     <FormattedMessage
                         id='Apis.Details.Configuration.components.CORSConfiguration.cors.configuration'
                         defaultMessage='CORS Configuration'
@@ -90,7 +90,7 @@ export default function CORSConfiguration(props) {
                                 defaultMessage='If enabled, the CORS configuration for the API will be enabled.'
                             />
                         )}
-                        aria-label='Response cache'
+                        aria-label='CORS Configuration helper text'
                         placement='right-end'
                         interactive
                     >
@@ -108,6 +108,9 @@ export default function CORSConfiguration(props) {
                                 value: checked,
                             })}
                             color='primary'
+                            inputProps={{
+                                'aria-label': 'CORS Configuration',
+                            }}
                         />
                     )}
                 />

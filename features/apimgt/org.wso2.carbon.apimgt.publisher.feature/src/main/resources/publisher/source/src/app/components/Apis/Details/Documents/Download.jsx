@@ -69,7 +69,7 @@ function Download(props) {
 
     return (
         isSuccessful &&
-        <Button onClick={handleDownload} disabled={!isFileAvailable}>
+        <Button onClick={handleDownload} disabled={!isFileAvailable} aria-label={'Download ' + props.docName}>
             <Icon>arrow_downward</Icon>
             <FormattedMessage
                 id='Apis.Details.Documents.Download.documents.listing.download'

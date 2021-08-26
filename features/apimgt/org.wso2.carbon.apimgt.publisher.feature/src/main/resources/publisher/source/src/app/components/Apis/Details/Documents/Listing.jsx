@@ -220,6 +220,7 @@ class Listing extends React.Component {
                         return null;
                     },
                     filter: false,
+                    sort: false,
                     label: (
                         <FormattedMessage
                             id='Apis.Details.Documents.Listing.column.header.name'
@@ -233,15 +234,21 @@ class Listing extends React.Component {
                 label: (
                     <FormattedMessage
                         id='Apis.Details.Documents.Listing.column.header.source.type'
-                        defaultMessage='sourceType'
+                        defaultMessage='Source Type'
                     />
                 ),
+                options: {
+                    sort: false,
+                },
             },
             {
                 name: 'type',
                 label: (
                     <FormattedMessage id='Apis.Details.Documents.Listing.column.header.type' defaultMessage='type' />
                 ),
+                options: {
+                    sort: false,
+                },
             },
             {
                 name: 'sourceUrl',
@@ -255,11 +262,15 @@ class Listing extends React.Component {
                 label: (
                     <FormattedMessage
                         id='Apis.Details.Documents.Listing.column.header.action'
-                        defaultMessage='action'
+                        defaultMessage='Action'
                     />
                 ),
                 options: {
+                    sort: false,
+                },
+                options: {
                     display: showActionsColumn,
+                    sort: false,
                     customBodyRender: (value, tableMeta) => {
                         if (tableMeta.rowData) {
                             const docName = tableMeta.rowData[1];
@@ -383,7 +394,7 @@ class Listing extends React.Component {
                                     <table className={classes.actionTable}>
                                         <tr>
                                             <td>
-                                                <Download docId={docId} apiId={this.apiId} />
+                                                <Download docId={docId} apiId={this.apiId} docName={docName} />
                                             </td>
                                             <td>
                                                 <Edit
@@ -425,26 +436,26 @@ class Listing extends React.Component {
                     <DeleteMultiple getDocumentsList={this.getDocumentsList} docsToDelete={docsToDelete} docs={docs} />
                 )}
                 <div className={classes.titleWrapper}>
-                    <Typography variant='h4' className={classes.mainTitle}>
+                    <Typography variant='h4' component='h2' className={classes.mainTitle}>
                         <FormattedMessage
                             id='Apis.Details.Documents.Listing.documents.listing.title'
                             defaultMessage='Documents'
                         />
                     </Typography>
                     {docs && docs.length > 0 && (
-                        <Link to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}>
-                            <Button
-                                size='small'
-                                className={classes.button}
-                                disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
-                            >
-                                <AddCircle className={classes.buttonIcon} />
-                                <FormattedMessage
-                                    id='Apis.Details.Documents.Listing.add.new.document.button'
-                                    defaultMessage='Add New Document'
-                                />
-                            </Button>
-                        </Link>
+                        <Button
+                            size='small'
+                            component={Link}
+                            className={classes.button}
+                            disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
+                            to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}
+                        >
+                            <AddCircle className={classes.buttonIcon} />
+                            <FormattedMessage
+                                id='Apis.Details.Documents.Listing.add.new.document.button'
+                                defaultMessage='Add New Document'
+                            />
+                        </Button>
                     )}
                 </div>
                 <div>
@@ -492,19 +503,19 @@ class Listing extends React.Component {
                                 </Typography>
                                 }
                                 <div className={classes.actions}>
-                                    <Link to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}>
-                                        <Button
-                                            variant='contained'
-                                            color='primary'
-                                            className={classes.button}
-                                            disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
-                                        >
-                                            <FormattedMessage
-                                                id='Apis.Details.Documents.Listing.add.new.msg.button'
-                                                defaultMessage='Add New Document'
-                                            />
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        variant='contained'
+                                        color='primary'
+                                        className={classes.button}
+                                        disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
+                                        component={Link}
+                                        to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}
+                                    >
+                                        <FormattedMessage
+                                            id='Apis.Details.Documents.Listing.add.new.msg.button'
+                                            defaultMessage='Add New Document'
+                                        />
+                                    </Button>
                                 </div>
                             </div>
                         </InlineMessage>

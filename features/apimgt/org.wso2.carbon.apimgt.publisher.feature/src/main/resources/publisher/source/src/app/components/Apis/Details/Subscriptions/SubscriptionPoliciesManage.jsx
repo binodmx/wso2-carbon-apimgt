@@ -92,7 +92,7 @@ class SubscriptionPoliciesManage extends Component {
 
         return (
             <>
-                <Typography variant='h4'>
+                <Typography variant='h4' component='h2'>
                     <FormattedMessage
                         id='Apis.Details.Subscriptions.SubscriptionPoliciesManage.business.plans'
                         defaultMessage='Business Plans'

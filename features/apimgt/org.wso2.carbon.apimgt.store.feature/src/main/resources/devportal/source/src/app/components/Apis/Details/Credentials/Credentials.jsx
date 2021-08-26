@@ -391,7 +391,7 @@ class Credentials extends React.Component {
                                 resourcePath={resourcePaths.SUBSCRIPTIONS}
                                 resourceMethod={resourceMethods.POST}
                             >
-                                <Typography variant='h5'>
+                                <Typography variant='h5' component='h3'>
                                     <FormattedMessage
                                         id={'Apis.Details.Credentials.Credentials.' +
                                         'subscribe.to.application'}
@@ -413,26 +413,22 @@ class Credentials extends React.Component {
                                                     }
                                                 />
                                             </Typography>
-                                            <Link
+                                            <Button
+                                                variant='contained'
+                                                color='primary'
+                                                className={classes.buttonElm}
+                                                disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL || 
+                                                    isOnlyBasicAuth}
+                                                component={Link}
                                                 to={(isOnlyMutualSSL || isOnlyBasicAuth) ? null :
-                                                     `/apis/${api.id}/credentials/wizard`}
-                                                style={!api.isSubscriptionAvailable
-                                                    ? { pointerEvents: 'none' } : null}
+                                                    `/apis/${api.id}/credentials/wizard`}
                                             >
-                                                <Button
-                                                    variant='contained'
-                                                    color='primary'
-                                                    className={classes.buttonElm}
-                                                    disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL || 
-                                                        isOnlyBasicAuth}
-                                                >
-                                                    <FormattedMessage
-                                                        id={'Apis.Details.Credentials.'
-                                                        + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
-                                                        defaultMessage='Subscription &amp; Key Generation Wizard'
-                                                    />
-                                                </Button>
-                                            </Link>
+                                                <FormattedMessage
+                                                    id={'Apis.Details.Credentials.'
+                                                    + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
+                                                    defaultMessage='Subscription &amp; Key Generation Wizard'
+                                                />
+                                            </Button>
                                         </div>
                                     ) }
                                     {applicationsAvailable.length > 0 && (
@@ -480,7 +476,7 @@ class Credentials extends React.Component {
                                     */}
                         {subscribedApplications && subscribedApplications.length > 0 && (
                             <>
-                                <Typography variant='h5' className={classes.subsListTitle}>
+                                <Typography variant='h5' component='h3' className={classes.subsListTitle}>
                                     <FormattedMessage
                                         id={'Apis.Details.Credentials.Credentials.'
                                         + 'api.credentials.subscribed.apps.title'}
@@ -518,7 +514,11 @@ class Credentials extends React.Component {
                                                     defaultMessage='Application Status'
                                                 />
                                             </th>
-                                            <th className={classes.th} />
+                                            <th className={classes.th}>
+                                                <Typography variant='srOnly'>
+                                                    Actions
+                                                </Typography>
+                                            </th>
                                         </tr>
                                         {subscribedApplications.map((app, index) => (
                                             <SubscriptionTableRow
@@ -547,33 +547,28 @@ class Credentials extends React.Component {
                 <Grid item md={12} lg={11}>
                     <Grid container spacing={5}>
                         <Grid item md={12}>
-                            <Typography onClick={this.handleExpandClick} variant='h4' className={classes.titleSub}>
+                            <Typography onClick={this.handleExpandClick} variant='h4' component='h2' className={classes.titleSub}>
                                 <FormattedMessage
                                     id='Apis.Details.Credentials.Credentials.api.credentials'
                                     defaultMessage='Subscriptions'
                                 />
                                 {applicationsAvailable.length > 0 && (
-                                    <Link
+                                    <Button
+                                        color='secondary'
+                                        disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL
+                                                || isOnlyBasicAuth}
+                                        size='small'
+                                        component={Link}
                                         to={(isOnlyMutualSSL || isOnlyBasicAuth) ? null :
-                                             `/apis/${api.id}/credentials/wizard`}
-                                        style={!api.isSubscriptionAvailable
-                                            ? { pointerEvents: 'none' } : null}
-                                        className={classes.addLinkWrapper}
+                                            `/apis/${api.id}/credentials/wizard`}
                                     >
-                                        <Button
-                                            color='secondary'
-                                            disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL
-                                                 || isOnlyBasicAuth}
-                                            size='small'
-                                        >
-                                            <Icon>add_circle_outline</Icon>
-                                            <FormattedMessage
-                                                id={'Apis.Details.Credentials.'
-                                                + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
-                                                defaultMessage='Subscription &amp; Key Generation Wizard'
-                                            />
-                                        </Button>
-                                    </Link>
+                                        <Icon>add_circle_outline</Icon>
+                                        <FormattedMessage
+                                            id={'Apis.Details.Credentials.'
+                                            + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
+                                            defaultMessage='Subscription &amp; Key Generation Wizard'
+                                        />
+                                    </Button>
                                 )}
                             </Typography>
                             <Paper elevation={0} className={classes.paper}>

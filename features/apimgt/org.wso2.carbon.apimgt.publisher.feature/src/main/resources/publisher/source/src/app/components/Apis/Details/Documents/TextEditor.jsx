@@ -141,7 +141,10 @@ function TextEditor(props) {
     const { classes } = props;
     return (
         <div>
-            <Button onClick={toggleOpen} disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}>
+            <Button
+                onClick={toggleOpen} disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
+                aria-label={'Edit Content of ' + props.docName}
+            >
                 <Icon>description</Icon>
                 <FormattedMessage id='Apis.Details.Documents.TextEditor.edit.content' defaultMessage='Edit Content' />
             </Button>

@@ -211,7 +211,7 @@ class Monetization extends Component {
             <form method='post' onSubmit={this.handleSubmit}>
                 <Grid container xs={6} spacing={2}>
                     <Grid item xs={12}>
-                        <Typography variant='h4'>
+                        <Typography variant='h4' component='h2'>
                             <FormattedMessage
                                 id='Apis.Details.Monetization.Index.monetization'
                                 defaultMessage='Monetization'
@@ -237,7 +237,7 @@ class Monetization extends Component {
                     <Grid item xs={12}>
                         <Paper className={classes.root}>
                             <Grid item xs={12} className={classes.grid}>
-                                <Typography className={classes.heading} variant='h6'>
+                                <Typography className={classes.heading} variant='h6' component='h3'>
                                     <FormattedMessage
                                         id='Apis.Details.Monetization.Index.monetization.properties'
                                         defaultMessage='Monetization Properties'
@@ -293,14 +293,15 @@ class Monetization extends Component {
                                 defaultMessage='Save'
                             />
                         </Button>
-                        <Link to={'/apis/' + api.id + '/overview'}>
-                            <Button>
-                                <FormattedMessage
-                                    id='Apis.Details.Monetization.Index.cancel'
-                                    defaultMessage='Cancel'
-                                />
-                            </Button>
-                        </Link>
+                        <Button
+                            component={Link}
+                            to={'/apis/' + api.id + '/overview'}
+                        >
+                            <FormattedMessage
+                                id='Apis.Details.Monetization.Index.cancel'
+                                defaultMessage='Cancel'
+                            />
+                        </Button>
                     </Grid>
                 </Grid>
             </form>

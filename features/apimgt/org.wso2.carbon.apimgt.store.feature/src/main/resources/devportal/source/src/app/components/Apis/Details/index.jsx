@@ -402,7 +402,7 @@ class Details extends React.Component {
                 </Helmet>
                 <style>{globalStyle}</style>
                   {!isWidget && (
-                <div
+                <nav
                     className={classNames(
                         classes.leftMenu,
                         {
@@ -419,10 +419,11 @@ class Details extends React.Component {
                         'left-menu',
 
                     )}
+                    aria-label='API Navigation'
                 >
                     {rootIconVisible && (
-                        <Link to='/apis' className={classes.leftLInkMain}>
-                            <CustomIcon width={rootIconSize} height={rootIconSize} icon='api' />
+                        <Link to='/apis' className={classes.leftLInkMain} aria-label='ALL APIs'>
+                            <CustomIcon aria-label='ALL APIs icon' width={rootIconSize} height={rootIconSize} icon='api' />
                             {rootIconTextVisible && (
                                 <Typography className={classes.leftLInkMainText}>
                                     <FormattedMessage id='Apis.Details.index.all.apis' defaultMessage='ALL APIs' />
@@ -523,7 +524,7 @@ class Details extends React.Component {
 
                     )}
 
-                </div>
+                </nav>
                 )}
 
                 <div

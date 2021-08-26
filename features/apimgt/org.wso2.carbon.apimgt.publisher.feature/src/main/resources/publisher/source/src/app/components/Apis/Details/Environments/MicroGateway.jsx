@@ -77,7 +77,7 @@ export default function MicroGateway(props) {
 
     return (
         <>
-            <Typography variant='h4' align='left' className={classes.mainTitle}>
+            <Typography variant='h4' component='h2' align='left' className={classes.mainTitle}>
                 <FormattedMessage
                     id='Apis.Details.Environments.Environments.GatewayLabels'
                     defaultMessage='Gateway Labels'
@@ -88,7 +88,11 @@ export default function MicroGateway(props) {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell />
+                                <TableCell align='left'>
+                                    <Typography variant='srOnly'>
+                                        Action
+                                    </Typography>
+                                </TableCell>
                                 <TableCell align='left'>Label</TableCell>
                                 <TableCell align='left'>Description</TableCell>
                                 <TableCell align='left'>Access URL</TableCell>
@@ -101,6 +105,7 @@ export default function MicroGateway(props) {
                                         <Checkbox
                                             disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
                                             checked={selectedMgLabel.includes(row.name)}
+                                            inputProps={{ 'aria-label': 'select gateway ' + row.name }}
                                             onChange={
                                                 (event) => {
                                                     const { checked, name } = event.target;

@@ -196,7 +196,7 @@ function DocList(props) {
 
     return (
         <>
-            <Typography variant='h4' className={classes.titleSub}>
+            <Typography variant='h4' component='h2' className={classes.titleSub}>
                 <FormattedMessage id='Apis.Details.Documents.Documentation.title' defaultMessage='API Documentation' />
             </Typography>
             <div className={classes.docContainer}>

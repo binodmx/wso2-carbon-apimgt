@@ -42,7 +42,7 @@ function SettingsBase(props) {
     return (
         <Container fixed>
             <div className={classes.headingWrapper}>
-                <Typography variant='h5'>
+                <Typography variant='h5' component='h1'>
                     <FormattedMessage
                         id='Apis.Settings.SettingsBase.header'
                         defaultMessage='Settings'

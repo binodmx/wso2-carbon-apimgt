@@ -27,6 +27,7 @@ import LockRounded from '@material-ui/icons/LockRounded';
 import SwapHorizontalCircle from '@material-ui/icons/SwapHorizontalCircle';
 import Dialog from '@material-ui/core/Dialog';
 import IconButton from '@material-ui/core/IconButton';
+import Link from '@material-ui/core/Link';
 import Icon from '@material-ui/core/Icon';
 import Paper from '@material-ui/core/Paper';
 import { FormattedMessage, injectIntl } from 'react-intl';
@@ -81,6 +82,9 @@ const styles = (theme) => ({
     },
     button: {
         marginLeft: theme.spacing(1),
+        '&:hover': {
+            'text-decoration': 'none',
+        },
     },
     progressLoader: {
         marginLeft: theme.spacing(1),
@@ -412,7 +416,7 @@ class APIDefinition extends React.Component {
             <>
                 <div className={classes.topBar}>
                     <div className={classes.titleWrapper}>
-                        <Typography variant='h4'>
+                        <Typography variant='h4' component='h2'>
                             {graphQL ? (
                                 <FormattedMessage
                                     id='Apis.Details.APIDefinition.APIDefinition.schema.definition'
@@ -442,15 +446,19 @@ class APIDefinition extends React.Component {
                         {api.type !== 'APIProduct' && (
                             <ImportDefinition setSchemaDefinition={this.setSchemaDefinition} />
                         )}
-                        <a className={classes.downloadLink} href={downloadLink} download={fileName}>
-                            <Button size='small' className={classes.button}>
-                                <CloudDownloadRounded className={classes.buttonIcon} />
-                                <FormattedMessage
-                                    id='Apis.Details.APIDefinition.APIDefinition.download.definition'
-                                    defaultMessage='Download Definition'
-                                />
-                            </Button>
-                        </a>
+                        <Button
+                            size='small'
+                            className={classes.button}
+                            component={Link}
+                            download={fileName}
+                            href={downloadLink}
+                        >
+                            <CloudDownloadRounded className={classes.buttonIcon} />
+                            <FormattedMessage
+                                id='Apis.Details.APIDefinition.APIDefinition.download.definition'
+                                defaultMessage='Download Definition'
+                            />
+                        </Button>
 
                         {(securityAuditProperties.apiToken && securityAuditProperties.collectionId
                         && api.type !== 'GRAPHQL')

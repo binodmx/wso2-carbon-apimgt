@@ -33,6 +33,7 @@ import Icon from '@material-ui/core/Icon';
 import { FormattedMessage } from 'react-intl';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ListItem from '@material-ui/core/ListItem';
+import Button from '@material-ui/core/Button';
 import ListItemText from '@material-ui/core/ListItemText';
 import suggestions from './RouteMappings';
 
@@ -66,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
         height: theme.spacing(2),
     },
     linkButton: {
-        display: 'flex',
+        display: 'grid',
         alignItems: 'center',
         flexDirection: 'column',
         padding: 10,
@@ -225,12 +226,12 @@ function GoTo(props) {
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
             <div className={classes.goToWrapper}>
-                <a className={classes.linkButton} onClick={toggleSearch}>
+                <Button className={classes.linkButton} onClick={toggleSearch}>
                     <Icon>find_in_page</Icon>
                     <Typography variant='caption'>
                         <FormattedMessage id='Apis.Details.GoTo.GoTo.btn' defaultMessage='Go To' />
                     </Typography>
-                </a>
+                </Button>
                 {showSearch && (
                     <div className={classes.downshiftWrapper}>
                         <Downshift id='downshift-simple'>

@@ -40,7 +40,7 @@ function GlobalNavBar(props) {
     const isUserFound = AuthManager.getUser();
     React.useEffect(() => {}, [selected]);
     return (
-        <List className={classes.listRootInline} component='nav' >
+        <List className={classes.listRootInline} component='nav' aria-label='primary navigation'>
             {landingPageActive && (isUserFound && !activeForAnonymous ||  activeForAnonymous)
                 && (
                     <Link to='/home' className={classNames({ [classes.selected]: selected === 'home', [classes.links]: true })}>
@@ -74,7 +74,7 @@ function GlobalNavBar(props) {
                 to={(theme.custom.tagWise.active && theme.custom.tagWise.style === 'page') ? '/api-groups' : '/apis'}
                 className={classNames({ [classes.selected]: selected === 'apis', [classes.links]: true })}
             >
-                <ListItem button classes={{root: classes.listItemRoot}}>
+                <ListItem component='div' classes={{root: classes.listItemRoot}}>
                     <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: !drawerView }) }}>
                         <CustomIcon
                             width={iconWidth}
@@ -101,7 +101,7 @@ function GlobalNavBar(props) {
                 {(selected === 'apis' && !drawerView) && (<div className={classes.triangleDown}></div>)}
             </Link>
             <Link to='/applications' className={classNames({ [classes.selected]: selected === 'applications', [classes.links]: true })}>
-                <ListItem button classes={{root: classes.listItemRoot}}>
+                <ListItem component='div' classes={{root: classes.listItemRoot}}>
                     <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: !drawerView }) }}>
                         <CustomIcon
                             width={iconWidth}

@@ -26,6 +26,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Divider from '@material-ui/core/Divider';
 import Icon from '@material-ui/core/Icon';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import InputLabel from '@material-ui/core/InputLabel';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
 import { Link } from 'react-router-dom';
 import ProductIcon from 'AppComponents/Shared/CustomIcon';
@@ -55,22 +56,25 @@ function renderInput(inputProps) {
         );
     }
     return (
-        <TextField
-            id='searchQuery'
-            InputProps={{
-                inputRef: ref,
-                className: classes.input,
-                classes: { focused: classes.inputFocused },
-                startAdornment: (
-                    <InputAdornment position='start'>
-                        <SearchOutlined />
-                    </InputAdornment>
-                ),
-                endAdornment: loadingAdorment,
-                onChange,
-                ...other,
-            }}
-        />
+        <>
+            <InputLabel className={classes.ariaLabel} htmlFor='searchQuery'>Search APIs</InputLabel>
+            <TextField
+                id='searchQuery'
+                InputProps={{
+                    inputRef: ref,
+                    className: classes.input,
+                    classes: { focused: classes.inputFocused },
+                    startAdornment: (
+                        <InputAdornment position='start'>
+                            <SearchOutlined />
+                        </InputAdornment>
+                    ),
+                    endAdornment: loadingAdorment,
+                    onChange,
+                    ...other,
+                }}
+            />
+        </>
     );
 }
 

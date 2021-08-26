@@ -403,7 +403,7 @@ export default function RuntimeConfiguration() {
     return (
         <>
             <Box pb={3}>
-                <Typography variant='h5'>
+                <Typography variant='h5' component='h2'>
                     <FormattedMessage
                         id='Apis.Details.Configuration.RuntimeConfiguration.topic.header'
                         defaultMessage='Runtime Configurations'
@@ -413,7 +413,7 @@ export default function RuntimeConfiguration() {
             <div className={classes.contentWrapper}>
                 <Grid container direction='row' justify='space-around' alignItems='stretch' spacing={8}>
                     <Grid item xs={12} md={7}>
-                        <Typography className={classes.heading} variant='h6'>
+                        <Typography className={classes.heading} variant='h6' component='h3'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Configuration.section.request'
                                 defaultMessage='Request'
@@ -453,7 +453,7 @@ export default function RuntimeConfiguration() {
                                 </Paper>
                                 <ArrowForwardIcon className={classes.arrowForwardIcon} />
                             </Grid>
-                            <Typography className={classes.heading} variant='h6'>
+                            <Typography className={classes.heading} variant='h6' component='h3'>
                                 <FormattedMessage
                                     id='Apis.Details.Configuration.Configuration.section.response'
                                     defaultMessage='Response'
@@ -480,7 +480,7 @@ export default function RuntimeConfiguration() {
                             </Grid>
                             {!api.isAPIProduct() && (
                                 <>
-                                    <Typography className={classes.heading} variant='h6'>
+                                    <Typography className={classes.heading} variant='h6' component='h3'>
                                         <FormattedMessage
                                             id='Apis.Details.Configuration.RuntimeConfiguration.section.fault'
                                             defaultMessage='Fault'
@@ -502,7 +502,7 @@ export default function RuntimeConfiguration() {
                         </Grid>
                     </Grid>
                     <Grid item xs={12} md={5}>
-                        <Typography className={classes.heading} variant='h6'>
+                        <Typography className={classes.heading} variant='h6' component='h3'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Configuration.section.backend'
                                 defaultMessage='Backend'
@@ -550,14 +550,16 @@ export default function RuntimeConfiguration() {
                             </Button>
                         </Grid>
                         <Grid item>
-                            <Link to={'/apis/' + api.id + '/overview'}>
-                                <Button>
-                                    <FormattedMessage
-                                        id='Apis.Details.Configuration.Configuration.cancel'
-                                        defaultMessage='Cancel'
-                                    />
-                                </Button>
-                            </Link>
+                            <Button
+                                component={Link}
+                                to={'/apis/' + api.id + '/overview'}
+                                aria-label='Cancel'
+                            >
+                                <FormattedMessage
+                                    id='Apis.Details.Configuration.Configuration.cancel'
+                                    defaultMessage='Cancel'
+                                />
+                            </Button>
                         </Grid>
                         {isRestricted(['apim:api_create'], api) && (
                             <Grid item>

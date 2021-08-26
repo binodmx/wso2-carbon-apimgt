@@ -41,6 +41,7 @@ export default function Social(props) {
                         defaultMessage='GitHub URL'
                     />
                 )}
+                id='github'
                 variant='outlined'
                 value={api.additionalProperties.github_repo || ''}
                 fullWidth
@@ -64,6 +65,7 @@ export default function Social(props) {
                     />
                 )}
                 variant='outlined'
+                id='slack'
                 value={api.additionalProperties.slack_url || ''}
                 fullWidth
                 margin='normal'

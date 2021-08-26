@@ -131,7 +131,7 @@ class AppsTableContent extends Component {
                                 <StyledTableCell align='left'>{app.throttlingPolicy}</StyledTableCell>
                                 <StyledTableCell align='left'>
                                     {app.status === this.APPLICATION_STATES.APPROVED && (
-                                        <Typography variant='subtitle1' gutterBottom>
+                                        <Typography variant='subtitle1' component='label' gutterBottom>
                                             <FormattedMessage
                                                 id='Applications.Listing.AppsTableContent.active'
                                                 defaultMessage='ACTIVE'
@@ -140,7 +140,7 @@ class AppsTableContent extends Component {
                                     )}
                                     {app.status === this.APPLICATION_STATES.CREATED && (
                                         <>
-                                            <Typography variant='subtitle1' gutterBottom>
+                                            <Typography variant='subtitle1' component='label' gutterBottom>
                                                 <FormattedMessage
                                                     id='Applications.Listing.AppsTableContent.inactive'
                                                     defaultMessage='INACTIVE'
@@ -156,7 +156,7 @@ class AppsTableContent extends Component {
                                         </>
                                     )}
                                     {app.status === this.APPLICATION_STATES.REJECTED && (
-                                        <Typography variant='subtitle1' gutterBottom>
+                                        <Typography variant='subtitle1' component='label' gutterBottom>
                                             <FormattedMessage
                                                 id='Applications.Listing.AppsTableContent.rejected'
                                                 defaultMessage='REJECTED'
@@ -186,7 +186,7 @@ class AppsTableContent extends Component {
                                                 }>
                                                 <span>
                                                 <Link to={`/applications/${app.applicationId}/edit/`} className={!isAppOwner && classes.appOwner}>
-                                                    <IconButton disabled={!isAppOwner} aria-label='Edit'>
+                                                    <IconButton disabled={!isAppOwner} aria-label={'Edit Application ' + app.name}>
                                                         <Icon>
                                                             edit
                                                         </Icon>
@@ -218,7 +218,7 @@ class AppsTableContent extends Component {
                                                 data-appid={app.applicationId}
                                                 onClick={toggleDeleteConfirmation}
                                                 color='default'
-                                                aria-label='Delete'
+                                                aria-label={'Delete Application ' + app.name}
                                             >
                                                 <Icon>delete</Icon>
                                             </IconButton>

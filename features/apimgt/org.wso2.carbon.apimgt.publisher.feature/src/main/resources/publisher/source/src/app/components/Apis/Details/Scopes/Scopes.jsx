@@ -141,8 +141,9 @@ class Scopes extends React.Component {
                 options: {
                     customBodyRender: (value, tableMeta) => {
                         if (value && tableMeta.rowData) {
+                            const scopeName = tableMeta.rowData[0];
                             return (
-                                <List component='nav' className={classes.root}>
+                                <List component='nav' aria-label={scopeName + ' Used in'} className={classes.root}>
                                     {value.map((resource) => (
                                         <ListItem button>
                                             <ListItemText primary={resource} />
@@ -172,7 +173,12 @@ class Scopes extends React.Component {
                                 <table className={classes.actionTable}>
                                     <tr>
                                         <td>
-                                            <Link
+                                            <Button
+                                                disabled={isRestricted(
+                                                    ['apim:api_create'],
+                                                    api,
+                                                )}
+                                                component={Link}
                                                 to={
                                                     !isRestricted(['apim:api_create'], api) && {
                                                         pathname: editUrl,
@@ -181,20 +187,14 @@ class Scopes extends React.Component {
                                                         },
                                                     }
                                                 }
+                                                aria-label={'Edit ' + scopeName}
                                             >
-                                                <Button
-                                                    disabled={isRestricted(
-                                                        ['apim:api_create'],
-                                                        api,
-                                                    )}
-                                                >
-                                                    <Icon>edit</Icon>
-                                                    <FormattedMessage
-                                                        id='Apis.Details.Documents.Edit.documents.text.editor.edit'
-                                                        defaultMessage='Edit'
-                                                    />
-                                                </Button>
-                                            </Link>
+                                                <Icon>edit</Icon>
+                                                <FormattedMessage
+                                                    id='Apis.Details.Documents.Edit.documents.text.editor.edit'
+                                                    defaultMessage='Edit'
+                                                />
+                                            </Button>
                                         </td>
                                         <td>
                                             <Delete scopeName={scopeName} api={api} isAPIProduct />
@@ -253,7 +253,7 @@ class Scopes extends React.Component {
             return (
                 <div className={classes.root}>
                     <div className={classes.titleWrapper}>
-                        <Typography variant='h4' align='left' className={classes.mainTitle}>
+                        <Typography variant='h4' component='h2' align='left' className={classes.mainTitle}>
                             <FormattedMessage
                                 id='Apis.Details.Scopes.Scopes.heading.scope.heading'
                                 defaultMessage='Local Scopes'
@@ -267,9 +267,8 @@ class Scopes extends React.Component {
                                 />
                             )}
                             placement='top-end'
-                            aria-label='Local Scopes'
                         >
-                            <IconButton size='small' aria-label='delete'>
+                            <IconButton size='small' aria-label='Local Scopes help text'>
                                 <HelpOutlineIcon fontSize='small' />
                             </IconButton>
                         </Tooltip>
@@ -292,19 +291,19 @@ class Scopes extends React.Component {
                                 />
                             </Typography>
                             <div className={classes.actions}>
-                                <Link to={!isRestricted(['apim:api_create'], api) && url}>
-                                    <Button
-                                        variant='contained'
-                                        color='primary'
-                                        className={classes.button}
-                                        disabled={isRestricted(['apim:api_create'], api)}
-                                    >
-                                        <FormattedMessage
-                                            id='Apis.Details.Scopes.Scopes.create.scopes.button'
-                                            defaultMessage='Create Scopes'
-                                        />
-                                    </Button>
-                                </Link>
+                                <Button
+                                    variant='contained'
+                                    color='primary'
+                                    className={classes.button}
+                                    disabled={isRestricted(['apim:api_create'], api)}
+                                    to={!isRestricted(['apim:api_create'], api) && url}
+                                    component={Link}
+                                >
+                                    <FormattedMessage
+                                        id='Apis.Details.Scopes.Scopes.create.scopes.button'
+                                        defaultMessage='Create Scopes'
+                                    />
+                                </Button>
                             </div>
                         </div>
                     </InlineMessage>
@@ -315,7 +314,7 @@ class Scopes extends React.Component {
         return (
             <div className={classes.heading}>
                 <div className={classes.titleWrapper}>
-                    <Typography variant='h4' align='left' className={classes.mainTitle}>
+                    <Typography variant='h4' component='h2' align='left' className={classes.mainTitle}>
                         <FormattedMessage
                             id='Apis.Details.Scopes.Scopes.heading.scope.heading'
                             defaultMessage='Local Scopes'
@@ -329,25 +328,24 @@ class Scopes extends React.Component {
                             />
                         )}
                         placement='top-end'
-                        aria-label='Local Scopes'
                     >
-                        <IconButton size='small' aria-label='delete'>
+                        <IconButton size='small' aria-label='Local Scopes help text'>
                             <HelpOutlineIcon fontSize='small' />
                         </IconButton>
                     </Tooltip>
-                    <Link to={!isRestricted(['apim:api_create'], api) && url}>
-                        <Button
-                            size='small'
-                            className={classes.button}
-                            disabled={isRestricted(['apim:api_create'], api)}
-                        >
-                            <AddCircle className={classes.buttonIcon} />
-                            <FormattedMessage
-                                id='Apis.Details.Scopes.Scopes.heading.scope.add_new'
-                                defaultMessage='Add New Local Scope'
-                            />
-                        </Button>
-                    </Link>
+                    <Button
+                        size='small'
+                        className={classes.button}
+                        disabled={isRestricted(['apim:api_create'], api)}
+                        to={!isRestricted(['apim:api_create'], api) && url}
+                        component={Link}
+                    >
+                        <AddCircle className={classes.buttonIcon} />
+                        <FormattedMessage
+                            id='Apis.Details.Scopes.Scopes.heading.scope.add_new'
+                            defaultMessage='Add New Local Scope'
+                        />
+                    </Button>
                     {isRestricted(['apim:api_create'], api) && (
                         <Grid item>
                             <Typography variant='body2' color='primary'>
