@@ -97,7 +97,7 @@ function GlobalNavLinks(props) {
         strokeColor = theme.palette.getContrastText(theme.palette.background.appBar);
     }
     return (
-        <List className={classes.listRoot} component='nav' aria-label='primary navigation'>
+        <List className={classes.listRoot} component='nav' name='primaryNavigation' aria-label='primary navigation'>
             <Link to='/apis' className={classNames({ [classes.selected]: selected === 'apis', [classes.links]: true })}>
                 <ListItem component='div'>
                     <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: smallView }) }}>

@@ -64,6 +64,7 @@ const SwaggerUI = (props) => {
                     len[i].remove();
                 }
                 document.querySelector('.schemes select').setAttribute('id', 'schemes');
+                document.getElementById('unlocked').parentNode.parentNode.remove();
             } else {
                 setTimeout(removeIcon, 500);
             }
