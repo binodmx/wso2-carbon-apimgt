@@ -2504,20 +2504,6 @@ public class SQLConstants {
 
     public static final String CLOSING_BRACE = ")";
 
-    public static final String GET_SCOPES_FOR_API_LIST = "SELECT "
-            + "ARSM.SCOPE_NAME, AUM.API_ID "
-            + "FROM AM_API_RESOURCE_SCOPE_MAPPING ARSM "
-            + "INNER JOIN AM_API_URL_MAPPING AUM "
-            + "ON ARSM.URL_MAPPING_ID = AUM.URL_MAPPING_ID "
-            + "WHERE AUM.API_ID IN ( $paramList )";
-
-    public static final String GET_SCOPES_FOR_API_LIST_ORACLE = "SELECT "
-            + "ARSM.SCOPE_NAME, AUM.API_ID "
-            + "FROM AM_API_RESOURCE_SCOPE_MAPPING ARSM "
-            + "INNER JOIN AM_API_URL_MAPPING AUM "
-            + "ON ARSM.URL_MAPPING_ID = AUM.URL_MAPPING_ID "
-            + "WHERE AUM.API_ID IN ( $paramList )";
-
     public static final String GET_USERS_FROM_OAUTH_TOKEN_SQL =
             "SELECT " +
             "   DISTINCT AMS.USER_ID, " +
