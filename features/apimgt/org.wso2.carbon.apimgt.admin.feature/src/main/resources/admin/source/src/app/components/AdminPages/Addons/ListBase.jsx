@@ -312,6 +312,7 @@ function ListBase(props) {
                                             }}
                                             onChange={filterData}
                                             value={searchText}
+                                            autoFocus
                                         />
                                     )}
                                 </Grid>
@@ -367,11 +368,11 @@ function ListBase(props) {
                     )}
                 </div>
                 {data && data.length === 0 && (
-                    <div className={classes.contentWrapper}>
+                    <Box className={classes.contentWrapper} pb={4}>
                         <Typography color='textSecondary' align='center'>
                             {noDataMessage}
                         </Typography>
-                    </div>
+                    </Box>
                 )}
             </ContentBase>
         </>

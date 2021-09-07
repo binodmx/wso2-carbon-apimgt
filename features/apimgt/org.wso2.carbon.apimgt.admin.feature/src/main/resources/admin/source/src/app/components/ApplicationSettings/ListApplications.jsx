@@ -230,7 +230,7 @@ export default function ListApplications() {
                 muiDataTableOptions={{ pagination: false }}
                 loadNextFeature={
                     {
-                        active: false,
+                        active: true,
                         loadNextActive,
                     }
                 }
