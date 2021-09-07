@@ -48,6 +48,7 @@ import org.wso2.carbon.apimgt.api.model.APIIdentifier;
 import org.wso2.carbon.apimgt.api.model.CORSConfiguration;
 import org.wso2.carbon.apimgt.api.model.Documentation;
 import org.wso2.carbon.apimgt.api.model.DocumentationType;
+import org.wso2.carbon.apimgt.api.model.EndpointSecurity;
 import org.wso2.carbon.apimgt.api.model.Label;
 import org.wso2.carbon.apimgt.api.model.Tier;
 import org.wso2.carbon.apimgt.api.model.URITemplate;
@@ -1967,5 +1968,79 @@ public class APIUtilTest {
         Mockito.when(apiManagerConfiguration.getApiGatewayEnvironments()).thenReturn(environmentMap);
         String tokenEndpointType = APIUtil.getTokenEndpointsByType("production");
         Assert.assertEquals("https://localhost:8243", tokenEndpointType);
+    }
+    
+    @Test
+    public void testSetEndpointSecurityForAPIProduct() throws Exception {
+        API api = new API(new APIIdentifier("admin", "test", "1.0"));
+        api.setEndpointUTPassword("testpassword");
+        api.setEndpointUTUsername("testuser");
+        api.setEndpointSecured(true);
+        Map<String, EndpointSecurity> map = APIUtil.setEndpointSecurityForAPIProduct(api);
+        Assert.assertEquals("Username mismatch for production endpoint", "testuser",
+                map.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION).getUsername());
+        Assert.assertEquals("Password mismatch for production endpoint", "testpassword",
+                map.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION).getPassword());
+        Assert.assertEquals("Username mismatch for sandbox endpoint", "testuser",
+                map.get(APIConstants.ENDPOINT_SECURITY_SANDBOX).getUsername());
+        Assert.assertEquals("Password mismatch for sandbox endpoint", "testpassword",
+                map.get(APIConstants.ENDPOINT_SECURITY_SANDBOX).getPassword());
+        
+    }
+
+    @Test
+    public void testSupportedDefaultFileTypes() throws Exception {
+        PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        ServiceReferenceHolder serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
+        Mockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
+        APIManagerConfigurationService apiManagerConfigurationService = Mockito
+                .mock(APIManagerConfigurationService.class);
+        APIManagerConfiguration apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        Mockito.when(serviceReferenceHolder.getAPIManagerConfigurationService())
+                .thenReturn(apiManagerConfigurationService);
+        Mockito.when(apiManagerConfigurationService.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+
+        // Test valid types
+        String fileName = "test1.pdf";
+        Assert.assertTrue("PDF file type validation failed", APIUtil.isSupportedFileType(fileName));
+
+        fileName = "test1.xls";
+        Assert.assertTrue("Excel file type (xls) validation failed", APIUtil.isSupportedFileType(fileName));
+
+        fileName = "test1.xlsx";
+        Assert.assertTrue("Excel file type (xlsx)  validation failed", APIUtil.isSupportedFileType(fileName));
+
+        // test invalid types
+        fileName = "test1.js";
+        Assert.assertFalse("JS file type should not be allowed", APIUtil.isSupportedFileType(fileName));
+
+        fileName = "test1";
+        Assert.assertFalse("File without a type should not be allowed", APIUtil.isSupportedFileType(fileName));
+
+    }
+
+    @Test
+    public void testSupportedFileTypesByConfig() throws Exception {
+
+        PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        ServiceReferenceHolder serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
+        Mockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
+        APIManagerConfigurationService apiManagerConfigurationService = Mockito
+                .mock(APIManagerConfigurationService.class);
+        APIManagerConfiguration apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        Mockito.when(serviceReferenceHolder.getAPIManagerConfigurationService())
+                .thenReturn(apiManagerConfigurationService);
+        Mockito.when(apiManagerConfigurationService.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+
+        Mockito.when(apiManagerConfiguration.getFirstProperty(APIConstants.API_PUBLISHER_SUPPORTED_DOC_TYPES))
+                .thenReturn("js,java");
+
+        // Test valid types
+        String fileName = "test1.js";
+        Assert.assertTrue("JS file type validation failed", APIUtil.isSupportedFileType(fileName));
+
+        // test invalid types
+        fileName = "test1.pdf";
+        Assert.assertFalse("PDF type should not be allowed", APIUtil.isSupportedFileType(fileName));
     }
 }
