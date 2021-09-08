@@ -175,8 +175,8 @@ class TestConsole extends React.Component {
         let urls;
         let basePath;
         const user = AuthManager.getUser();
-        const promisedAPI = API.getAPIById(apiObj.id);
-        promisedAPI
+        const promisedAPIBase = API.getAPIById(apiObj.id);
+        promisedAPIBase
             .then((apiResponse) => {
                 apiID = apiResponse.obj.id;
                 apiData = apiResponse.obj;
@@ -230,29 +230,39 @@ class TestConsole extends React.Component {
                 this.setState({ serverError: `${error.statusCode} - ${error.response.body.description}` });
             });
         const settingPromise = API.getSettings();
-        settingPromise
-            .then((settingsNew) => {
-                if (settingsNew.environment) {
-                    urls = settingsNew.environment.map((environment) => {
-                        const env = {
-                            name: environment.name,
-                            endpoints: {
-                                http: environment.endpoints.http + apiData.context + '/' + apiData.version,
-                                https: environment.endpoints.https + apiData.context + '/' + apiData.version,
-                            },
-                        };
-                        return env;
-                    });
-                    if (swagger.openapi) {
-                        basePath = apiData.context + '/' + apiData.version;
-                    }
+        // eslint-disable-next-line no-undef
+        Promise.all([promisedAPIBase, settingPromise]).then((values) => {
+            const apiResponse = values[0];
+            const settingsNew = values[1];
+            // Processing api response
+            swagger = apiResponse.obj;
+            if (settingsNew.environment && user != null) {
+                urls = settingsNew.environment.map((environment) => {
+                    const env = {
+                        name: environment.name,
+                        endpoints: {
+                            http: environment.endpoints.http + apiData.context + '/' + apiData.version,
+                            https: environment.endpoints.https + apiData.context + '/' + apiData.version,
+                        },
+                    };
+                    return env;
+                });
+                if (swagger.openapi) {
+                    basePath = apiData.context + '/' + apiData.version;
                 }
                 this.setState({
+                    api: apiData,
+                    swagger,
+                    environments,
+                    labels,
+                    productionAccessToken,
+                    sandboxAccessToken,
                     settings: urls,
                     host: urls[0].endpoints.https.split('//')[1],
                     baseUrl: basePath,
                 });
-            });
+            }
+        });
     }
 
     /**
