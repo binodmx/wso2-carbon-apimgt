@@ -510,7 +510,7 @@ class Details extends Component {
                     }}
                 >
                     <div className={classes.LeftMenu}>
-                        <nav name='secondaryNavigation' arial-label='secondary navigation'>
+                        <nav name='secondaryNavigation' aria-label='secondary navigation'>
                             <Link to={'/' + (isAPIProduct ? 'api-products' : 'apis') + '/'} aria-label='ALL APIs'>
                                 <div className={classes.leftLInkMain}>
                                     <CustomIcon

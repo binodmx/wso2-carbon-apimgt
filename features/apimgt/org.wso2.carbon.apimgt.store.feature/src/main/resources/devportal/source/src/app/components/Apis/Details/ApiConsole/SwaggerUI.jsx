@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import 'swagger-ui-react/swagger-ui.css';
 import SwaggerUILib from 'swagger-ui-react';
@@ -51,28 +51,31 @@ const SwaggerUI = (props) => {
         plugins: [disableAuthorizeAndInfoPlugin],
     };
 
-    useEffect(() => {
-        const removeIcon = () => {
-            if (
-                document.querySelectorAll('.authorization__btn')
-                    .length > 0
-                    && document.querySelectorAll('.authorization__btn').length > 0
-            ) {
-                const len = document.querySelectorAll('.opblock .authorization__btn');
-                let i = 0;
-                for (; i < len.length; i++) {
-                    len[i].remove();
-                }
-                document.querySelector('.schemes select').setAttribute('id', 'schemes');
-                document.getElementById('unlocked').parentNode.parentNode.remove();
-            } else {
-                setTimeout(removeIcon, 500);
-            }
-        };
-        removeIcon();
-    });
+    const [render, setRender] = useState(); 
+    const [layoutRender, setlayoutRender] = useState(); 
 
-    return <SwaggerUILib {...componentProps} />;
+    useEffect(() => {
+        if (!layoutRender) return;
+        const len = document.querySelectorAll('.opblock .authorization__btn');
+        let i = 0;
+        for (; i < len.length; i++) {
+            len[i].remove();
+        }
+        document.querySelector('.schemes select').setAttribute('id', 'schemes');
+        document.getElementById('unlocked').parentNode.parentNode.remove();
+        setlayoutRender(false);
+     }, [layoutRender]);
+
+    useEffect(() => {
+        setlayoutRender(true);
+    }, [render]);
+
+    return (
+        <>
+            <SwaggerUILib {...componentProps} />
+            {setRender};
+        </>
+    );
 };
 
 SwaggerUI.propTypes = {
