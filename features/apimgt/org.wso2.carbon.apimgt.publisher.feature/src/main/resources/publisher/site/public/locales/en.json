@@ -719,6 +719,7 @@
   "Apis.Details.Resources.components.AddOperation.add.tooltip": "Add new operation",
   "Apis.Details.Resources.components.AddOperation.clear.inputs.tooltip": "Clear inputs",
   "Apis.Details.Resources.components.AddOperation.http.verb": "HTTP Verb",
+  "Apis.Details.Resources.components.AddOperation.operation.target.cannot.contains.white.spaces": "Operation target cannot contains white spaces",
   "Apis.Details.Resources.components.AddOperation.operation.target.or.verb.cannot.be.empty.warning": "Operation target or operation verb(s) can't be empty",
   "Apis.Details.Resources.components.AddOperation.option": "OPTIONS",
   "Apis.Details.Resources.components.AddParameter.clear.inputs.tooltip": "Clear inputs",
