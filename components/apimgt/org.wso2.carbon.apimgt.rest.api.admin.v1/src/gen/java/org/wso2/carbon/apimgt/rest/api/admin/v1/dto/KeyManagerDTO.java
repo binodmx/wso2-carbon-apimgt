@@ -29,7 +29,9 @@ public class KeyManagerDTO   {
     private String introspectionEndpoint = null;
     private String clientRegistrationEndpoint = null;
     private String tokenEndpoint = null;
+    private String displayTokenEndpoint = null;
     private String revokeEndpoint = null;
+    private String displayRevokeEndpoint = null;
     private String userInfoEndpoint = null;
     private String authorizeEndpoint = null;
     private KeyManagerCertificatesDTO certificates = null;
@@ -208,6 +210,23 @@ public class KeyManagerDTO   {
 
   /**
    **/
+  public KeyManagerDTO displayTokenEndpoint(String displayTokenEndpoint) {
+    this.displayTokenEndpoint = displayTokenEndpoint;
+    return this;
+  }
+
+  
+  @ApiModelProperty(example = "https://localhost:9444/oauth2/token", value = "")
+  @JsonProperty("displayTokenEndpoint")
+  public String getDisplayTokenEndpoint() {
+    return displayTokenEndpoint;
+  }
+  public void setDisplayTokenEndpoint(String displayTokenEndpoint) {
+    this.displayTokenEndpoint = displayTokenEndpoint;
+  }
+
+  /**
+   **/
   public KeyManagerDTO revokeEndpoint(String revokeEndpoint) {
     this.revokeEndpoint = revokeEndpoint;
     return this;
@@ -221,6 +240,23 @@ public class KeyManagerDTO   {
   }
   public void setRevokeEndpoint(String revokeEndpoint) {
     this.revokeEndpoint = revokeEndpoint;
+  }
+
+  /**
+   **/
+  public KeyManagerDTO displayRevokeEndpoint(String displayRevokeEndpoint) {
+    this.displayRevokeEndpoint = displayRevokeEndpoint;
+    return this;
+  }
+
+  
+  @ApiModelProperty(example = "https://localhost:9444/oauth2/revoke", value = "")
+  @JsonProperty("displayRevokeEndpoint")
+  public String getDisplayRevokeEndpoint() {
+    return displayRevokeEndpoint;
+  }
+  public void setDisplayRevokeEndpoint(String displayRevokeEndpoint) {
+    this.displayRevokeEndpoint = displayRevokeEndpoint;
   }
 
   /**
@@ -548,7 +584,9 @@ public class KeyManagerDTO   {
         Objects.equals(introspectionEndpoint, keyManager.introspectionEndpoint) &&
         Objects.equals(clientRegistrationEndpoint, keyManager.clientRegistrationEndpoint) &&
         Objects.equals(tokenEndpoint, keyManager.tokenEndpoint) &&
+        Objects.equals(displayTokenEndpoint, keyManager.displayTokenEndpoint) &&
         Objects.equals(revokeEndpoint, keyManager.revokeEndpoint) &&
+        Objects.equals(displayRevokeEndpoint, keyManager.displayRevokeEndpoint) &&
         Objects.equals(userInfoEndpoint, keyManager.userInfoEndpoint) &&
         Objects.equals(authorizeEndpoint, keyManager.authorizeEndpoint) &&
         Objects.equals(certificates, keyManager.certificates) &&
@@ -571,7 +609,7 @@ public class KeyManagerDTO   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, displayName, type, description, wellKnownEndpoint, introspectionEndpoint, clientRegistrationEndpoint, tokenEndpoint, revokeEndpoint, userInfoEndpoint, authorizeEndpoint, certificates, issuer, scopeManagementEndpoint, availableGrantTypes, enableTokenGeneration, enableTokenEncryption, enableTokenHashing, enableMapOAuthConsumerApps, enableOAuthAppCreation, enableSelfValidationJWT, claimMapping, consumerKeyClaim, scopesClaim, tokenValidation, enabled, additionalProperties);
+    return Objects.hash(id, name, displayName, type, description, wellKnownEndpoint, introspectionEndpoint, clientRegistrationEndpoint, tokenEndpoint, displayTokenEndpoint, revokeEndpoint, displayRevokeEndpoint, userInfoEndpoint, authorizeEndpoint, certificates, issuer, scopeManagementEndpoint, availableGrantTypes, enableTokenGeneration, enableTokenEncryption, enableTokenHashing, enableMapOAuthConsumerApps, enableOAuthAppCreation, enableSelfValidationJWT, claimMapping, consumerKeyClaim, scopesClaim, tokenValidation, enabled, additionalProperties);
   }
 
   @Override
@@ -588,7 +626,9 @@ public class KeyManagerDTO   {
     sb.append("    introspectionEndpoint: ").append(toIndentedString(introspectionEndpoint)).append("\n");
     sb.append("    clientRegistrationEndpoint: ").append(toIndentedString(clientRegistrationEndpoint)).append("\n");
     sb.append("    tokenEndpoint: ").append(toIndentedString(tokenEndpoint)).append("\n");
+    sb.append("    displayTokenEndpoint: ").append(toIndentedString(displayTokenEndpoint)).append("\n");
     sb.append("    revokeEndpoint: ").append(toIndentedString(revokeEndpoint)).append("\n");
+    sb.append("    displayRevokeEndpoint: ").append(toIndentedString(displayRevokeEndpoint)).append("\n");
     sb.append("    userInfoEndpoint: ").append(toIndentedString(userInfoEndpoint)).append("\n");
     sb.append("    authorizeEndpoint: ").append(toIndentedString(authorizeEndpoint)).append("\n");
     sb.append("    certificates: ").append(toIndentedString(certificates)).append("\n");
