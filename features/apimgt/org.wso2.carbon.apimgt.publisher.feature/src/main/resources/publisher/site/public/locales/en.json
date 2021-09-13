@@ -888,7 +888,7 @@
   "Apis.Details.index.api.not.found.title": "API is not found in the {environmentLabel} Environment",
   "Apis.Details.index.business.info": "business info",
   "Apis.Details.index.design.configs": "Design Configurations",
-  "Apis.Details.index.documents": "documents",
+  "Apis.Details.index.documents": "Documentation",
   "Apis.Details.index.endpoints": "endpoints",
   "Apis.Details.index.environments": "environments",
   "Apis.Details.index.external-stores": "external dev portals",
