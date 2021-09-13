@@ -51,22 +51,23 @@ public class OAuthClient {
 
     /**
      * Method to generate the access token for an OAuth backend
-     * @param url The token url of the backend
-     * @param clientId The Client ID
-     * @param clientSecret The Client Secret
-     * @param username The username
-     * @param password The password
-     * @param grantType The grant type
+     *
+     * @param url              The token url of the backend
+     * @param clientId         The Client ID
+     * @param clientSecret     The Client Secret
+     * @param username         The username
+     * @param password         The password
+     * @param grantType        The grant type
      * @param customParameters The custom parameters JSON Object
-     * @param refreshToken The refresh token
+     * @param refreshToken     The refresh token
      * @return TokenResponse object
-     * @throws IOException In the event of a problem parsing the response from the backend
+     * @throws IOException            In the event of a problem parsing the response from the backend
      * @throws APIManagementException In the event of an unexpected HTTP status code from the backend
      */
     public static TokenResponse generateToken(String url, String clientId, String clientSecret,
-            String username, char[] password, String grantType, JSONObject customParameters, String refreshToken)
+                                              String username, char[] password, String grantType, JSONObject customParameters, String refreshToken)
             throws IOException, APIManagementException, ParseException {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Initializing token generation request: [token-endpoint] " + url);
         }
 
@@ -106,13 +107,14 @@ public class OAuthClient {
 
     /**
      * Method to append the properties from the Custom Parameters JSONObject to the payload
+     *
      * @param customParameters Custom Parameters JSONObject
-     * @param string StringBuilder object containing the existing payload
+     * @param string           StringBuilder object containing the existing payload
      * @return The StringBuilder object with the updated payload
      */
     private static StringBuilder appendCustomParameters(JSONObject customParameters, StringBuilder string) {
         if (customParameters != null) {
-            for(Object keyStr : customParameters.keySet()) {
+            for (Object keyStr : customParameters.keySet()) {
                 Object keyValue = customParameters.get(keyStr);
                 string.append("&").append(keyStr).append("=").append(keyValue);
             }
@@ -122,10 +124,11 @@ public class OAuthClient {
 
     /**
      * Method to retrieve the token response sent from the backend
+     *
      * @param response CloseableHttpResponse object
      * @return TokenResponse object containing the details retrieved from the backend
      * @throws APIManagementException In the event of an unexpected HTTP status code from the backend
-     * @throws IOException In the event of a problem parsing the response from the backend
+     * @throws IOException            In the event of a problem parsing the response from the backend
      */
     private static TokenResponse getTokenResponse(CloseableHttpResponse response)
             throws APIManagementException, IOException, ParseException {
@@ -153,8 +156,8 @@ public class OAuthClient {
                 tokenResponse.setRefreshToken((String) jsonResponse.get("refresh_token"));
             }
             if (jsonResponse.containsKey("scope")) {
-                Set<String> scopeSet = Stream.of( jsonResponse.get("scope").toString().trim()
-                        .split("\\s*,\\s*") ).collect(Collectors.toSet());
+                Set<String> scopeSet = Stream.of(jsonResponse.get("scope").toString().trim()
+                        .split("\\s*,\\s*")).collect(Collectors.toSet());
                 tokenResponse.setScope(scopeSet);
             }
             if (jsonResponse.containsKey("token_type")) {
@@ -162,6 +165,15 @@ public class OAuthClient {
             }
             if (jsonResponse.containsKey("expires_in")) {
                 tokenResponse.setExpiresIn(jsonResponse.get("expires_in").toString());
+                long currentTimeInSeconds = System.currentTimeMillis() / 1000;
+                long expiryTimeInSeconds = currentTimeInSeconds + Long.parseLong(tokenResponse.getExpiresIn());
+                tokenResponse.setValidTill(expiryTimeInSeconds);
+            } else if (null != APIUtil.getMediationConfigurationFromAPIMConfig(
+                    APIConstants.OAuthConstants.OAUTH_MEDIATION_CONFIG +
+                            APIConstants.OAuthConstants.EXPIRES_IN_CONFIG)) {
+                tokenResponse.setExpiresIn(APIUtil.getMediationConfigurationFromAPIMConfig(
+                        APIConstants.OAuthConstants.OAUTH_MEDIATION_CONFIG +
+                                APIConstants.OAuthConstants.EXPIRES_IN_CONFIG));
                 long currentTimeInSeconds = System.currentTimeMillis() / 1000;
                 long expiryTimeInSeconds = currentTimeInSeconds + Long.parseLong(tokenResponse.getExpiresIn());
                 tokenResponse.setValidTill(expiryTimeInSeconds);
