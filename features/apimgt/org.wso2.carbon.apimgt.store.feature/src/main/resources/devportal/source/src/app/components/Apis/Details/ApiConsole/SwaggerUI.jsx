@@ -51,8 +51,8 @@ const SwaggerUI = (props) => {
         plugins: [disableAuthorizeAndInfoPlugin],
     };
 
-    const [render, setRender] = useState(); 
-    const [layoutRender, setlayoutRender] = useState(); 
+    const [render, setRender] = useState();
+    const [layoutRender, setlayoutRender] = useState();
 
     useEffect(() => {
         if (!layoutRender) return;
@@ -64,7 +64,7 @@ const SwaggerUI = (props) => {
         document.querySelector('.schemes select').setAttribute('id', 'schemes');
         document.getElementById('unlocked').parentNode.parentNode.remove();
         setlayoutRender(false);
-     }, [layoutRender]);
+    }, [layoutRender]);
 
     useEffect(() => {
         setlayoutRender(true);
@@ -73,7 +73,7 @@ const SwaggerUI = (props) => {
     return (
         <>
             <SwaggerUILib {...componentProps} />
-            {setRender};
+            {setRender}
         </>
     );
 };
