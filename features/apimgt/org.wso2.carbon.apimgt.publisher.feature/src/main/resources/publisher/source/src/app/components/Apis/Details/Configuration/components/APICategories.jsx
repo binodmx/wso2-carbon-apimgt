@@ -61,6 +61,8 @@ function APICategories(props) {
                 <TextField
                     fullWidth
                     select
+                    name='Categories'
+                    id='APICategories'
                     label={(
                         <>
                             <FormattedMessage
@@ -96,6 +98,7 @@ function APICategories(props) {
                 <TextField
                     fullWidth
                     select
+                    id='APICategories'
                     label={(
                         <>
                             <FormattedMessage

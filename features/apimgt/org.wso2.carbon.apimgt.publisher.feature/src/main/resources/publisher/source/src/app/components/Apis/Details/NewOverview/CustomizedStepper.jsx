@@ -193,6 +193,9 @@ const useStyles = makeStyles((theme) => ({
     stepIcon: {
         fontSize: theme.custom.overviewStepper.iconSize,
     },
+    viewInStoreLauncher: {
+        color: theme.palette.primary.dark,
+    },
 }));
 
 /**
@@ -262,7 +265,7 @@ export default function CustomizedSteppers() {
                 return (
                     <Grid xs={12} display='block'>
                         <Grid xs={12}>
-                            <Typography variant='h5'>
+                            <Typography variant='h5' component='div'>
                                 <FormattedMessage
                                     id='Apis.Details.Overview.CustomizedStepper.published'
                                     defaultMessage='Published'
@@ -278,7 +281,7 @@ export default function CustomizedSteppers() {
                             >
                                 <Typography
                                     variant='h6'
-                                    color='primary'
+                                    component='div'
                                 >
                                     <FormattedMessage
                                         id='Apis.Details.components.APIDetailsTopMenu.view.in.portal'
@@ -292,7 +295,7 @@ export default function CustomizedSteppers() {
                 );
             case 'Prototyped':
                 return (
-                    <Typography variant='h5'>
+                    <Typography variant='h5' component='div'>
                         <FormattedMessage
                             id='Apis.Details.Overview.CustomizedStepper.prototyped'
                             defaultMessage='Prototyped'
@@ -301,7 +304,7 @@ export default function CustomizedSteppers() {
                 );
             case 'Blocked':
                 return (
-                    <Typography variant='h5'>
+                    <Typography variant='h5' component='div'>
                         <FormattedMessage
                             id='Apis.Details.Overview.CustomizedStepper.blocked'
                             defaultMessage='Blocked'
@@ -310,7 +313,7 @@ export default function CustomizedSteppers() {
                 );
             case 'Deprecated':
                 return (
-                    <Typography variant='h5'>
+                    <Typography variant='h5' component='div'>
                         <FormattedMessage
                             id='Apis.Details.Overview.CustomizedStepper.deprecated'
                             defaultMessage='Deprecated'
@@ -319,7 +322,7 @@ export default function CustomizedSteppers() {
                 );
             case 'Retired':
                 return (
-                    <Typography variant='h5'>
+                    <Typography variant='h5' component='div'>
                         <FormattedMessage
                             id='Apis.Details.Overview.CustomizedStepper.retired'
                             defaultMessage='Retired'
@@ -396,7 +399,7 @@ export default function CustomizedSteppers() {
                     <StepLabel style={{ position: 'relative' }} StepIconProps={{ classes: { root: classes.stepIcon } }}>
                         <div className={classes.pointerStart}>
                             <Box className={classes.box}>
-                                <Typography variant='h5'>
+                                <Typography variant='h5' component='div'>
                                     <FormattedMessage
                                         id='Apis.Details.Overview.CustomizedStepper.create'
                                         defaultMessage='Created'
@@ -420,13 +423,13 @@ export default function CustomizedSteppers() {
                                         ) : (
                                             <CloseIcon className={classes.iconFalse} />
                                         )}
-                                        <Typography variant='h7'>
+                                        <Typography variant='h7' component='div'>
                                             <FormattedMessage
                                                 id='Apis.Details.Overview.CustomizedStepper.business.plan.endpoint'
                                                 defaultMessage='Endpoint'
                                             />
                                         </Typography>
-                                        <Link to={'/apis/' + api.id + '/endpoints'}>
+                                        <Link to={'/apis/' + api.id + '/endpoints'} aria-label='Go to Endpoint page'>
                                             <LaunchIcon
                                                 style={{ marginLeft: '5px' }}
                                                 color='primary'
@@ -445,13 +448,17 @@ export default function CustomizedSteppers() {
                                         ) : (
                                             <CloseIcon className={classes.iconFalse} />
                                         )}
-                                        <Typography variant='h7'>
+                                        <Typography variant='h7' component='div'>
                                             <FormattedMessage
-                                                id='Apis.Details.Overview.CustomizedStepper.business.plan.businessPlans'
+                                                id='Apis.Details.Overview.CustomizedStepper.
+                                                business.plan.businessPlans'
                                                 defaultMessage=' Business plans'
                                             />
                                         </Typography>
-                                        <Link to={'/apis/' + api.id + '/subscriptions'}>
+                                        <Link
+                                            aria-label='Go to Business plans page'
+                                            to={'/apis/' + api.id + '/subscriptions'}
+                                        >
                                             <LaunchIcon
                                                 style={{ marginLeft: '5px' }}
                                                 color='primary'

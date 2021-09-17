@@ -46,7 +46,7 @@ const styles = (theme) => ({
         paddingRight: theme.spacing(2),
     },
     delete: {
-        display: 'flex',
+        display: 'inline-grid',
         flexDirection: 'column',
         textAlign: 'center',
         color: theme.custom.deleteButtonColor,
@@ -165,11 +165,11 @@ class DeleteApiButton extends React.Component {
                 <ScopeValidation resourceMethod={resourceMethod.DELETE} resourcePath={path}>
                     <div className={classes.deleteWrapper}>
                         <VerticalDivider height={70} />
-                        <a
-                            id='itest-id-deleteapi-icon-button'
+                        <Button
+                            id={api.name + '-delete-button'}
                             onClick={this.handleRequestOpen}
-                            onKeyDown={this.handleRequestOpen}
                             className={classes.delete}
+                            aria-labelledby={api.name + '-delete-button ' + api.name}
                         >
                             <div>
                                 <DeleteIcon />
@@ -180,7 +180,7 @@ class DeleteApiButton extends React.Component {
                                     defaultMessage='Delete'
                                 />
                             </Typography>
-                        </a>
+                        </Button>
                     </div>
                 </ScopeValidation>
                 <Dialog open={this.state.openMenu} transition={Slide}>

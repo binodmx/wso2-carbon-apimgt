@@ -18,10 +18,10 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import Cancel from '@material-ui/icons/Cancel';
 import StarRate from '@material-ui/icons/StarRate';
+import IconButton from '@material-ui/core/Button';
 import Alert from 'AppComponents/Shared/Alert';
 import Api from 'AppData/api';
 import AuthManager from 'AppData/AuthManager';
@@ -57,6 +57,10 @@ const styles = theme => ({
         justifyContent: 'flex-start',
         alignItems: 'center',
         cursor: 'pointer',
+    },
+    iconButton: {
+        minWidth: 'initial',
+        borderRadius: '50%',
     },
 });
 
@@ -191,16 +195,26 @@ class StarRatingBar extends React.Component {
                             <React.Fragment>
                                 <div className={classes.userRating}>
                                     {[1, 2, 3, 4, 5].map(i => (
+                                        <IconButton
+                                            onClick={() => this.doRate(i)}
+                                            aria-label={'Rate ' + i + ' stars'}
+                                            className={classes.iconButton}
+                                        >
                                             <StarRate
                                                 key={i}
                                                 className={userRating >= i ? classes.starRate : classes.noStarRate}
-                                                onClick={() => this.doRate(i)}
                                             />
+                                        </IconButton>
                                     ))}
-                                        <Cancel
-                                            className={classes.removeRating}
+                                        <IconButton
                                             onClick={() => this.removeUserRating()}
-                                        />
+                                            aria-label='Remove rating'
+                                            className={classes.iconButton}
+                                        >
+                                            <Cancel
+                                                className={classes.removeRating}
+                                            />    
+                                        </IconButton>
                                 </div>
                             </React.Fragment>
                         ) : (

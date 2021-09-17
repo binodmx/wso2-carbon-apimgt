@@ -71,7 +71,7 @@ export default function ApiProductCreateWrapper(props) {
 
     const pageTitle = (
         <>
-            <Typography variant='h5'>
+            <Typography variant='h5' component='h1'>
                 <FormattedMessage
                     id='Apis.Create.APIProduct.APIProductCreateWrapper.heading'
                     defaultMessage='Create an API Product'

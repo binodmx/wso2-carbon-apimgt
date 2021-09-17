@@ -30,6 +30,7 @@ import AuthManager from 'AppData/AuthManager';
 const styles = (theme) => ({
     listRoot: {
         padding: 0,
+        display: 'flex',
     },
     listText: {
         color: theme.palette.getContrastText(theme.palette.background.drawer),
@@ -96,9 +97,9 @@ function GlobalNavLinks(props) {
         strokeColor = theme.palette.getContrastText(theme.palette.background.appBar);
     }
     return (
-        <List className={classes.listRoot}>
+        <List className={classes.listRoot} component='nav' name='primaryNavigation' aria-label='primary navigation'>
             <Link to='/apis' className={classNames({ [classes.selected]: selected === 'apis', [classes.links]: true })}>
-                <ListItem button>
+                <ListItem component='div'>
                     <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: smallView }) }}>
                         <CustomIcon width={iconWidth} height={iconWidth} icon='api' strokeColor={strokeColor} />
                     </ListItemIcon>
@@ -118,7 +119,7 @@ function GlobalNavLinks(props) {
                 to='/scopes'
                 className={classNames({ [classes.selected]: selected === 'scopes', [classes.links]: true })}
             >
-                <ListItem button>
+                <ListItem component='div'>
                     <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: smallView }) }}>
                         <ScopesIcon className={classes.scopeIconColor} />
                     </ListItemIcon>
@@ -142,7 +143,7 @@ function GlobalNavLinks(props) {
                     to='/api-products'
                     className={classNames({ [classes.selected]: selected === 'api-products', [classes.links]: true })}
                 >
-                    <ListItem button>
+                    <ListItem component='div'>
                         <ListItemIcon classes={{ root: classNames({ [classes.smallIcon]: smallView }) }}>
                             <CustomIcon
                                 width={iconWidth}

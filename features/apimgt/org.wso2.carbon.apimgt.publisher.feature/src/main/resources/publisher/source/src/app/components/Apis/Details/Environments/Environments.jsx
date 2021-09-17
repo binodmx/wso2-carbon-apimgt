@@ -120,7 +120,7 @@ export default function Environments() {
 
     return (
         <>
-            <Typography variant='h4' gutterBottom>
+            <Typography variant='h4' component='h2' gutterBottom>
                 <FormattedMessage
                     id='Apis.Details.Environments.Environments.APIGateways'
                     defaultMessage='API Gateways'
@@ -130,7 +130,11 @@ export default function Environments() {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell />
+                            <TableCell align='left'>
+                                <Typography variant='srOnly'>
+                                    Action
+                                </Typography>
+                            </TableCell>
                             <TableCell align='left'>Name</TableCell>
                             <TableCell align='left'>Type</TableCell>
                             <TableCell align='left'>Server URL</TableCell>
@@ -154,6 +158,7 @@ export default function Environments() {
                                     <Checkbox
                                         disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
                                         checked={gatewayEnvironments.includes(row.name)}
+                                        inputProps={{ 'aria-label': 'select gateway ' + row.name }}
                                         onChange={
                                             (event) => {
                                                 const { checked, name } = event.target;
@@ -267,14 +272,16 @@ export default function Environments() {
                     </Grid>
                 )}
                 <Grid item>
-                    <Link to={'/apis/' + api.id + '/overview'}>
-                        <Button className={classes.saveButton}>
-                            <FormattedMessage
-                                id='Apis.Details.Environments.Environments.cancel'
-                                defaultMessage='Cancel'
-                            />
-                        </Button>
-                    </Link>
+                    <Button
+                        className={classes.saveButton}
+                        component={Link}
+                        to={'/apis/' + api.id + '/overview'}
+                    >
+                        <FormattedMessage
+                            id='Apis.Details.Environments.Environments.cancel'
+                            defaultMessage='Cancel'
+                        />
+                    </Button>
                 </Grid>
             </Grid>
             {isRestricted(['apim:api_create'], api) && (

@@ -272,7 +272,7 @@ class Comments extends Component {
                     >
                         {!showLatest && (
                             <div className={classes.root}>
-                                <Typography variant='h4' className={classes.titleSub}>
+                                <Typography variant='h4' component='h2' className={classes.titleSub}>
                                     <FormattedMessage id='Apis.Details.Comments.title' defaultMessage='Comments' />
                                 </Typography>
                             </div>

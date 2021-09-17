@@ -55,7 +55,7 @@ const styles = makeStyles((theme) => ({
         margin: 'auto',
         display: 'flex',
         '& .MuiButton-contained.Mui-disabled span.MuiButton-label': {
-            color: '#999999',
+            color: '#6d6d6d',
         },
     },
     paper: {
@@ -76,6 +76,10 @@ const styles = makeStyles((theme) => ({
         height: theme.spacing(5),
         marginTop: theme.spacing(2.5),
         marginLeft: theme.spacing(2),
+        '&:disabled': {
+            cursor: 'not-allowed',
+            background: theme.palette.grey[50],
+        },
     },
     gatewayEnvironment: {
         marginTop: theme.spacing(4),
@@ -477,7 +481,7 @@ function TryOutController(props) {
                 <Box>
                     {securitySchemeType !== 'TEST' && (
                         <>
-                            <Typography variant='h5' color='textPrimary' className={classes.categoryHeading}>
+                            <Typography variant='h5' component='h3' color='textPrimary' className={classes.categoryHeading}>
                                 <FormattedMessage
                                     id='api.console.security.heading'
                                     defaultMessage='Security'
@@ -514,7 +518,7 @@ function TryOutController(props) {
                                     </Box>
                                 </Typography>
                             </Box>
-                            <Typography variant='h6' color='textSecondary' className={classes.tryoutHeading}>
+                            <Typography variant='h6' component='h4' color='textSecondary' className={classes.tryoutHeading}>
                                 <FormattedMessage
                                     id='api.console.security.type.heading'
                                     defaultMessage='Security Type'
@@ -761,6 +765,7 @@ function TryOutController(props) {
                                             <>
                                                 <Typography
                                                     variant='h5'
+                                                    component='h3'
                                                     color='textPrimary'
                                                     className={classes.categoryHeading}
                                                 >
@@ -851,6 +856,7 @@ function TryOutController(props) {
                                             <>
                                                 <Typography
                                                     variant='h5'
+                                                    component='h3'
                                                     color='textPrimary'
                                                     className={classes.categoryHeading}
                                                 >

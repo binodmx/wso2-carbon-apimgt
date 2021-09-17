@@ -81,6 +81,7 @@ const styles = theme => ({
         width: '25%',
         'padding-left': '5px',
         'padding-right': '65px',
+        paddingTop: theme.spacing(1),
     },
     thumbLeftAction: {
         alignSelf: 'flex-start',
@@ -93,6 +94,7 @@ const styles = theme => ({
         display: 'flex',
         alignItems: 'flex-start',
         flexDirection: 'column',
+        paddingTop: theme.spacing(1),
     },
     thumbInfo: {
         display: 'flex',
@@ -119,9 +121,6 @@ const styles = theme => ({
         'padding-right': 5,
         'padding-bottom': 1.5,
         textAlign: 'left',
-    },
-    context: {
-        marginTop: 5,
     },
     thumbWrapper: {
         position: 'relative',
@@ -319,6 +318,7 @@ class ApiThumb extends React.Component {
             );
         }
         return (
+            <Link to={detailsLink} aria-label={name} role='button' className={classes.textWrapper}>
             <Card
                 onMouseOver={this.toggleMouseOver}
                 onFocus={this.toggleMouseOver}
@@ -331,24 +331,21 @@ class ApiThumb extends React.Component {
                     <div className={classes.textblock}>{api.monetizationLabel}</div>
                 )}
                 <CardMedia>
-                    <Link to={detailsLink} aria-hidden='true' className={classes.suppressLinkStyles}>
-                        {!defaultImage && ImageView}
-                        {defaultImage && <img src={app.context + defaultImage} alt='img' />}
-                    </Link>
+                    {!defaultImage && ImageView}
+                    {defaultImage && <img src={app.context + defaultImage} alt='img' />}
                 </CardMedia>
                 {showInfo && (
                     <CardContent classes={{ root: classes.apiDetails }}>
-                        <Link to={detailsLink} className={classes.textWrapper}>
-                            <Typography
-                                className={classes.thumbHeader}
-                                variant='h5'
-                                gutterBottom
-                                onClick={this.handleRedirectToAPIOverview}
-                                title={name}
-                            >
-                                {name}
-                            </Typography>
-                        </Link>
+                        <Typography
+                            className={classes.thumbHeader}
+                            variant='h5'
+                            component='h2'
+                            gutterBottom
+                            onClick={this.handleRedirectToAPIOverview}
+                            title={name}
+                        >
+                            {name}
+                        </Typography>
                         <div className={classes.row}>
                             <Typography variant='caption' gutterBottom align='left' className={classes.thumbBy}>
                                 <FormattedMessage defaultMessage='By' id='Apis.Listing.ApiThumb.by' />
@@ -359,17 +356,14 @@ class ApiThumb extends React.Component {
                         <div className={classes.thumbInfo}>
                             <div className={classes.row}>
                                 <div className={classes.thumbLeft}>
-                                    <Typography variant='subtitle1'>{version}</Typography>
                                     <Typography variant='caption' gutterBottom align='left'>
                                         <FormattedMessage defaultMessage='Version' id='Apis.Listing.ApiThumb.version' />
                                     </Typography>
+                                    <Typography variant='subtitle1' component='div'>{version}</Typography>
                                 </div>
                             </div>
                             <div className={classes.row}>
                                 <div className={classes.thumbRight}>
-                                    <Typography variant='subtitle1' align='right' className={classes.contextBox}>
-                                        {context}
-                                    </Typography>
                                     <Typography
                                         variant='caption'
                                         gutterBottom
@@ -379,6 +373,9 @@ class ApiThumb extends React.Component {
                                     >
                                         <FormattedMessage defaultMessage='Context' id='Apis.Listing.ApiThumb.context' />
                                     </Typography>
+                                    <Typography variant='subtitle1' component='div' align='right' className={classes.contextBox}>
+                                        {context}
+                                    </Typography>
                                 </div>
                             </div>
                         </div>
@@ -386,6 +383,7 @@ class ApiThumb extends React.Component {
                             {showRating && <div className={classes.thumbLeftAction}>
                                 <Typography
                                     variant='subtitle1'
+                                    component='div'
                                     gutterBottom
                                     align='left'
                                     className={classNames('api-thumb-rating', classes.ratingWrapper)}
@@ -401,6 +399,7 @@ class ApiThumb extends React.Component {
                             <div className={classes.thumbRight}>
                                 <Typography
                                     variant='subtitle1'
+                                    component='div'
                                     gutterBottom
                                     align='right'
                                     className={classes.chipWrapper}
@@ -423,6 +422,7 @@ class ApiThumb extends React.Component {
                     </CardContent>
                 )}
             </Card>
+            </Link>
         );
     }
 }

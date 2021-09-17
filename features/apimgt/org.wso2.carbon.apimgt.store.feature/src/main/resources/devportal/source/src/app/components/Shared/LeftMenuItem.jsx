@@ -157,6 +157,7 @@ function LeftMenuItem(props) {
                             strokeColor={strokeColor}
                             width={iconSize}
                             height={iconSize}
+                            aria-label={ props.text + ' icon'}
                             icon={props.iconText}
                             className={classNames(
                                 classes.leftLInk,

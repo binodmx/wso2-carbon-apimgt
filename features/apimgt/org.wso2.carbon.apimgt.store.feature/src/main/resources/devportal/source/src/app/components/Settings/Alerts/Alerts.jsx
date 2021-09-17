@@ -322,7 +322,7 @@ const Alerts = (props) => {
                         {!supportedAlerts ?
                             <CircularProgress /> :
                             <React.Fragment>
-                                <Typography variant='h6' className={classes.manageAlertHeading}>
+                                <Typography variant='h6' component='h2' className={classes.manageAlertHeading}>
                                     <FormattedMessage
                                         id='Settings.Alerts.Alerts.subscribe.to.alerts.heading'
                                         defaultMessage='Manage Alert Subscriptions'

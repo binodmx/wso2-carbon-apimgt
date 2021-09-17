@@ -295,28 +295,30 @@ class CommonListing extends React.Component {
         const categoryPaneVisible = allCategories && allCategories.length > 0;
         return (
             <>
-                {(categoryPaneVisible || tagPaneVisible) && showLeftMenu && (
-                    <div className={classes.LeftMenu}>
-                        <div className={classes.sliderButton} onClick={this.toggleLeftMenu}>
-                            <Icon>keyboard_arrow_left</Icon>
+                <aside>
+                    {(categoryPaneVisible || tagPaneVisible) && showLeftMenu && (
+                        <div className={classes.LeftMenu}>
+                            <div className={classes.sliderButton} onClick={this.toggleLeftMenu}>
+                                <Icon>keyboard_arrow_left</Icon>
+                            </div>
+                            {categoryPaneVisible && <CategoryListingCategories allCategories={allCategories} />}
+                            {tagPaneVisible && active && <TagCloudListingTags allTags={allTags} />}
+                            {tagPaneVisible && tagCloudActive && <ApiTagCloud allTags={allTags} />}
                         </div>
-                        {categoryPaneVisible && <CategoryListingCategories allCategories={allCategories} />}
-                        {tagPaneVisible && active && <TagCloudListingTags allTags={allTags} />}
-                        {tagPaneVisible && tagCloudActive && <ApiTagCloud allTags={allTags} />}
-                    </div>
-                )}
-                {(categoryPaneVisible || tagPaneVisible) && !showLeftMenu && (
-                    <div className={classes.LeftMenuForSlider}>
-                        <div className={classes.sliderButton} onClick={this.toggleLeftMenu}>
-                            <Icon>keyboard_arrow_right</Icon>
+                    )}
+                    {(categoryPaneVisible || tagPaneVisible) && !showLeftMenu && (
+                        <div className={classes.LeftMenuForSlider}>
+                            <div className={classes.sliderButton} onClick={this.toggleLeftMenu}>
+                                <Icon>keyboard_arrow_right</Icon>
+                            </div>
+                            <div className={classes.rotatedText} onClick={this.toggleLeftMenu}>
+                                <FormattedMessage defaultMessage='Tags / API Categories' id='Apis.Listing.Listing.ApiTagCloud.title' />
+                            </div>
                         </div>
-                        <div className={classes.rotatedText} onClick={this.toggleLeftMenu}>
-                            <FormattedMessage defaultMessage='Tags / API Categories' id='Apis.Listing.Listing.ApiTagCloud.title' />
-                        </div>
-                    </div>
-                )}
+                    )}
+                </aside>
 
-                <main
+                <div
                     className={classNames(
                         classes.content,
                         { [classes.contentWithoutTags]: !(tagPaneVisible || categoryPaneVisible) || !showLeftMenu },
@@ -330,13 +332,13 @@ class CommonListing extends React.Component {
                             <CustomIcon strokeColor={strokeColorMain} width={42} height={42} icon='api' />
                         </div>
                         <div className={classes.mainTitleWrapper} id='mainTitleWrapper'>
-                            <Typography variant='h4' className={classes.mainTitle}>
+                            <Typography variant='h4' component='h1' className={classes.mainTitle}>
                                 <FormattedMessage defaultMessage='APIs' id='Apis.Listing.Listing.apis.main' />
                             </Typography>
                         </div>
                         {this.showToggle && (<div className={classes.buttonRight} id='listGridWrapper'>
                             <IconButton
-                                aria-label='List View'
+                                aria-label='Switch to List View'
                                 className={classes.button}
                                 onClick={() => this.setListType('list')}
                             >
@@ -350,7 +352,7 @@ class CommonListing extends React.Component {
                                 </Icon>
                             </IconButton>
                             <IconButton
-                                aria-label='Grid view'
+                                aria-label='Switch to Grid view'
                                 className={classes.button}
                                 onClick={() => this.setListType('grid')}
                             >
@@ -395,7 +397,7 @@ class CommonListing extends React.Component {
                             </div>
                         </div>
                     }
-                </main>
+                </div>
             </>
         );
     }

@@ -127,7 +127,7 @@ function EditableRow(props) {
                     <TextField
                         fullWidth
                         required
-                        id='outlined-required'
+                        id='property-name-edit'
                         label={intl.formatMessage({
                             id: 'Apis.Details.Properties.Properties.editable.row.property.name',
                             defaultMessage: 'Property Name',
@@ -161,7 +161,7 @@ function EditableRow(props) {
                         <TextField
                             fullWidth
                             required
-                            id='outlined-required'
+                            id='property-value-edit'
                             label={intl.formatMessage({
                                 id: 'Apis.Details.Properties.Properties.editable.row.edit.mode.property.value',
                                 defaultMessage: 'Property Value',
@@ -223,6 +223,7 @@ function EditableRow(props) {
                             onClick={saveRow}
                             onKeyDown={() => { }}
                             variant='contained'
+                            aria-label={'Update ' + oldKey}
                         >
                             <Typography variant='caption' component='div'>
                                 <FormattedMessage
@@ -244,7 +245,7 @@ function EditableRow(props) {
                 ) : (
                     <IconButton
                         className={classes.link}
-                        aria-label='edit'
+                        aria-label={'Edit ' + oldKey}
                         onClick={updateEditMode}
                         onKeyDown={() => { }}
                         color='inherit'
@@ -255,7 +256,7 @@ function EditableRow(props) {
                 )}
                 <IconButton
                     className={classes.link}
-                    aria-label='remove'
+                    aria-label={'Remove ' + oldKey}
                     onClick={deleteRow}
                     onKeyDown={() => { }}
                     color='inherit'

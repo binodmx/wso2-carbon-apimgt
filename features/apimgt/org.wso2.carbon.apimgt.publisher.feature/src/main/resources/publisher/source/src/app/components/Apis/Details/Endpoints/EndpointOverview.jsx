@@ -710,6 +710,7 @@ function EndpointOverview(props) {
                                                                 value='prod'
                                                                 color='primary'
                                                                 onChange={epCategoryOnChangeHandler}
+                                                                inputProps={{ 'aria-label': 'Production Endpoint' }}
                                                             />
                                                         )}
                                                         label={(
@@ -828,6 +829,7 @@ function EndpointOverview(props) {
                                                                         defaultMessage='Production Endpoint'
                                                                     />
                                                                 )}
+                                                            id='primaryEndpoint'
                                                             className={classes.defaultEndpointWrapper}
                                                             endpointURL={getEndpoints('production_endpoints')}
                                                             type=''
@@ -849,7 +851,9 @@ function EndpointOverview(props) {
                                                                 <Checkbox
                                                                     checked={endpointCategory.sandbox}
                                                                     value='sandbox'
-                                                                    color='primary'
+                                                                    name=''
+                                                                    color='secondary'
+                                                                    inputProps={{ 'aria-label': 'Sandbox Endpoint' }}
                                                                     onChange={(event) => (
                                                                         handleOnChangeEndpointCategoryChange(
                                                                             'sandbox', event,
@@ -930,6 +934,7 @@ function EndpointOverview(props) {
                                                                     <GenericEndpoint
                                                                         autoFocus
                                                                         name='Sandbox Endpoint'
+                                                                        id='sandboxEndpoint'
                                                                         className={classes.defaultEndpointWrapper}
                                                                         endpointURL={getEndpoints('sandbox_endpoints')}
                                                                         type=''
@@ -956,7 +961,7 @@ function EndpointOverview(props) {
                     ? <div />
                     : (
                         <Grid item xs={12}>
-                            <Typography variant='h4' align='left' className={classes.titleWrapper} gutterBottom>
+                            <Typography variant='h4' component='h2' className={classes.titleWrapper} gutterBottom>
                                 <FormattedMessage
                                     id='Apis.Details.Endpoints.EndpointOverview.general.config.header'
                                     defaultMessage='General Endpoint Configurations'
@@ -980,6 +985,7 @@ function EndpointOverview(props) {
                             <Grid item xs={12}>
                                 <Typography
                                     variant='h4'
+                                    component='h2'
                                     align='left'
                                     className={classes.titleWrapper}
                                     gutterBottom

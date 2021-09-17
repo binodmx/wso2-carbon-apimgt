@@ -161,7 +161,7 @@ function Overview(props) {
     }
     return (
         <>
-            <Typography variant='h4' align='left' className={classes.mainTitle}>
+            <Typography variant='h4' align='left' component='h2' className={classes.mainTitle}>
                 <FormattedMessage
                     id='Apis.Details.Overview.Overview.topic.header'
                     defaultMessage='Overview'

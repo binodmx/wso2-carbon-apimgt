@@ -105,9 +105,6 @@ class ApiTableView extends React.Component {
                             display: 'flex',
                             alignItems: 'center',
                         },
-                        '& a > div': {
-                            paddingRight: 10,
-                        },
                         '& td': {
                             whiteSpace: 'nowrap',
                             lineHeight: 1,

@@ -377,12 +377,7 @@ class Layout extends React.Component {
                         {style === 'text' ? text
                             : (
                                 <img
-                                    alt={(
-                                        <FormattedMessage
-                                            id='Base.index.banner.alt'
-                                            defaultMessage='Dev Portal Banner'
-                                        />
-                                    )}
+                                    alt={theme.custom.title.prefix + ' logo'}
                                     src={`${app.context}/${image}`}
                                 />
                             )}
@@ -399,12 +394,7 @@ class Layout extends React.Component {
                                 </Hidden>
                                 <Link to='/' id='logoLink' aria-label='Go to home page'>
                                     <img
-                                        alt={(
-                                            <FormattedMessage
-                                                id='Base.index.logo.alt'
-                                                defaultMessage='Dev Portal'
-                                            />
-                                        )}
+                                        alt={theme.custom.title.prefix + ' logo'}
                                         src={this.getLogoPath()}
                                         style={{
                                             height: theme.custom.appBar.logoHeight,
@@ -491,6 +481,7 @@ class Layout extends React.Component {
                                                 aria-haspopup='true'
                                                 onClick={this.handleToggleUserMenu}
                                                 className={classes.userLink}
+                                                aria-label='user menu'
                                                 id='userToggleButton'
                                             >
                                                 <Icon className={classes.icons}>person</Icon>
@@ -565,17 +556,19 @@ class Layout extends React.Component {
                                     </>
                                 ) : (
                                         <div className={classes.linkWrapper}>
-                                            <a href={app.context + '/services/configs'}>
-                                                <Button className={classes.userLink}>
-                                                    <Icon>person</Icon>
-                                                    <FormattedMessage id='Base.index.sign.in' defaultMessage=' Sign-in' />
-                                                </Button>
-                                            </a>
+                                            <Button
+                                                className={classes.userLink}
+                                                component='a'
+                                                href={app.context + '/services/configs'}
+                                            >
+                                                <Icon>person</Icon>
+                                                <FormattedMessage id='Base.index.sign.in' defaultMessage=' Sign-in' />
+                                            </Button>
                                         </div>
                                     )}
                             </Toolbar>
                         </AppBar>
-                        <div className={classes.contentWrapper}>{children}</div>
+                        <main><div className={classes.contentWrapper}>{children}</div></main>
                         {footerActive && <div className={classes.push} />}
                     </div>
                     {footerActive && (

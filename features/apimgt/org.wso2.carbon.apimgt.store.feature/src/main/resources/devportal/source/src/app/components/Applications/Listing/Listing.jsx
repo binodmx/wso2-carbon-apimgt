@@ -404,14 +404,14 @@ class Listing extends Component {
         const strokeColorMain = theme.palette.getContrastText(theme.custom.infoBar.background);
         const paginationEnabled = totalApps > Listing.rowsPerPage;
         return (
-            <main className={classes.content}>
+            <div className={classes.content}>
                 <div className={classes.root}>
                     <Box display='flex' flexDirection='row' justifyContent='flex-start' alignItems='center'>
                         <div className={classes.mainIconWrapper}>
                             <CustomIcon strokeColor={strokeColorMain} width={42} height={42} icon='applications' />
                         </div>
                         <div className={classes.mainTitleWrapper}>
-                            <Typography variant='h4' className={classes.mainTitle}>
+                            <Typography variant='h4' component='h1' className={classes.mainTitle}>
                                 <FormattedMessage
                                     id='Applications.Listing.Listing.applications'
                                     defaultMessage='Applications'
@@ -540,7 +540,7 @@ class Listing extends Component {
                         ) : (
                                 query === '' ? (
                                     <div className={classes.noDataMessage}>
-                                        <Typography variant="h6" gutterBottom>
+                                        <Typography variant="h6" component='label' gutterBottom>
                                             <FormattedMessage
                                                 id='Applications.Listing.Listing.noapps.display.title'
                                                 defaultMessage='No Applications Available'
@@ -562,7 +562,7 @@ class Listing extends Component {
                                     </div>
                                 ) :
                                     (<div className={classes.noDataMessage}>
-                                        <Typography variant="h6" gutterBottom>
+                                        <Typography variant="h6" gutterBottom component='label'>
                                             <FormattedMessage
                                                 id='Applications.Listing.Listing.applications.no.search.results.title'
                                                 defaultMessage='No Matching Applications'
@@ -590,7 +590,7 @@ class Listing extends Component {
                     </div>)}
 
                 </Paper>
-            </main>
+            </div>
         );
     }
 }

@@ -25,7 +25,6 @@ import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 import AuthManager from 'AppData/AuthManager';
 import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
 import CloudDownloadRounded from '@material-ui/icons/CloudDownloadRounded';
 import { ApiContext } from '../ApiContext';
 import Progress from '../../../Shared/Progress';
@@ -63,6 +62,10 @@ const styles = (theme) => ({
     },
     swaggerUIPaper: {
         backgroundColor: theme.custom.apiDetailPages.swaggerUIBackground,
+    },
+    buttonText: {
+        color: theme.palette.getContrastText(theme.palette.background.default),
+        display: 'flex',
     },
 });
 
@@ -408,7 +411,7 @@ class ApiConsole extends React.Component {
         const isPrototypedAPI = api.lifeCycleStatus && api.lifeCycleStatus.toLowerCase() === 'prototyped';
         return (
             <>
-                <Typography variant='h4' className={classes.titleSub}>
+                <Typography variant='h4' className={classes.titleSub} component='h2'>
                     <FormattedMessage id='Apis.Details.ApiConsole.ApiConsole.title' defaultMessage='Try Out' />
                 </Typography>
                 <Paper className={classes.paper}>
@@ -469,13 +472,13 @@ class ApiConsole extends React.Component {
                         <Grid xs={10} item />
                         <Grid xs={2} item>
                             <a href={downloadLink} download={fileName}>
-                                <Button size='small'>
+                                <Typography component='span' className={classes.buttonText}>
                                     <CloudDownloadRounded className={classes.buttonIcon} />
                                     <FormattedMessage
                                         id='Apis.Details.APIConsole.APIConsole.download.swagger'
                                         defaultMessage='Swagger ( /swagger.json )'
                                     />
-                                </Button>
+                                </Typography>
                             </a>
                         </Grid>
                     </Grid>

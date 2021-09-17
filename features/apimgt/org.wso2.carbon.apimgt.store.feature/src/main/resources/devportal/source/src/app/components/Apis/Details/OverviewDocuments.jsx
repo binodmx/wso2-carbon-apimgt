@@ -161,7 +161,7 @@ function OverviewDocuments(props) {
         docs.length > 0 && (
             <List
                 component='nav'
-                aria-labelledby='nested-list-subheader'
+                aria-label='Available documents'
                 subheader={(
                     <ListSubheader component='div' id='nested-list-subheader' className={classes.listItemStyle}>
                         <FormattedMessage

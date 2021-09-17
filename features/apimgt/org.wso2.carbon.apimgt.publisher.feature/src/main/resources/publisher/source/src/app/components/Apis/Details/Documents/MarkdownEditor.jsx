@@ -146,7 +146,7 @@ function MarkdownEditor(props) {
     const { classes } = props;
     return (
         <div>
-            <Button onClick={toggleOpen}>
+            <Button onClick={toggleOpen} aria-label={'Edit Content of ' + props.docName}>
                 <Icon>code</Icon>
                 <FormattedMessage
                     id="Apis.Details.Documents.MarkdownEditor.edit.content"

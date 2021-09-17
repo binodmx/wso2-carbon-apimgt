@@ -220,7 +220,7 @@ export default function DesignConfigurations() {
             <Container maxWidth='md'>
                 <Grid container spacing={2}>
                     <Grid item md={12}>
-                        <Typography variant='h5'>
+                        <Typography variant='h5' component='h2'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Configuration.Design.topic.header'
                                 defaultMessage='Design Configurations'
@@ -307,14 +307,16 @@ export default function DesignConfigurations() {
                                             />
                                             {isUpdating && <CircularProgress size={15} />}
                                         </Button>
-                                        <Link to={'/apis/' + api.id + '/overview'}>
-                                            <Button>
-                                                <FormattedMessage
-                                                    id='Apis.Details.Configuration.Configuration.cancel'
-                                                    defaultMessage='Cancel'
-                                                />
-                                            </Button>
-                                        </Link>
+                                        <Button
+                                            component={Link}
+                                            to={'/apis/' + api.id + '/overview'}
+                                            aria-label='Cancel'
+                                        >
+                                            <FormattedMessage
+                                                id='Apis.Details.Configuration.Configuration.cancel'
+                                                defaultMessage='Cancel'
+                                            />
+                                        </Button>
                                     </Box>
                                     {isRestricted(['apim:api_create'], api) && (
                                         <Box py={1}>

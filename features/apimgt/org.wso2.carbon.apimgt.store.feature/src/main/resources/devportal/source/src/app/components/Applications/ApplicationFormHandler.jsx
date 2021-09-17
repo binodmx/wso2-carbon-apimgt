@@ -438,7 +438,7 @@ class ApplicationFormHandler extends React.Component {
 
         const CreatePageTitle = (
             <>
-                <Typography variant='h5'>
+                <Typography variant='h5' component='h1'>
                     <FormattedMessage
                         id='Applications.Create.ApplicationFormHandler.create.application.heading'
                         defaultMessage='Create an application'
@@ -457,7 +457,7 @@ class ApplicationFormHandler extends React.Component {
         );
         const EditPageTitle = (
             <>
-                <Typography variant='h5'>
+                <Typography variant='h5' component='h1'>
                     <FormattedMessage
                         id='Applications.Create.ApplicationFormHandler.edit.application.heading'
                         defaultMessage='Edit application'

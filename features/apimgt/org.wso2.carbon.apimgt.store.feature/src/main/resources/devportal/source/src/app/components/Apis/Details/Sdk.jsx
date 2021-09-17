@@ -209,9 +209,10 @@ class Sdk extends React.Component {
                         {filteredLanguageList.map((language, index) =>
                             index < 3 && (
                                 <Grid item xs={4} key={index}>
-                                    <a
+                                    <Button
                                         onClick={event => this.handleClick(event, language)}
                                         style={{ cursor: 'pointer' }}
+                                        aria-label={'Download ' + language + ' SDK'}
                                     >
                                         <img
                                             alt={language}
@@ -227,7 +228,7 @@ class Sdk extends React.Component {
                                                 margin: 10,
                                             }}
                                         />
-                                    </a>
+                                    </Button>
                                 </Grid>
                             ))}
                     </React.Fragment>
@@ -237,7 +238,7 @@ class Sdk extends React.Component {
         return (
             <React.Fragment>
                 <div className={classes.titleWrappper}>
-                    <Typography variant='h4' className={classes.titleSub}>
+                    <Typography variant='h4' component='h2' className={classes.titleSub}>
                         <FormattedMessage id='Apis.Details.Sdk.title' defaultMessage='Software Development Kits (SDKs)' />
                     </Typography>
                     {filteredLanguageList && this.state.sdkLanguages.length >= this.filter_threshold && (
@@ -286,6 +287,7 @@ class Sdk extends React.Component {
                                                         <Button
                                                             color='secondary'
                                                             onClick={event => this.handleClick(event, language)}
+                                                            area-label={'Download ' + language + ' SDK'}
                                                         >
                                                             <Icon>arrow_downward</Icon>
                                                             {'Download'}

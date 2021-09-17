@@ -123,7 +123,7 @@ function TopMenu(props) {
                 <div className={classes.mainTitleWrapper}>
                     {data && (
                         <>
-                            <Typography variant='h5' className={classes.mainTitle} component='div'>
+                            <Typography variant='h5' className={classes.mainTitle} component='h1'>
                                 {isAPIProduct ? (
                                     <FormattedMessage
                                         id='Apis.Listing.components.TopMenu.apiproducts'
@@ -151,19 +151,23 @@ function TopMenu(props) {
                 <VerticalDivider height={70} />
                 <div className={classes.APICreateMenu}>
                     {isAPIProduct ? (
-                        <Link to='/api-products/create'>
-                            <Button variant='contained' className={classes.createButton}>
-                                <FormattedMessage
-                                    id='Apis.Listing.components.TopMenu.create.an.api.product'
-                                    defaultMessage='Create an API Product'
-                                />
-                            </Button>
-                        </Link>
+                        <Button
+                            variant='contained'
+                            className={classes.createButton}
+                            component={Link}
+                            to='/api-products/create'
+                        >
+                            <FormattedMessage
+                                id='Apis.Listing.components.TopMenu.create.an.api.product'
+                                defaultMessage='Create an API Product'
+                            />
+                        </Button>
                     ) : (
                         <APICreateMenu buttonProps={{
                             variant: 'contained',
                             color: 'primary',
                             className: classes.button,
+                            'aria-label': 'View create API options',
                         }}
                         >
                             <FormattedMessage
@@ -179,6 +183,7 @@ function TopMenu(props) {
                             className={classes.button}
                             disabled={data.length === 0}
                             onClick={() => setListType('list')}
+                            aria-label='Switch to List View'
                         >
                             <List color={listType === 'list' ? 'primary' : 'default'} />
                         </IconButton>
@@ -186,6 +191,7 @@ function TopMenu(props) {
                             className={classes.button}
                             disabled={data.length === 0}
                             onClick={() => setListType('grid')}
+                            aria-label='Switch to Grid View'
                         >
                             <GridOn color={listType === 'grid' ? 'primary' : 'default'} />
                         </IconButton>

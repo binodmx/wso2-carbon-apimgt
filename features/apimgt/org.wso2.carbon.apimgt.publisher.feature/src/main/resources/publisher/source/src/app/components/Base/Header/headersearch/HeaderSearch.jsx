@@ -84,6 +84,11 @@ const styles = (theme) => ({
         borderRadius: '5px',
         padding: '15px 10px 0 18px',
     },
+    ariaLabel: {
+        width: 0,
+        height: 0,
+        color: '#fff',
+    },
 });
 
 /**
@@ -114,6 +119,17 @@ class HeaderSearch extends React.Component {
         this.clearOnBlur = this.clearOnBlur.bind(this);
         this.renderSuggestionsContainer = this.renderSuggestionsContainer.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+    }
+
+    /**
+     * Fix accessibility
+     * @func domReady
+     */
+    componentDidMount(fn) {
+        document.addEventListener('DOMContentLoaded', fn);
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            document.querySelector('[aria-autocomplete="list"]').removeAttribute('aria-autocomplete');
+        }
     }
 
     /**
@@ -264,6 +280,9 @@ class HeaderSearch extends React.Component {
                         onBlur: this.clearOnBlur,
                         isLoading,
                     }}
+                    containerProps={{
+                        'aria-label': 'Search for APIs',
+                    }}
                 />
                 <Tooltip
                     interactive
@@ -360,7 +379,7 @@ class HeaderSearch extends React.Component {
                         </>
                     )}
                 >
-                    <IconButton className={classes.infoButton}>
+                    <IconButton className={classes.infoButton} aria-label='View search options'>
                         <InfoIcon />
                     </IconButton>
                 </Tooltip>

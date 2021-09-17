@@ -177,7 +177,7 @@ function TransportLevel(props) {
             <Grid item xs={12}>
                 <ExpansionPanel className={classes.expansionPanel}>
                     <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography className={classes.subHeading} variant='h6'>
+                        <Typography className={classes.subHeading} variant='h6' component='h4'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Components.APISecurity.Components.
                                     TransportLevel.transport.level.security'

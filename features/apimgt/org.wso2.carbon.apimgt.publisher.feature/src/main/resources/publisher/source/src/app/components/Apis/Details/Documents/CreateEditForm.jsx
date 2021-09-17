@@ -399,6 +399,7 @@ class CreateEditForm extends React.Component {
                 <FormControl margin='normal' className={classes.FormControlOdd}>
                     <TextField
                         fullWidth
+                        id='doc-name'
                         InputProps={{
                             onBlur: ({ target: { value } }) => {
                                 this.validate('name', value);
@@ -428,6 +429,7 @@ class CreateEditForm extends React.Component {
                 <FormControl margin='normal' className={classes.FormControlOdd}>
                     <TextField
                         fullWidth
+                        id='doc-summery'
                         multiline
                         InputProps={{
                             onBlur: ({ target: { value } }) => {
@@ -625,6 +627,7 @@ class CreateEditForm extends React.Component {
                     <FormControl margin='normal' className={classes.FormControlOdd}>
                         <TextField
                             fullWidth
+                            id='other-doc-type'
                             label={
                                 <FormattedMessage
                                     id={
@@ -716,6 +719,7 @@ class CreateEditForm extends React.Component {
                     <FormControl margin='normal' className={classes.FormControlOdd}>
                         <TextField
                             fullWidth
+                            id='url'
                             InputProps={{
                                 onBlur: ({ target: { value } }) => {
                                     this.validate('url', value);

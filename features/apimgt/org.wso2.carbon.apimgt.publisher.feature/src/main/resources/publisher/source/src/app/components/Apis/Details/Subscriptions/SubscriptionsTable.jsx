@@ -53,6 +53,7 @@ const styles = (theme) => ({
     },
     button: {
         margin: theme.spacing(1),
+        color: theme.palette.primary.dark,
     },
     headline: { paddingTop: theme.spacing(1.25), paddingLeft: theme.spacing(2.5) },
     popupHeadline: {
@@ -207,24 +208,28 @@ function SubscriptionTablePagination(props) {
             <IconButton
                 onClick={handleFirstPageButtonClick}
                 disabled={page === 0}
+                aria-label='first page'
             >
                 <FirstPageIcon />
             </IconButton>
             <IconButton
                 onClick={handleBackButtonClick}
                 disabled={page === 0}
+                aria-label='previous page'
             >
                 <KeyboardArrowLeft />
             </IconButton>
             <IconButton
                 onClick={handleNextButtonClick}
                 disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+                aria-label='next page'
             >
                 <KeyboardArrowRight />
             </IconButton>
             <IconButton
                 onClick={handleLastPageButtonClick}
                 disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+                aria-label='last page'
             >
                 <LastPageIcon />
             </IconButton>
@@ -934,7 +939,7 @@ class SubscriptionsTable extends Component {
         return (
             <>
                 <div className={classes.heading}>
-                    <Typography variant='h4'>
+                    <Typography variant='h4' component='h2'>
                         <FormattedMessage
                             id='Apis.Details.Subscriptions.SubscriptionsTable.manage.subscriptions'
                             defaultMessage='Manage Subscriptions'

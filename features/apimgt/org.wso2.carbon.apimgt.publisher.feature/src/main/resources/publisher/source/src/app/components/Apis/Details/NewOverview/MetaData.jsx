@@ -40,7 +40,7 @@ function MetaData(props) {
 
     return (
         <>
-            <Typography variant='h5' component='h3' className={parentClasses.title}>
+            <Typography variant='h5' component='h2' className={parentClasses.title}>
                 <FormattedMessage
                     id='Apis.Details.NewOverview.MetaData.metadata'
                     defaultMessage='Metadata'
@@ -183,7 +183,6 @@ function MetaData(props) {
                                 <>
                                     <Tooltip
                                         title={moment(api.createdTime).calendar()}
-                                        aria-label='add'
                                         interactive
                                         placement='top-start'
                                         tabIndex='-1'
@@ -227,7 +226,6 @@ function MetaData(props) {
                                 <>
                                     <Tooltip
                                         title={moment(api.lastUpdatedTime).calendar()}
-                                        aria-label='add'
                                         interactive
                                         placement='top-start'
                                         tabIndex='-1'

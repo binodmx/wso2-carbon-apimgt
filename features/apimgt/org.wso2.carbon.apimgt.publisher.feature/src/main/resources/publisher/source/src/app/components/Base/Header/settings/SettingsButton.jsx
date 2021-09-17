@@ -27,6 +27,7 @@ const styles = (theme) => ({
         fontSize: theme.typography.fontSize,
         textTransform: 'uppercase',
         fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
     },
     settinsIcon: {
         marginRight: theme.spacing(1),
@@ -37,23 +38,21 @@ const SettingsButton = (props) => {
     const { classes } = props;
     return (
         <>
-            <Link to='/settings'>
-                <IconButton
-                    id='settings-btn'
-                    aria-owns='profile-menu-appbar'
-                    aria-haspopup='true'
-                    color='inherit'
-                    className={classes.settingsIconbtn}
-                >
-                    <Icon className={classes.settinsIcon}>
-                        settings
-                    </Icon>
-                    <FormattedMessage
-                        id='Apis.Base.Header.settings.SettingsButton.settings.caption'
-                        defaultMessage='Settings'
-                    />
-                </IconButton>
-            </Link>
+            <IconButton
+                id='settings-btn'
+                color='inherit'
+                className={classes.settingsIconbtn}
+                component={Link}
+                to='/settings'
+            >
+                <Icon className={classes.settinsIcon}>
+                    settings
+                </Icon>
+                <FormattedMessage
+                    id='Apis.Base.Header.settings.SettingsButton.settings.caption'
+                    defaultMessage='Settings'
+                />
+            </IconButton>
         </>
     );
 };

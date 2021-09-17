@@ -384,7 +384,7 @@ class InfoBar extends React.Component {
                     )}
                     <div style={{ marginLeft: theme.spacing(1) }}>
                         <Link to={'/apis/' + api.id + '/overview'} className={classes.linkTitle}>
-                            <Typography variant='h4'>{api.name}</Typography>
+                            <Typography variant='h4' component='h1'>{api.name}</Typography>
                         </Link>
                         <Typography variant='caption' gutterBottom align='left'>
                             {this.getProvider(api)}
@@ -422,7 +422,7 @@ class InfoBar extends React.Component {
                                 <Table className={classes.table}>
                                     <TableBody>
                                         <TableRow>
-                                            <TableCell component='th' scope='row' className={classes.leftCol}>
+                                            <TableCell component='th' role='rowheader' scope='row' className={classes.leftCol}>
                                                 <div className={classes.iconAligner}>
                                                     <Icon className={classes.iconOdd}>settings_input_component</Icon>
                                                     <span className={classes.iconTextWrapper}>
@@ -436,7 +436,7 @@ class InfoBar extends React.Component {
                                             <TableCell>{api.version}</TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell component='th' scope='row'>
+                                            <TableCell component='th' role='rowheader'>
                                                 <div className={classes.iconAligner}>
                                                     <Icon className={classes.iconOdd}>account_balance_wallet</Icon>
                                                     <span className={classes.iconTextWrapper}>
@@ -450,7 +450,7 @@ class InfoBar extends React.Component {
                                             <TableCell style={{ 'word-break' : 'break-all' }}>{api.context}</TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell component='th' scope='row'>
+                                            <TableCell component='th' role='rowheader'>
                                                 <div className={classes.iconAligner}>
                                                     <Icon className={classes.iconOdd}>account_circle</Icon>
                                                     <span className={classes.iconTextWrapper}>
@@ -464,7 +464,7 @@ class InfoBar extends React.Component {
                                             <TableCell>{this.getProvider(api)} {this.getProviderMail(api)}</TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell component='th' scope='row'>
+                                            <TableCell component='th' role='rowheader'>
                                                 <div className={classes.iconAligner}>
                                                     <Icon className={classes.iconOdd}>account_box</Icon>
                                                     <span className={classes.iconTextWrapper}>
@@ -478,7 +478,7 @@ class InfoBar extends React.Component {
                                             <TableCell>{this.getTechnical(api)} {this.getTechnicalMail(api)}</TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell component='th' scope='row'>
+                                            <TableCell component='th' role='rowheader'>
                                                 <div className={classes.iconAligner}>
                                                     <Icon className={classes.iconOdd}>vpn_key</Icon>
                                                     <span className={classes.iconTextWrapper}>
@@ -507,7 +507,7 @@ class InfoBar extends React.Component {
                                                 </TableRow> */}
                                         {user && !api.advertiseInfo.advertised && showRating && (
                                             <TableRow>
-                                                <TableCell component='th' scope='row'>
+                                                <TableCell component='th' role='rowheader'>
                                                     <div className={classes.iconAligner}>
                                                         <Grade className={classes.iconOdd} />
                                                         <span className={classes.iconTextWrapper}>
@@ -530,7 +530,7 @@ class InfoBar extends React.Component {
                                         )}
                                         {api.type === 'GRAPHQL' && (
                                             <TableRow>
-                                                <TableCell component='th' scope='row'>
+                                                <TableCell component='th' role='rowheader'>
                                                     <div className={classes.iconAligner}>
                                                         <Icon className={classes.iconOdd}>cloud_download</Icon>
                                                         <span className={classes.iconTextWrapper}>
@@ -561,7 +561,7 @@ class InfoBar extends React.Component {
                                                 <TableRow>
                                                     <TableCell
                                                         component='th'
-                                                        scope='row'
+                                                        role='rowheader'
                                                         className={classes.contentToTop}
                                                     >
                                                         <div className={classes.iconAligner}>
@@ -582,7 +582,7 @@ class InfoBar extends React.Component {
                                                     <TableRow>
                                                         <TableCell
                                                             component='th'
-                                                            scope='row'
+                                                            role='rowheader'
                                                             className={classes.contentToTop}
                                                         >
                                                             <div className={classes.iconAligner}>
@@ -603,7 +603,7 @@ class InfoBar extends React.Component {
                                             </>
                                         ) : (
                                                 <TableRow>
-                                                    <TableCell component='th' scope='row'>
+                                                    <TableCell component='th' role='rowheader'>
                                                         <div className={classes.iconAligner}>
                                                             <Icon className={classes.iconOdd}>account_circle</Icon>
                                                             <span className={classes.iconTextWrapper}>
@@ -619,7 +619,7 @@ class InfoBar extends React.Component {
                                             )}
                                         {apisTagsWithoutGroups && apisTagsWithoutGroups.length > 0 && (
                                             <TableRow>
-                                                <TableCell component='th' scope='row'>
+                                                <TableCell component='th' role='rowheader'>
                                                     <div className={classes.iconAligner}>
                                                         <Icon className={classes.iconOdd}>bookmark</Icon>
                                                         <span className={classes.iconTextWrapper}>
@@ -640,7 +640,7 @@ class InfoBar extends React.Component {
                                         {additionalProperties__display && additionalProperties__display.length > 0 && (
                                             additionalProperties__display.map((displayProp, index) => (
                                                 <TableRow>
-                                                    <TableCell component='th' scope='row'>
+                                                    <TableCell component='th' role='rowheader'>
                                                         <div className={classes.iconAligner}>
                                                             <Icon className={classes.iconEven}>adjust</Icon>
                                                             <span className={classes.iconTextWrapper}>

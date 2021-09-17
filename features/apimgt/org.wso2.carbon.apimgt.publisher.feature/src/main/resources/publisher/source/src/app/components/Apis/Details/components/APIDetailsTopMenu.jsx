@@ -30,7 +30,7 @@ const styles = (theme) => ({
     backLink: {
         alignItems: 'center',
         textDecoration: 'none',
-        display: 'flex',
+        display: 'block',
         color: theme.palette.getContrastText(theme.palette.background.paper),
     },
     backIcon: {
@@ -125,17 +125,17 @@ const APIDetailsTopMenu = (props) => {
     // todo: need to support rev proxy ~tmkb
     return (
         <div className={classes.root}>
-            <Link
-                to={isAPIProduct
-                    ? `/api-products/${api.id}/overview`
-                    : `/apis/${api.id}/overview`}
-                className={classes.backLink}
-            >
-                <Box width={70} height={50} marginLeft={1}>
-                    <ThumbnailView api={api} width={70} height={50} imageUpdate={imageUpdate} />
-                </Box>
-                <div style={{ marginLeft: theme.spacing(1), maxWidth: 500 }}>
-                    <Typography variant='h4' className={classes.apiName}>
+            <Box width={70} height={50} marginLeft={1}>
+                <ThumbnailView api={api} width={70} height={50} imageUpdate={imageUpdate} />
+            </Box>
+            <div style={{ marginLeft: theme.spacing(1), maxWidth: 500 }}>
+                <Link
+                    to={isAPIProduct
+                        ? `/api-products/${api.id}/overview`
+                        : `/apis/${api.id}/overview`}
+                    className={classes.backLink}
+                >
+                    <Typography variant='h4' component='h1' className={classes.apiName} id={api.name}>
                         {api.name}
                         {' '}
                         {isAPIProduct ? '' : ':' + api.version}
@@ -148,11 +148,13 @@ const APIDetailsTopMenu = (props) => {
                         {' '}
                         {api.provider}
                     </Typography>
-                </div>
-            </Link>
+                </Link>
+            </div>
             <VerticalDivider height={70} />
             <div className={classes.infoItem}>
-                <Typography variant='subtitle1'>{isAPIProduct ? api.state : api.lifeCycleStatus}</Typography>
+                <Typography variant='subtitle1' component='div'>
+                    {isAPIProduct ? api.state : api.lifeCycleStatus}
+                </Typography>
                 <Typography variant='caption' align='left'>
                     <FormattedMessage
                         id='Apis.Details.components.APIDetailsTopMenu.state'

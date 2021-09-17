@@ -52,7 +52,7 @@ function Endpoints(props) {
     return (
         <>
             <div>
-                <Typography variant='h5' component='h3' className={parentClasses.title}>
+                <Typography variant='h5' component='h2' className={parentClasses.title}>
                     <FormattedMessage
                         id='Apis.Details.NewOverview.Endpoints.endpoints'
                         defaultMessage='Endpoints'
@@ -84,6 +84,7 @@ function Endpoints(props) {
                     <Grid item xs={12} md={6} lg={8}>
                         <Tooltip
                             placement='top'
+                            interactive
                             classes={{
                                 tooltip: parentClasses.htmlTooltip,
                             }}
@@ -125,6 +126,7 @@ function Endpoints(props) {
                         <Grid item xs={12} md={6} lg={8}>
                             <Tooltip
                                 placement='top'
+                                interactive
                                 classes={{
                                     tooltip: parentClasses.htmlTooltip,
                                 }}

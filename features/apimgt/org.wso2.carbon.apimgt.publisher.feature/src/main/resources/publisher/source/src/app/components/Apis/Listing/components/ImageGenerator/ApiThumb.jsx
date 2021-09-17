@@ -251,7 +251,14 @@ class APIThumb extends Component {
                 <CardContent className={classes.apiDetails}>
                     <div className={classes.textWrapper}>
                         <Link to={overviewPath}>
-                            <Typography gutterBottom variant='h4' className={classes.thumbHeader} title={api.name}>
+                            <Typography
+                                id={api.name}
+                                gutterBottom
+                                variant='h4'
+                                component='h2'
+                                className={classes.thumbHeader}
+                                title={api.name}
+                            >
                                 {api.name}
                             </Typography>
                         </Link>
@@ -267,26 +274,29 @@ class APIThumb extends Component {
                         {isAPIProduct ? null : (
                             <div className={classes.row}>
                                 <div className={classes.thumbLeft}>
-                                    <Typography variant='subtitle1'>{api.version}</Typography>
-                                </div>
-
-                                <div className={classes.thumbLeft}>
                                     <Typography variant='caption' gutterBottom align='left'>
                                         <FormattedMessage defaultMessage='Version' id='Apis.Listing.ApiThumb.version' />
                                     </Typography>
+                                </div>
+                                <div className={classes.thumbLeft}>
+                                    <Typography component='div' variant='subtitle1'>{api.version}</Typography>
                                 </div>
                             </div>
                         )}
                         <div className={classes.row}>
                             <div className={classes.thumbRight}>
-                                <Typography variant='subtitle1' align='right' className={classes.contextBox}>
-                                    {api.context}
-                                </Typography>
-                            </div>
-
-                            <div className={classes.thumbRight}>
                                 <Typography variant='caption' gutterBottom align='right' className={classes.context}>
                                     <FormattedMessage defaultMessage='Context' id='Apis.Listing.ApiThumb.context' />
+                                </Typography>
+                            </div>
+                            <div className={classes.thumbRight}>
+                                <Typography
+                                    component='div'
+                                    variant='subtitle1'
+                                    align='right'
+                                    className={classes.contextBox}
+                                >
+                                    {api.context}
                                 </Typography>
                             </div>
                         </div>

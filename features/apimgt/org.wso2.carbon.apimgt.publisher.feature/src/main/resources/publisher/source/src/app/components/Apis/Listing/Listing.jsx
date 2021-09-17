@@ -37,9 +37,9 @@ function Listing(props) {
         classes, isAPIProduct, theme, location: { search },
     } = props;
     return (
-        <main className={classes.content}>
+        <div className={classes.content}>
             <TableView isAPIProduct={isAPIProduct} theme={theme} query={search} />
-        </main>
+        </div>
     );
 }
 

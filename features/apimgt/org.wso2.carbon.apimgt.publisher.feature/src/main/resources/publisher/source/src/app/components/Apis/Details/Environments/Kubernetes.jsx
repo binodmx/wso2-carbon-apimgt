@@ -153,7 +153,7 @@ export default function Kubernetes(props) {
     }
     return (
         <>
-            <Typography variant='h4' gutterBottom align='left' className={classes.mainTitle}>
+            <Typography variant='h4' component='h2' gutterBottom align='left' className={classes.mainTitle}>
                 <FormattedMessage
                     id='Apis.Details.Environments.Environments.Kubernetes'
                     defaultMessage='Kubernetes'
@@ -164,7 +164,11 @@ export default function Kubernetes(props) {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell />
+                            <TableCell align='left'>
+                                <Typography variant='srOnly'>
+                                    Action
+                                </Typography>
+                            </TableCell>
                             <TableCell align='left'>Name</TableCell>
                             <TableCell align='left'>Properties</TableCell>
                             <TableCell align='left'>Access URL</TableCell>
@@ -179,6 +183,7 @@ export default function Kubernetes(props) {
                                         checked={handleOnChecked(row.clusterName)}
                                         onChange={(e) => handleEnvironmentsSelect(e, row.clusterName)}
                                         color='primary'
+                                        inputProps={{ 'aria-label': 'select gateway ' + row.name }}
                                     />
                                 </TableCell>
                                 <TableCell component='th' scope='row'>
