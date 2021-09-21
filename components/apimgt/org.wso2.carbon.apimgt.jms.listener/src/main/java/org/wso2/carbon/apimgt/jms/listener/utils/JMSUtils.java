@@ -29,8 +29,10 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -622,11 +624,13 @@ public class JMSUtils extends BaseUtils {
 			} else {
 				// user info = user:pass
 				int colonIndex = userInfo.indexOf(':');
+                String decodedConnectionString = java.net.URLDecoder.decode(connectionString,
+                        StandardCharsets.UTF_8.name());
 				if (colonIndex == -1) {
 					// password is not in the url. 
-					return connectionString.replace(userInfo, maskString);
+					return decodedConnectionString.replace(userInfo, maskString);
 				} else {				
-					return connectionString.replace(userInfo, maskString + ":" + maskString);
+					return decodedConnectionString.replace(userInfo, maskString + ":" + maskString);
 				}
 			}
 		} catch (URISyntaxException ignore) {
@@ -634,7 +638,10 @@ public class JMSUtils extends BaseUtils {
 			// be printed instead of the invalid url. 
 			log.error("Error while parsing the JMS connection url");
 			maskedConnectionString = "Invalid connection url";
-		}
+        } catch (UnsupportedEncodingException e) {
+            log.error("Error while decoding the JMS connection url");
+            maskedConnectionString = "Invalid connection url";
+        }
 
 		return maskedConnectionString;
 	}
