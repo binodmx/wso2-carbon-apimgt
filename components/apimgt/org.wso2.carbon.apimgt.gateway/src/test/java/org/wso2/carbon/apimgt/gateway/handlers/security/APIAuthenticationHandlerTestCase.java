@@ -1,22 +1,22 @@
 package org.wso2.carbon.apimgt.gateway.handlers.security;
 
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 import org.apache.axis2.client.Options;
 import org.apache.axis2.engine.AxisConfiguration;
@@ -34,47 +34,63 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.caching.impl.Util;
 import org.wso2.carbon.metrics.manager.MetricManager;
 import org.wso2.carbon.metrics.manager.Timer;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.TreeMap;
 
 /*
-* Test class for APIAuthenticationhandler
-* */
+ * Test class for APIAuthenticationhandler
+ * */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Util.class, MetricManager.class, Timer.Context.class, APIUtil.class})
+@PrepareForTest({Util.class, MetricManager.class, Timer.Context.class, APIUtil.class, ServiceReferenceHolder.class, MultitenantUtils.class, APIKeyValidator.class})
 public class APIAuthenticationHandlerTestCase {
     private Timer.Context context;
     private SynapseEnvironment synapseEnvironment;
     private MessageContext messageContext;
     private org.apache.axis2.context.MessageContext axis2MsgCntxt;
+    private APIManagerConfiguration apiManagerConfiguration;
+    private ServiceReferenceHolder serviceReferenceHolder;
+    private APIKeyValidator apiKeyValidator;
 
 
 
     @Before
-    public void setup(){
+    public void setup() {
         synapseEnvironment = Mockito.mock(SynapseEnvironment.class);
         messageContext = Mockito.mock(Axis2MessageContext.class);
         axis2MsgCntxt = Mockito.mock(org.apache.axis2.context.MessageContext.class);
         Mockito.when(axis2MsgCntxt.getProperty(APIMgtGatewayConstants.REQUEST_RECEIVED_TIME)).thenReturn("1506576365");
         Mockito.when(((Axis2MessageContext) messageContext).getAxis2MessageContext()).thenReturn(axis2MsgCntxt);
 
+        PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
+        PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
+        apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+
+        apiKeyValidator = Mockito.mock(APIKeyValidator.class);
+
         PowerMockito.mockStatic(Timer.Context.class);
         context = Mockito.mock(Timer.Context.class);
     }
 
     /*
-    * This method will test handleRequest method for it's happy path
-    * */
+     * This method will test handleRequest method for it's happy path
+     * */
     @Test
-    public void testHandleRequest() {
+    public void testHandleRequest() throws APISecurityException {
 
         APIAuthenticationHandler apiAuthenticationHandler = createAPIAuthenticationHandler();
+        Mockito.when(apiAuthenticationHandler.getApiManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        Mockito.when(apiKeyValidator.getResourceAuthenticationScheme(messageContext)).thenReturn(APIConstants.AUTH_APP_AND_USER);
         apiAuthenticationHandler.init(synapseEnvironment);
         Assert.assertEquals(apiAuthenticationHandler.startMetricTimer(), null);
 
@@ -93,8 +109,8 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    *  This method will test Response method
-    * */
+     *  This method will test Response method
+     * */
     @Test
     public void testHandleResponse() {
         MessageContext messageContext = Mockito.mock(MessageContext.class);
@@ -103,15 +119,17 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    * This method will test handleRequest method when APISecurityException is thrown
-    * */
+     * This method will test handleRequest method when APISecurityException is thrown
+     * */
     @Test
-    public void testHandleRequestSecurityException() {
+    public void testHandleRequestSecurityException() throws APISecurityException {
         SynapseEnvironment synapseEnvironment = Mockito.mock(SynapseEnvironment.class);
         MessageContext messageContext = Mockito.mock(Axis2MessageContext.class);
         org.apache.axis2.context.MessageContext axis2MsgCntxt = Mockito.mock(org.apache.axis2.context.MessageContext.class);
         Mockito.when(((Axis2MessageContext) messageContext).getAxis2MessageContext()).thenReturn(axis2MsgCntxt);
         APIAuthenticationHandler apiAuthenticationHandler = createAPIAuthenticationHandlerForExceptionTest();
+        Mockito.when(apiAuthenticationHandler.getApiManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        Mockito.when(apiKeyValidator.getResourceAuthenticationScheme(messageContext)).thenReturn(APIConstants.AUTH_APP_AND_USER);
         apiAuthenticationHandler.init(synapseEnvironment);
 
         Options options = Mockito.mock(Options.class);
@@ -135,8 +153,8 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    *  This method will test for setAPIParametersToMessageContext
-    * */
+     *  This method will test for setAPIParametersToMessageContext
+     * */
     @Test
     public void testSetAPIParametersToMessageContext() {
         MessageContext messageContext = Mockito.mock(Axis2MessageContext.class);
@@ -168,8 +186,8 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    * This method will test for destroy()
-    * */
+     * This method will test for destroy()
+     * */
     @Test
     public void testDestroy() {
         APIAuthenticationHandler apiAuthenticationHandler = new APIAuthenticationHandler();
@@ -186,11 +204,11 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    * This method will create an instance of APIAuthenticationHandler
-    * */
+     * This method will create an instance of APIAuthenticationHandler
+     * */
     private APIAuthenticationHandler createAPIAuthenticationHandler() {
         return new APIAuthenticationHandler() {
-            
+
             @Override
             protected APIManagerConfigurationService getApiManagerConfigurationService() {
                 return Mockito.mock(APIManagerConfigurationService.class);
@@ -220,6 +238,11 @@ public class APIAuthenticationHandlerTestCase {
             }
 
             @Override
+            protected APIKeyValidator getAPIKeyValidator() {
+                return apiKeyValidator;
+            }
+
+            @Override
             protected Timer.Context startMetricTimer() {
                 return null;
             }
@@ -227,8 +250,8 @@ public class APIAuthenticationHandlerTestCase {
     }
 
     /*
-    * This method will create an instance of APIAuthenticationHandler so as to give APISecurityException
-    * */
+     * This method will create an instance of APIAuthenticationHandler so as to give APISecurityException
+     * */
     private APIAuthenticationHandler createAPIAuthenticationHandlerForExceptionTest() {
         return new APIAuthenticationHandler() {
 
@@ -276,6 +299,11 @@ public class APIAuthenticationHandlerTestCase {
             }
 
             @Override
+            protected APIKeyValidator getAPIKeyValidator() {
+                return apiKeyValidator;
+            }
+
+            @Override
             protected void setFaultPayload(MessageContext messageContext, APISecurityException e) {
                 getFaultPayload(e);
             }
@@ -284,7 +312,7 @@ public class APIAuthenticationHandlerTestCase {
 
     @Test
     public void testStartMetricTimer(){
-      APIAuthenticationHandler apiAuthenticationHandler = new APIAuthenticationHandler();
+        APIAuthenticationHandler apiAuthenticationHandler = new APIAuthenticationHandler();
         PowerMockito.mockStatic(MetricManager.class);
         Timer timer = Mockito.mock(Timer.class);
         Mockito.when(timer.start()).thenReturn(context);
@@ -297,7 +325,7 @@ public class APIAuthenticationHandlerTestCase {
 
     @Test
     public void testStopMetricTimer(){
-      APIAuthenticationHandler apiAuthenticationHandler = new APIAuthenticationHandler();
+        APIAuthenticationHandler apiAuthenticationHandler = new APIAuthenticationHandler();
         Mockito.when(context.stop()).thenReturn(1000L);
         apiAuthenticationHandler.stopMetricTimer(context);
         Assert.assertTrue(true);

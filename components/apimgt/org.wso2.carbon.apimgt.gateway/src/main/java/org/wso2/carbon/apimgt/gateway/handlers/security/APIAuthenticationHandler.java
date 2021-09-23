@@ -49,7 +49,9 @@ import org.wso2.carbon.apimgt.gateway.handlers.security.basicauth.BasicAuthAuthe
 import org.wso2.carbon.apimgt.gateway.handlers.security.oauth.OAuthAuthenticator;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
+import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.tracing.TracingSpan;
 import org.wso2.carbon.apimgt.tracing.TracingTracer;
@@ -87,6 +89,8 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
     protected ArrayList<Authenticator> authenticators = new ArrayList<>();
     protected boolean isAuthenticatorsInitialized = false;
     private SynapseEnvironment synapseEnvironment;
+    private String securityContextHeader;
+    protected APIKeyValidator keyValidator;
 
     private String authorizationHeader;
     private String apiSecurity;
@@ -186,6 +190,7 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         } else {
             keyManagersList.add(APIConstants.KeyManager.API_LEVEL_ALL_KEY_MANAGERS);
         }
+        initOAuthParams();
     }
 
     /**
@@ -237,6 +242,9 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
     }
 
     public void destroy() {
+        if (keyValidator != null) {
+            this.keyValidator.cleanup();
+        }
         if (!authenticators.isEmpty()) {
             for (Authenticator authenticator : authenticators) {
                 authenticator.destroy();
@@ -244,6 +252,38 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         } else {
             log.warn("Unable to destroy uninitialized authentication handler instance");
         }
+    }
+
+    protected void initOAuthParams() {
+        setKeyValidator();
+        APIManagerConfiguration config = getApiManagerConfiguration();
+        String value = config.getFirstProperty(APIConstants.REMOVE_OAUTH_HEADERS_FROM_MESSAGE);
+        if (value != null) {
+            removeOAuthHeadersFromOutMessage = Boolean.parseBoolean(value);
+        }
+        JWTConfigurationDto jwtConfigurationDto = config.getJwtConfigurationDto();
+        if (jwtConfigurationDto != null) {
+            value = jwtConfigurationDto.getJwtHeader();
+        }
+        if (value != null) {
+            setSecurityContextHeader(value);
+        }
+    }
+
+    public void setSecurityContextHeader(String securityContextHeader) {
+        this.securityContextHeader = securityContextHeader;
+    }
+
+    public String getSecurityContextHeader() {
+        return securityContextHeader;
+    }
+
+    protected APIManagerConfiguration getApiManagerConfiguration() {
+        return ServiceReferenceHolder.getInstance().getAPIManagerConfiguration();
+    }
+
+    protected APIKeyValidator getAPIKeyValidator() {
+        return this.keyValidator;
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "LEST_LOST_EXCEPTION_STACK_TRACE", justification = "The exception needs to thrown for fault sequence invocation")
@@ -362,6 +402,14 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
             if (!isAuthenticatorsInitialized) {
                 initializeAuthenticators();
             }
+            String authenticationScheme = getAPIKeyValidator().getResourceAuthenticationScheme(messageContext);
+            if(APIConstants.AUTH_NO_AUTHENTICATION.equals(authenticationScheme)) {
+                if(log.isDebugEnabled()){
+                    log.debug("Found Authentication Scheme: ".concat(authenticationScheme));
+                }
+                handleNoAuthentication(messageContext);
+                return true;
+            }
             if (isAuthenticate(messageContext)) {
                 setAPIParametersToMessageContext(messageContext);
                 return true;
@@ -419,6 +467,48 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         return timer.start();
     }
 
+    private void handleNoAuthentication(MessageContext messageContext){
+
+        //Using existing constant in Message context removing the additional constant in API Constants
+        String clientIP = null;
+        org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) messageContext).
+                getAxis2MessageContext();
+        Map<String, String> transportHeaderMap = (Map<String, String>)
+                axis2MessageContext.getProperty
+                        (org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+
+        if (transportHeaderMap != null) {
+            clientIP = transportHeaderMap.get(APIMgtGatewayConstants.X_FORWARDED_FOR);
+        }
+
+        //Setting IP of the client
+        if (clientIP != null && !clientIP.isEmpty()) {
+            if (clientIP.indexOf(",") > 0) {
+                clientIP = clientIP.substring(0, clientIP.indexOf(","));
+            }
+        } else {
+            clientIP = (String) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.REMOTE_ADDR);
+        }
+
+        //Create a dummy AuthenticationContext object with hard coded values for Tier and KeyType. This is because we cannot determine the Tier nor Key Type without subscription information..
+        AuthenticationContext authContext = new AuthenticationContext();
+        authContext.setAuthenticated(true);
+        authContext.setTier(APIConstants.UNAUTHENTICATED_TIER);
+        //Since we don't have details on unauthenticated tier we setting stop on quota reach true
+        authContext.setStopOnQuotaReach(true);
+        //Requests are throttled by the ApiKey that is set here. In an unauthenticated scenario, we will use the client's IP address for throttling.
+        authContext.setApiKey(clientIP);
+        authContext.setKeyType(APIConstants.API_KEY_TYPE_PRODUCTION);
+        //This name is hardcoded as anonymous because there is no associated user token
+        authContext.setUsername(APIConstants.END_USER_ANONYMOUS);
+        authContext.setCallerToken(null);
+        authContext.setApplicationName(null);
+        authContext.setApplicationId(clientIP); //Set clientIp as application ID in unauthenticated scenario
+        authContext.setConsumerKey(null);
+        APISecurityUtils.setAuthenticationContext(messageContext, authContext, securityContextHeader);
+    }
+
+
     /**
      * Authenticates the given request using the authenticators which have been initialized.
      *
@@ -449,6 +539,10 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
             throw new APISecurityException(error.getKey(), error.getValue());
         }
         return true;
+    }
+
+    public void setKeyValidator() {
+        this.keyValidator = new APIKeyValidator();
     }
 
     private Pair<Integer, String> getError(List<AuthenticationResponse> authResponses) {
