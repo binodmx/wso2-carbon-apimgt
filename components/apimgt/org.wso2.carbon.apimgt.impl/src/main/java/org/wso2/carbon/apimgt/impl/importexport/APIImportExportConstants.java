@@ -136,4 +136,6 @@ public final class APIImportExportConstants {
         // To identify thumbnail icons
         fileExtensionMapping.put("application/json", "json");
     }
+
+    public static final String IS_SECRET_ENCRYPTED = "isSecretEncrypted";
 }
