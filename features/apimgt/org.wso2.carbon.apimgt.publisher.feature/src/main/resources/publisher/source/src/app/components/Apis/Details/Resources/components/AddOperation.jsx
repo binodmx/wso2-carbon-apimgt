@@ -86,13 +86,24 @@ function VerbElement(props) {
     const classes = useMenuStyles();
     if (isButton) {
         return (
-            <Button disableFocusRipple variant='contained' className={classes.customButton} size='small'>
+            <Button
+                disableFocusRipple
+                variant='contained'
+                className={classes.customButton}
+                size='small'
+                data-testid={`add-operation-button${verb}`}
+            >
                 {verb}
             </Button>
         );
     } else {
         return (
-            <MenuItem dense className={classes.customMenu} onClick={onClick}>
+            <MenuItem
+                dense
+                className={classes.customMenu}
+                onClick={onClick}
+                data-testid={`add-operation-${verb && verb.toLowerCase()}`}
+            >
                 <Checkbox checked={checked} />
                 {verb}
             </MenuItem>
@@ -186,6 +197,7 @@ function AddOperation(props) {
                         </InputLabel>
 
                         <Select
+                            data-testid='add-operation-selection-dropdown'
                             multiple
                             renderValue={(verbs) => {
                                 const remaining = [];
@@ -302,6 +314,7 @@ function AddOperation(props) {
                                 color='primary'
                                 aria-label='Add new operation'
                                 onClick={addOperation}
+                                data-testid='add-operation-button'
                             >
                                 <AddIcon />
                             </Fab>

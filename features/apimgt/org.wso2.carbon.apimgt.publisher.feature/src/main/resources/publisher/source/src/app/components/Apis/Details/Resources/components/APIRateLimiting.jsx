@@ -165,6 +165,7 @@ function APIRateLimiting(props) {
                                 )}
                                 label='API Level'
                                 labelPlacement='end'
+                                data-testid='api-rate-limiting-api-level'
                             />
                             <FormControlLabel
                                 value={RateLimitingLevels.RESOURCE}
@@ -176,6 +177,7 @@ function APIRateLimiting(props) {
                                 )}
                                 label='Operation Level'
                                 labelPlacement='end'
+                                data-testid='api-rate-limiting-operation-level'
                             />
                         </RadioGroup>
                     </FormControl>

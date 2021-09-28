@@ -114,7 +114,11 @@ export default function ListParameters(props) {
                             const paramCopy = isRefParam
                                 ? resolvedSpec.paths[target][verb].parameters[index] : parameter;
                             return (
-                                <TableRow key={paramCopy.name}>
+                                <TableRow
+                                    key={paramCopy.name}
+                                    data-testid={`param-list-${paramCopy.in}-${paramCopy.name}-${(paramCopy.schema
+                                        ? paramCopy.schema.type : paramCopy.type)}`}
+                                >
                                     <TableCell align='left'>{capitalizeFirstLetter(paramCopy.in)}</TableCell>
                                     <TableCell align='left'>{paramCopy.name}</TableCell>
                                     <TableCell align='left'>

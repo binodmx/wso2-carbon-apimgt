@@ -122,7 +122,7 @@ function MetaData(props) {
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6} lg={8}>
-                                <Typography component='p' variant='body1'>
+                                <Typography component='p' variant='body1' id='itest-api-name-version'>
                                     {api.version && <>{api.version}</>}
                                 </Typography>
                             </Grid>

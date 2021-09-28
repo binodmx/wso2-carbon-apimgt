@@ -112,11 +112,15 @@ export default function OperationGovernance(props) {
             <Grid item md={1} />
             <Grid item md={5}>
                 <TextField
+                    data-testid={`${target}-${verb}-operation-rate-limiting-policy`}
+                    id='operation_rate_limiting_policy'
                     select
                     fullWidth={!isOperationRateLimiting}
                     SelectProps={{
                         autoWidth: true,
                         IconComponent: isOperationRateLimiting ? ArrowDropDownIcon : 'span',
+                        classes: { select: 'selected' },
+
                     }}
                     disabled={disableUpdate || !isOperationRateLimiting}
                     label={
@@ -195,7 +199,11 @@ export default function OperationGovernance(props) {
                     variant='outlined'
                 >
                     {operationRateLimits.map((rateLimit) => (
-                        <MenuItem key={rateLimit.name} value={rateLimit.name}>
+                        <MenuItem
+                            key={rateLimit.name}
+                            value={rateLimit.name}
+                            data-testid={`${target}-${verb}-operation-rate-limiting-policy-${rateLimit.name}`}
+                        >
                             {rateLimit.displayName}
                         </MenuItem>
                     ))}
