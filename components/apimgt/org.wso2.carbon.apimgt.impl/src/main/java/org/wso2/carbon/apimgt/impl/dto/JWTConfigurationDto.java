@@ -36,6 +36,7 @@ public class JWTConfigurationDto {
     private Set<String> jwtExcludedClaims = new HashSet<>();
     private boolean tenantBasedSigningEnabled = false;
     private boolean enableUserClaimRetrievalFromUserStore;
+    private boolean isBindFederatedUserClaims;
     public boolean isTenantBasedSigningEnabled() {
 
         return tenantBasedSigningEnabled;
@@ -154,5 +155,15 @@ public class JWTConfigurationDto {
     public void setEnableUserClaimRetrievalFromUserStore(boolean enableUserClaimRetrievalFromUserStore) {
 
         this.enableUserClaimRetrievalFromUserStore = enableUserClaimRetrievalFromUserStore;
+    }
+
+    public boolean isBindFederatedUserClaims() {
+
+        return isBindFederatedUserClaims;
+    }
+
+    public void setBindFederatedUserClaims(boolean isBindFederatedUserClaims) {
+
+        this.isBindFederatedUserClaims = isBindFederatedUserClaims;
     }
 }

@@ -446,6 +446,7 @@ public final class APIConstants {
     public static final String JWT_CONFIGS = "JWTConfiguration";
     public static final String JWT_HEADER = "JWTHeader";
     public static final String ENABLE_USER_CLAIMS = "EnableUserClaims";
+    public static final String ENABLE_FEDERATED_USER_CLAIMS = "EnableBindingFederatedUserClaims";
     public static final String TOKEN_GENERATOR_IMPL = "JWTGeneratorImpl";
     public static final String ENABLE_JWT_GENERATION = "EnableJWTGeneration";
     public static final String CLAIMS_RETRIEVER_CLASS = "ClaimsRetrieverImplClass";
@@ -2309,6 +2310,7 @@ public final class APIConstants {
         public static final String SCOPE_MANAGEMENT_ENDPOINT = "scope_endpoint";
         public static final String AVAILABLE_GRANT_TYPE = "grant_types";
         public static final String ENABLE_TOKEN_GENERATION = "enable_token_generation";
+        public static final String BINDING_FEDERATED_USER_CLAIMS = "bindFederatedUserClaims";
         public static final String ENABLE_TOKEN_HASH = "enable_token_hash";
         public static final String ENABLE_TOKEN_ENCRYPTION = "enable_token_encryption";
         public static final String ENABLE_OAUTH_APP_CREATION = "enable_oauth_app_creation";

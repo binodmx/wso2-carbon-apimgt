@@ -1301,7 +1301,14 @@ public class APIManagerConfiguration {
             if (jwtUserClaimsElement != null ){
                 jwtConfigurationDto.setEnableUserClaims(Boolean.parseBoolean(jwtUserClaimsElement.getText()));
             }
-
+            OMElement isBindFederatedUserClaims =
+                    omElement.getFirstChildWithName(new QName(APIConstants.ENABLE_FEDERATED_USER_CLAIMS));
+            if (isBindFederatedUserClaims != null) {
+                jwtConfigurationDto
+                        .setBindFederatedUserClaims(Boolean.parseBoolean(isBindFederatedUserClaims.getText()));
+            } else {
+                jwtConfigurationDto.setBindFederatedUserClaims(true);
+            }
             OMElement gatewayJWTConfigurationElement =
                     omElement.getFirstChildWithName(new QName(APIConstants.GATEWAY_JWT_GENERATOR));
             if (gatewayJWTConfigurationElement != null) {

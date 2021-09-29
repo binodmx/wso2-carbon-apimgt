@@ -139,6 +139,8 @@ public class APIMgtGatewayJWTGeneratorImpl extends AbstractAPIMgtGatewayJWTGener
                     if (!StringUtils.isEmpty(dialectURI)) {
                         properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
                     }
+                    properties.put(APIConstants.KeyManager.BINDING_FEDERATED_USER_CLAIMS,
+                            jwtConfigurationDto.isBindFederatedUserClaims());
                     try {
                         return keyManagerInstance.getUserClaims(jwtInfoDto.getEnduser(), properties);
                     } catch (APIManagementException e) {

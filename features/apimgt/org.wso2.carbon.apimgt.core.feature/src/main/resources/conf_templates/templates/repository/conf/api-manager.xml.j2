@@ -58,6 +58,9 @@
              The DefaultClaimsRetriever class adds user claims from the default carbon user store. -->
         {% if apim.jwt.enable_user_claims is defined %}
         <EnableUserClaims>{{apim.jwt.enable_user_claims}}</EnableUserClaims>
+        {% if apim.jwt.binding_federated_user_claims %}
+        <EnableBindingFederatedUserClaims>{{apim.jwt.binding_federated_user_claims}}</EnableBindingFederatedUserClaims>
+        {% endif %}
         {% else %}
         <EnableUserClaims>true</EnableUserClaims>
         {% endif %}
