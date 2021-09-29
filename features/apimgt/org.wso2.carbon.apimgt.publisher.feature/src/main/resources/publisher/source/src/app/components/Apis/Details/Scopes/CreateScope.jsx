@@ -376,6 +376,7 @@ class CreateScope extends React.Component {
                                 <FormControl margin='normal'>
                                     <TextField
                                         id='name'
+                                        data-testid='scope-name'
                                         label='Name'
                                         placeholder='Scope Name'
                                         error={this.state.valid.name.invalid}
@@ -402,6 +403,7 @@ class CreateScope extends React.Component {
                                 <FormControl margin='normal' classes={{ root: classes.descriptionForm }}>
                                     <TextField
                                         id='description'
+                                        data-testid='scope-description'
                                         label='Description'
                                         variant='outlined'
                                         placeholder='Short description about the scope'
@@ -427,6 +429,7 @@ class CreateScope extends React.Component {
                                 </FormControl>
                                 <FormControl margin='normal'>
                                     <ChipInput
+                                        data-testid='scope-roles'
                                         label='Roles'
                                         InputLabelProps={{
                                             shrink: true,
@@ -437,6 +440,9 @@ class CreateScope extends React.Component {
                                         placeholder='Enter roles and press Enter'
                                         blurBehavior='clear'
                                         InputProps={{
+                                            inputProps: {
+                                                'data-testid': 'scope-roles-input',
+                                            },
                                             endAdornment: !roleValidity && (
                                                 <InputAdornment position='end'>
                                                     <Error color='error' />
@@ -476,6 +482,7 @@ class CreateScope extends React.Component {
                                 </FormControl>
                                 <div className={classes.addNewOther}>
                                     <Button
+                                        data-testid='scope-save-btn'
                                         variant='contained'
                                         color='primary'
                                         onClick={this.addScope}

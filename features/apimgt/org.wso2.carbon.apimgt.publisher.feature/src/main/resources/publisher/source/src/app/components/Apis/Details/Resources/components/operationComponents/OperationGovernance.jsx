@@ -215,9 +215,11 @@ export default function OperationGovernance(props) {
                 { operation['x-auth-type'] && operation['x-auth-type'].toLowerCase() !== 'none' ? (
                     <TextField
                         select
+                        data-testid={`${target}-${verb}-operation-scope-select`}
                         SelectProps={{
                             multiple: true,
                             renderValue: (selected) => (Array.isArray(selected) ? selected.join(', ') : selected),
+                            classes: { select: 'selected' },
                         }}
                         disabled={disableUpdate}
                         fullWidth
@@ -257,6 +259,7 @@ export default function OperationGovernance(props) {
                                 key={apiScope.scope.name}
                                 value={apiScope.scope.name}
                                 dense
+                                data-testid={`${target}-${verb}-operation-scope-${apiScope.scope.name}`}
                             >
                                 <Checkbox checked={operationScopes.includes(apiScope.scope.name)} color='primary' />
                                 {apiScope.scope.name}
@@ -287,6 +290,7 @@ export default function OperationGovernance(props) {
                                 key={sharedScope.scope.name}
                                 value={sharedScope.scope.name}
                                 dense
+                                data-testid={`${target}-${verb}-operation-scope-${sharedScope.scope.name}`}
                             >
                                 <Checkbox checked={operationScopes.includes(sharedScope.scope.name)} color='primary' />
                                 {sharedScope.scope.name}

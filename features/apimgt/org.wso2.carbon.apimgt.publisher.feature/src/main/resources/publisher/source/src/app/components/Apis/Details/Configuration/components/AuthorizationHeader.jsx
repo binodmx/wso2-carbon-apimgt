@@ -65,6 +65,7 @@ export default function AuthorizationHeader(props) {
                 <TextField
                     disabled={isRestricted(['apim:api_create'], apiFromContext) || !hasResourceWithSecurity}
                     id='outlined-name'
+                    data-testid='outlined-name-test'
                     label={(
                         <FormattedMessage
                             id='Apis.Details.Configuration.Configuration.auth.header.label'
