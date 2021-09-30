@@ -439,6 +439,24 @@ public final class APIImportUtil {
                             .isJsonNull()) {
                         JsonObject endpointSecurityConfigPerType = endpointSecurityObject.get(endpointType)
                                 .getAsJsonObject();
+
+                        if (endpointSecurityConfigPerType.has(APIConstants.OAuthConstants.GRANT_TYPE)
+                                && !endpointSecurityConfigPerType.get(
+                                APIConstants.OAuthConstants.GRANT_TYPE).isJsonNull()) {
+                            if (StringUtils.equals(endpointSecurityConfigPerType.get(
+                                            APIConstants.OAuthConstants.GRANT_TYPE).getAsString().toLowerCase(),
+                                    APIConstants.OAuthConstants.PASSWORD.toLowerCase())) {
+                                if (!endpointSecurityConfigPerType.has(
+                                        APIConstants.OAuthConstants.ENDPOINT_SECURITY_PASSWORD)
+                                        || endpointSecurityConfigPerType.get(
+                                        APIConstants.OAuthConstants.ENDPOINT_SECURITY_PASSWORD).isJsonNull()) {
+                                    throw new APIImportExportException(
+                                            "Password cannot be empty/null when " + APIConstants.OAuthConstants.PASSWORD
+                                                    + " grant type is selected for " + "endpoint security");
+                                }
+                            }
+                        }
+
                         // The client secret should be encrypted only if the isSecretEncrypted property is set inside
                         // endpoint security config and only if it has the value as false
                         // (This isSecurityEncrypted: false will only be set when the user is using a params file to
