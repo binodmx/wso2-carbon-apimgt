@@ -389,7 +389,8 @@ public final class APIImportUtil {
      *
      * @param importedApi the imported API object
      */
-    private static void handleEndpointSecurityConfigs(API importedApi) throws CryptoException {
+    private static void handleEndpointSecurityConfigs(API importedApi)
+            throws CryptoException, APIImportExportException {
         Boolean isEndpointSecured = importedApi.isEndpointSecured();
         String endpointUsername = importedApi.getEndpointUTUsername();
         String endpointPassword = importedApi.getEndpointUTPassword();
@@ -428,19 +429,23 @@ public final class APIImportUtil {
             }
 
             // For OAuth 2.0 support using the params file of apictl
-            if (endpointConfigObject.has(APIConstants.ENDPOINT_SECURITY)) {
+            if (endpointConfigObject.has(APIConstants.ENDPOINT_SECURITY) && !endpointConfigObject.get(
+                    APIConstants.ENDPOINT_SECURITY).isJsonNull()) {
                 CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
                 JsonObject endpointSecurityObject = endpointConfigObject.get(APIConstants.ENDPOINT_SECURITY)
                         .getAsJsonObject();
                 for (String endpointType : endpointTypes) {
-                    if (endpointSecurityObject.has(endpointType)) {
+                    if (endpointSecurityObject.has(endpointType) && !endpointSecurityObject.get(endpointType)
+                            .isJsonNull()) {
                         JsonObject endpointSecurityConfigPerType = endpointSecurityObject.get(endpointType)
                                 .getAsJsonObject();
                         // The client secret should be encrypted only if the isSecretEncrypted property is set inside
                         // endpoint security config and only if it has the value as false
                         // (This isSecurityEncrypted: false will only be set when the user is using a params file to
                         // override OAuth 2.0 endpoint security)
-                        if (endpointSecurityConfigPerType.has(APIImportExportConstants.IS_SECRET_ENCRYPTED)) {
+                        if (endpointSecurityConfigPerType.has(APIImportExportConstants.IS_SECRET_ENCRYPTED)
+                                && !endpointSecurityConfigPerType.get(APIImportExportConstants.IS_SECRET_ENCRYPTED)
+                                .isJsonNull()) {
                             boolean isSecretEncrypted = endpointSecurityConfigPerType.get(
                                     APIImportExportConstants.IS_SECRET_ENCRYPTED).getAsBoolean();
                             if (!isSecretEncrypted) {
@@ -448,13 +453,29 @@ public final class APIImportUtil {
                                         APIConstants.OAuthConstants.OAUTH_CLIENT_SECRET)) {
                                     String encryptedClientSecret = cryptoUtil.encryptAndBase64Encode(
                                             endpointSecurityConfigPerType.get(
-                                                            APIConstants.OAuthConstants.OAUTH_CLIENT_SECRET).getAsString()
+                                                    APIConstants.OAuthConstants.OAUTH_CLIENT_SECRET).getAsString()
                                                     .getBytes());
                                     endpointSecurityConfigPerType.addProperty(
                                             APIConstants.OAuthConstants.OAUTH_CLIENT_SECRET, encryptedClientSecret);
-                                    // The property isSecurityEncrypted will be removed from the endpointConfig because
-                                    // it is used only in this apictl use case
-                                    endpointSecurityConfigPerType.remove(APIImportExportConstants.IS_SECRET_ENCRYPTED);
+                                }
+                                // The property isSecurityEncrypted will be removed from the endpointConfig because
+                                // it is used only in this apictl use case
+                                endpointSecurityConfigPerType.remove(APIImportExportConstants.IS_SECRET_ENCRYPTED);
+
+                                // Convert customParameters to String since this is the params flow
+                                if (endpointSecurityConfigPerType.has(
+                                        APIConstants.OAuthConstants.OAUTH_CUSTOM_PARAMETERS)
+                                        && !endpointSecurityConfigPerType.get(
+                                        APIConstants.OAuthConstants.OAUTH_CUSTOM_PARAMETERS).isJsonNull()) {
+                                    String customParametersString = endpointSecurityConfigPerType.get(
+                                            APIConstants.OAuthConstants.OAUTH_CUSTOM_PARAMETERS).getAsJsonObject()
+                                            .toString();
+                                    endpointSecurityConfigPerType.addProperty(
+                                            APIConstants.OAuthConstants.OAUTH_CUSTOM_PARAMETERS,
+                                            customParametersString);
+                                } else {
+                                    endpointSecurityConfigPerType.addProperty(
+                                            APIConstants.OAuthConstants.OAUTH_CUSTOM_PARAMETERS, "{}");
                                 }
                             }
                         }
