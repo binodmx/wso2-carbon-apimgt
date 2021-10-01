@@ -73,7 +73,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -395,8 +397,9 @@ public class AMDefaultKeyManagerImpl extends AbstractKeyManager {
         TokenInfo tokenResponse;
 
         try {
-            tokenResponse = authClient.generate(tokenRequest.getClientId(), tokenRequest.getClientSecret(),
-                    GRANT_TYPE_VALUE, scopes);
+            String credentials = tokenRequest.getClientId() + ':' + tokenRequest.getClientSecret();
+            String authToken = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+            tokenResponse = authClient.generate(authToken, GRANT_TYPE_VALUE, scopes);
         } catch (KeyManagerClientException e) {
             throw new APIManagementException("Error occurred while calling token endpoint!", e);
         }
