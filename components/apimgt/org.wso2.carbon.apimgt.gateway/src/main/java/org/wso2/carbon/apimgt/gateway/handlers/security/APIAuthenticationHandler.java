@@ -184,13 +184,13 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         }
         if (getApiManagerConfigurationService() != null) {
             initializeAuthenticators();
+            initOAuthParams();
         }
         if (StringUtils.isNotEmpty(keyManagers)) {
             Collections.addAll(keyManagersList, keyManagers.split(","));
         } else {
             keyManagersList.add(APIConstants.KeyManager.API_LEVEL_ALL_KEY_MANAGERS);
         }
-        initOAuthParams();
     }
 
     /**
