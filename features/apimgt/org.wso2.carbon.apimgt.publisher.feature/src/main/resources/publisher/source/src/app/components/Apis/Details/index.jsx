@@ -789,6 +789,7 @@ class Details extends Component {
                             </Switch>
                         </div>
                     </div>
+                    {/* Following input is for UI testing */}
                 </APIProvider>
             </>
         );

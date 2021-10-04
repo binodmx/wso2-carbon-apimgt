@@ -85,6 +85,7 @@ function GenericEndpointAdd(props) {
                 variant='outlined'
                 margin='normal'
                 placeholder='Enter the Endpoint URL and press + button'
+                data-testid='generic-endpoint-add-text-field'
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position='end'>
@@ -94,6 +95,7 @@ function GenericEndpointAdd(props) {
                                 className={classes.iconButton}
                                 aria-label='Search'
                                 disabled={serviceUrl === ''}
+                                data-testid='generic-endpoint-add'
                             >
                                 <Icon>
                                     add

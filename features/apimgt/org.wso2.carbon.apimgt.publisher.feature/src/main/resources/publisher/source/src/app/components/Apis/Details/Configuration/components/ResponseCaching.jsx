@@ -112,6 +112,7 @@ export default function ResponseCaching(props) {
                                 inputProps={{
                                     'aria-label': 'switch response caching',
                                 }}
+                                data-testid='response-caching-switch'
                             />
                         )}
                     />

@@ -711,6 +711,7 @@ function EndpointOverview(props) {
                                                                 color='primary'
                                                                 onChange={epCategoryOnChangeHandler}
                                                                 inputProps={{ 'aria-label': 'Production Endpoint' }}
+                                                                data-testid='production-endpoint-checkbox'
                                                             />
                                                         )}
                                                         label={(
@@ -858,6 +859,7 @@ function EndpointOverview(props) {
                                                                         handleOnChangeEndpointCategoryChange(
                                                                             'sandbox', event,
                                                                         ))}
+                                                                    data-testid='sandbox-endpoint-checkbox'
                                                                 />
                                                             )}
                                                             label={(

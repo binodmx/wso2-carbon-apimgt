@@ -228,6 +228,7 @@ function LoadbalanceFailoverConfig(props) {
                     aria-controls='panel1bh-content'
                     id='panel1bh-header'
                     className={classes.configHeaderContainer}
+                    data-testid='loadbalance-failover-config-title'
                 >
                     <Typography className={classes.secondaryHeading}>
                         {getEndpointTypeHeading()}
@@ -253,6 +254,7 @@ function LoadbalanceFailoverConfig(props) {
                                     <TextField
                                         disabled={isRestricted(['apim:api_create'], api)}
                                         id='certificateEndpoint'
+                                        data-testid='loadbalance-failover-config-type'
                                         label={(
                                             <FormattedMessage
                                                 id='Apis.Details.Endpoints.LoadbalanceFailoverConfig.endpoint.type'
@@ -268,7 +270,14 @@ function LoadbalanceFailoverConfig(props) {
                                         className={classes.endpointTypeSelect}
                                     >
                                         {endpointTypes.map((type) => {
-                                            return <MenuItem value={type.key}>{type.value}</MenuItem>;
+                                            return (
+                                                <MenuItem
+                                                    value={type.key}
+                                                    data-testid={`loadbalance-failover-config-type-${type.key}`}
+                                                >
+                                                    {type.value}
+                                                </MenuItem>
+                                            );
                                         })}
                                     </TextField>
                                     <div className={classes.lpConfigWrapper}>
@@ -288,7 +297,11 @@ function LoadbalanceFailoverConfig(props) {
                                     <Collapse className={classes.wrapper} in={endpointType !== 'none'}>
                                         {epConfig.production_endpoints
                                     && (
-                                        <Grid xs={12} className={classes.endpointsWrapperLeft}>
+                                        <Grid
+                                            xs={12}
+                                            className={classes.endpointsWrapperLeft}
+                                            data-testid='production-endpoints'
+                                        >
                                             <Typography className={classes.endpointName}>
                                                 {epConfig.endpoint_type === 'failover'
                                                     ? (
@@ -322,7 +335,11 @@ function LoadbalanceFailoverConfig(props) {
                                     )}
                                         {epConfig.sandbox_endpoints
                                     && (
-                                        <Grid xs={12} className={classes.endpointsWrapperRight}>
+                                        <Grid
+                                            xs={12}
+                                            className={classes.endpointsWrapperRight}
+                                            data-testid='sandbox-endpoints'
+                                        >
                                             <Typography className={classes.endpointName}>
                                                 {epConfig.endpoint_type === 'failover'
                                                     ? (

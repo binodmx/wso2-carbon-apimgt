@@ -136,6 +136,7 @@ function GenericEndpoint(props) {
                 disabled={isRestricted(['apim:api_create'], api)}
                 label={name}
                 id={id}
+                data-testid={`${id || 'generic'}-endpoint-text-field`}
                 className={classes.textField}
                 value={serviceUrl}
                 placeholder={!serviceUrl ? 'http://appserver/resource' : ''}
@@ -165,6 +166,7 @@ function GenericEndpoint(props) {
                                         classes.endpointErrorChip, classes.endpointInvalidChip,
                                     )}
                                     variant='outlined'
+                                    data-testid={`${id || 'generic'}-endpoint-test-status`}
                                 />
                             )}
                             {!api.isWebSocket() && (
@@ -173,11 +175,12 @@ function GenericEndpoint(props) {
                                     aria-label='TestEndpoint'
                                     onClick={() => testEndpoint(serviceUrl, apiId)}
                                     disabled={(isRestricted(['apim:api_create'], api)) || isUpdating}
+                                    data-testid={`${id || 'generic'}-endpoint-test-icon-btn`}
                                 >
                                     {isUpdating
                                         ? <CircularProgress size={20} />
                                         : (
-                                            <Icon>
+                                            <Icon data-testid={`${id || 'generic'}-endpoint-test-icon`}>
                                         check_circle
                                             </Icon>
                                         )}
