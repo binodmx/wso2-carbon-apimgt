@@ -175,6 +175,9 @@ public final class RestApiConstants {
     public static final String PAGINATION_PREVIOUS_LIMIT = "previous_limit";
     public static final String DEFAULT_SORT_ORDER = "asc";
 
+    public static final int TAG_LIMIT_DEFAULT = 1000;
+    public static final int TAG_OFFSET_DEFAULT = 0;
+
     public static final String APIS_GET_PAGINATION_URL =
             RESOURCE_PATH_APIS + "?limit=" + LIMIT_PARAM + "&offset=" + OFFSET_PARAM + "&query=" + QUERY_PARAM;
 
