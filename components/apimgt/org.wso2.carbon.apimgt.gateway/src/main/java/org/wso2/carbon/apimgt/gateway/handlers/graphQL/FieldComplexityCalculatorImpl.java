@@ -92,7 +92,7 @@ public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator 
                     }
                     argumentValue = argumentValue + val;
                 } else {
-                    argumentValue += 1;
+                    argumentValue = 1;
                 }
             }
         } else {
