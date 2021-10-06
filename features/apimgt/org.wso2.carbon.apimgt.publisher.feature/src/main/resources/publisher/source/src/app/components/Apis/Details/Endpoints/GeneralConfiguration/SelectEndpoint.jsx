@@ -47,6 +47,7 @@ export default function SelectEndpoint(props) {
             />)}
             required
             id='certificateEndpoint'
+            data-testid='certificate-endpoint-select'
             label={(
                 <FormattedMessage
                     id='Apis.Details.Endpoints.GeneralConfiguration.UploadCertificate.endpoint'
@@ -63,7 +64,7 @@ export default function SelectEndpoint(props) {
         >
             {endpoints !== null && endpoints.map((ep) => {
                 if (ep) {
-                    return (<MenuItem value={ep.url}>{ep.url}</MenuItem>);
+                    return (<MenuItem value={ep.url} data-testid={ep.url}>{ep.url}</MenuItem>);
                 }
                 return null;
             })}

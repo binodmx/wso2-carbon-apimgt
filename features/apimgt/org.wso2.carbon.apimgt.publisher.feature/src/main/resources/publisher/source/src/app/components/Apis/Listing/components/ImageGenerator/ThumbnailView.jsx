@@ -431,6 +431,7 @@ class ThumbnailView extends Component {
                             <FormControlLabel
                                 value='upload'
                                 control={<Radio color='primary' />}
+                                data-testid='edit-api-thumbnail-upload'
                                 label={(
                                     <FormattedMessage
                                         id='Apis.Listing.components.ImageGenerator.ThumbnailView.upload'
@@ -460,6 +461,7 @@ class ThumbnailView extends Component {
                                 </Grid>
                                 <Grid item xs={9}>
                                     <Dropzone
+                                        data-testid='image-upload-dropzone'
                                         multiple={false}
                                         accept='image/*'
                                         className={classes.dropzone}
@@ -583,6 +585,7 @@ class ThumbnailView extends Component {
                             color='primary'
                             size='small'
                             onClick={this.handleClick('btnUploadAPIThumb', intl)}
+                            data-testid='edit-api-thumbnail-save-btn'
                         >
                             {selectedTab === 'design' && uploading && (
                                 <>

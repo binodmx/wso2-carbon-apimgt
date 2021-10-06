@@ -200,6 +200,7 @@ function GeneralConfiguration(props) {
                 onChange={() => setConfigExpand(!isConfigExpanded)}
                 className={classes.generalConfigPanel}
                 disabled={isRestricted(['apim:ep_certificates_view'])}
+                data-testid='general-configuration-certs'
             >
                 <ExpansionPanelSummary
                     expandIcon={<ExpandMoreIcon />}

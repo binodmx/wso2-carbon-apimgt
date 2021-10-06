@@ -106,7 +106,11 @@ function GenericEndpoint(props) {
     useEffect(() => {
         setServiceUrl(endpointURL);
     }, [endpointURL]);
-
+    /**
+     * Test the endpoint
+     * @param {int} endpoint endpoint
+     * @param {int} apiID apiId
+     */
     function testEndpoint(endpoint, apiID) {
         setUpdating(true);
         const restApi = new API();
@@ -205,6 +209,7 @@ function GenericEndpoint(props) {
                                             aria-label='Security'
                                             onClick={() => setESConfigOpen(type, esCategory)}
                                             disabled={(isRestricted(['apim:api_create'], api))}
+                                            data-testid={`${id || 'generic'}-endpoint-security-icon-btn`}
                                         >
                                             <Icon>
                                             security

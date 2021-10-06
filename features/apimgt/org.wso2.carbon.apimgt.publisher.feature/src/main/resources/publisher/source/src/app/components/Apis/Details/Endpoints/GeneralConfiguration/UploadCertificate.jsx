@@ -271,6 +271,7 @@ export default function UploadCertificate(props) {
                             inputProps={{ maxLength: 45 }}
                         />
                         <Dropzone
+                            data-testid='upload-cert-btn'
                             multiple={false}
                             accept={
                                 'application/pkcs8,'
@@ -297,7 +298,11 @@ export default function UploadCertificate(props) {
                                     <div className={classes.dropZoneWrapper}>
                                         {certificate.name === '' ? (
                                             <div>
-                                                <Icon style={{ fontSize: 56 }}>cloud_upload</Icon>
+                                                <Icon
+                                                    style={{ fontSize: 56 }}
+                                                >
+                                                cloud_upload
+                                                </Icon>
                                                 <Typography>
                                                     <FormattedMessage
                                                         id={
@@ -356,6 +361,7 @@ export default function UploadCertificate(props) {
                     />
                 </Button>
                 <Button
+                    data-testid='upload-cert-save-btn'
                     onClick={saveCertificate}
                     variant='contained'
                     color='primary'
