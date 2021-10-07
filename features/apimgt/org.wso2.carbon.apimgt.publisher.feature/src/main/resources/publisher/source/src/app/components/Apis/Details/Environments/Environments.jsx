@@ -156,6 +156,7 @@ export default function Environments() {
                             <TableRow key={row.name}>
                                 <TableCell padding='checkbox'>
                                     <Checkbox
+                                        data-testid={`environments-checkbox-${row.name}`}
                                         disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
                                         checked={gatewayEnvironments.includes(row.name)}
                                         inputProps={{ 'aria-label': 'select gateway ' + row.name }}
@@ -234,6 +235,7 @@ export default function Environments() {
                         variant='contained'
                         color='primary'
                         onClick={addEnvironments}
+                        data-testid={!isUpdating && 'save-environments-btn'}
                     >
                         <FormattedMessage
                             id='Apis.Details.Environments.Environments.save'

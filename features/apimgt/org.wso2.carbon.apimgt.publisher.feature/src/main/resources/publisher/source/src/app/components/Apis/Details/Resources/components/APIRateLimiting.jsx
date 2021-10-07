@@ -190,6 +190,7 @@ function APIRateLimiting(props) {
                             <TextField
                                 disabled={isRestricted(['apim:api_create'], apiFromContext)}
                                 id='operation_throttling_policy'
+                                data-testid='api-rate-limiting-api-level-select'
                                 select
                                 label='Rate limiting policies'
                                 value={apiThrottlingPolicy}
@@ -200,7 +201,11 @@ function APIRateLimiting(props) {
                                 variant='outlined'
                             >
                                 {operationRateLimits.map((rateLimit) => (
-                                    <MenuItem key={rateLimit.name} value={rateLimit.name}>
+                                    <MenuItem
+                                        key={rateLimit.name}
+                                        value={rateLimit.name}
+                                        data-testid={`api-rate-limiting-api-level-${rateLimit.name}`}
+                                    >
                                         {rateLimit.displayName}
                                     </MenuItem>
                                 ))}

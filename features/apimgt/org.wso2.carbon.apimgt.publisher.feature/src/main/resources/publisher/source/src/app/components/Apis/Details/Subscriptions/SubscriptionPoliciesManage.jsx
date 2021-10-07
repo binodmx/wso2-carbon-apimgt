@@ -128,6 +128,7 @@ class SubscriptionPoliciesManage extends Component {
                                             checked={policies.includes(value[1].name)}
                                             onChange={(e) => this.handleChange(e)}
                                             name={value[1].name}
+                                            data-testid={`policy-checkbox-${value[1].name.toLowerCase()}`}
                                         />
                                     )}
                                     label={value[1].name + ' : ' + value[1].description}

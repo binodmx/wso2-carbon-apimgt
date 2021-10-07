@@ -128,15 +128,24 @@ function Subscriptions(props) {
             >
                 <Grid item>
                     <Button
+                        disabled={updateInProgress}
                         type='submit'
                         variant='contained'
                         color='primary'
                         onClick={() => saveAPI()}
+                        data-testid={!updateInProgress && 'subscriptions-save-btn'}
                     >
-                        <FormattedMessage
-                            id='Apis.Details.Subscriptions.Subscriptions.save'
-                            defaultMessage='Save'
-                        />
+                        {updateInProgress ? (
+                            <FormattedMessage
+                                id='Apis.Details.Subscriptions.Subscriptions.saving'
+                                defaultMessage='Saving'
+                            />
+                        ) : (
+                            <FormattedMessage
+                                id='Apis.Details.Subscriptions.Subscriptions.save'
+                                defaultMessage='Save'
+                            />
+                        )}
                     </Button>
                 </Grid>
                 <Grid item>
