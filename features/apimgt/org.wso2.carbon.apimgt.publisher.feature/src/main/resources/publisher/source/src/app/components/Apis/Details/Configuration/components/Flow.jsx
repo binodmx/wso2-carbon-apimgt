@@ -108,6 +108,7 @@ function InFlow(props) {
                             onClick={startEditing}
                             disabled={isRestricted}
                             aria-label='Edit mediation message'
+                            data-testid={`mediation-edit-${type}`}
                         >
                             <EditRounded />
                         </Button>
