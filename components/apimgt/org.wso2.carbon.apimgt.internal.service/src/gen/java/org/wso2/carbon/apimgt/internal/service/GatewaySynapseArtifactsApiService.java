@@ -21,5 +21,5 @@ import javax.ws.rs.core.SecurityContext;
 
 
 public interface GatewaySynapseArtifactsApiService {
-      public Response gatewaySynapseArtifactsGet(String gatewayLabel, MessageContext messageContext) throws APIManagementException;
+      public Response gatewaySynapseArtifactsGet(String tenantDomain, String gatewayLabel, MessageContext messageContext) throws APIManagementException;
 }

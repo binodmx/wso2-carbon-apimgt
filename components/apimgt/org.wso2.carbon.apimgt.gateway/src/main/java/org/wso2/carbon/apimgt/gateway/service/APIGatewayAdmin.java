@@ -52,6 +52,9 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
 
     private static Log log = LogFactory.getLog(APIGatewayAdmin.class);
 
+    public APIGatewayAdmin() {
+
+    }
     /**
      * Add the API to the gateway
      *
