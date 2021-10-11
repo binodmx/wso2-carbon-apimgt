@@ -102,6 +102,7 @@ public class APIHandlerServiceComponent {
             GatewayStartupListener gatewayStartupListener = new GatewayStartupListener();
             bundleContext.registerService(ServerStartupObserver.class.getName(), gatewayStartupListener, null);
             bundleContext.registerService(ServerShutdownHandler.class, gatewayStartupListener, null);
+            bundleContext.registerService(Axis2ConfigurationContextObserver.class, gatewayStartupListener, null);
 
             if ("Synapse".equalsIgnoreCase(gatewayType)) {
                 // Register Tenant service creator to deploy tenant specific common synapse configurations

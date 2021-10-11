@@ -19,12 +19,12 @@ public class GatewaySynapseArtifactsApiServiceImpl implements GatewaySynapseArti
     private boolean debugEnabled = log.isDebugEnabled();
 
 
-    public Response gatewaySynapseArtifactsGet(String gatewayLabel, MessageContext messageContext) {
+    public Response gatewaySynapseArtifactsGet(String xWSO2Tenant, String gatewayLabel, MessageContext messageContext) {
 
         List<String> gatewayRuntimeArtifactsArray;
         try {
             gatewayRuntimeArtifactsArray  =
-                    gatewayArtifactsMgtDAO.getAllGatewayPublishedAPIArtifacts(gatewayLabel);
+                    gatewayArtifactsMgtDAO.getAllGatewayPublishedAPIArtifacts(gatewayLabel, xWSO2Tenant);
         } catch (APIManagementException e) {
             JSONObject responseObj = new JSONObject();
             responseObj.put("Message", "Error retrieving artifacts for the  gateway label of  " + gatewayLabel + " "

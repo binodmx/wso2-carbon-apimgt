@@ -97,13 +97,13 @@ public class DBRetriever implements ArtifactRetriever {
     }
 
     @Override
-    public List<String> retrieveAllArtifacts(String label) throws ArtifactSynchronizerException {
+    public List<String> retrieveAllArtifacts(String label, String tenantDomain) throws ArtifactSynchronizerException {
         List<String> gatewayRuntimeArtifactsArray = new ArrayList<>();
         CloseableHttpResponse httpResponse = null;
         try {
             String endcodedgatewayLabel= URLEncoder.encode(label, APIConstants.DigestAuthConstants.CHARSET);
             String path = APIConstants.GatewayArtifactSynchronizer.GATEAY_SYNAPSE_ARTIFACTS
-                    + "?gatewayLabel="+ endcodedgatewayLabel;
+                    + "?gatewayLabel="+ endcodedgatewayLabel + "&tenantDomain="+ tenantDomain;
             String endpoint = baseURL + path;
             httpResponse = invokeService(endpoint);
             String responseString;

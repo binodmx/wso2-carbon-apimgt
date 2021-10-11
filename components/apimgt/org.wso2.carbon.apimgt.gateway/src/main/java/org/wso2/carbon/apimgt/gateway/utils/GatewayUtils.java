@@ -26,10 +26,12 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.apache.axiom.util.UIDGenerator;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.Constants;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.description.AxisService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -111,6 +113,20 @@ public class GatewayUtils {
             map.put(el.toString(), el);
         }
         return map;
+    }
+
+    public static org.apache.axis2.context.MessageContext createAxis2MessageContext() throws AxisFault {
+
+        AxisService axisService = new AxisService();
+        axisService.addParameter("adminService", true);
+        org.apache.axis2.context.MessageContext axis2MsgCtx = new org.apache.axis2.context.MessageContext();
+        axis2MsgCtx.setMessageID(UIDGenerator.generateURNString());
+        axis2MsgCtx.setConfigurationContext(ServiceReferenceHolder.getInstance()
+                .getConfigurationContextService().getServerConfigContext());
+        axis2MsgCtx.setProperty(org.apache.axis2.context.MessageContext.CLIENT_API_NON_BLOCKING, Boolean.TRUE);
+        axis2MsgCtx.setServerSide(true);
+        axis2MsgCtx.setAxisService(axisService);
+        return axis2MsgCtx;
     }
 
     public static Map<String, Set<IPRange>> generateIpRangeMap(List<IPRange> ipRangeList) {

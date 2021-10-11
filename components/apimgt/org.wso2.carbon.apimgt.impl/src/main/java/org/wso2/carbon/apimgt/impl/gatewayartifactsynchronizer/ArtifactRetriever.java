@@ -64,10 +64,11 @@ public interface ArtifactRetriever {
      * This method is used to retrieve data from the storage
      *
      * @param gatewayLabel       - Label subscribed by the gateway
+     * @param tenantDomain       - The tenant domain from which the artifacts needs to be retrieved
      * @return A List of String contains all the information about the APIs and their corresponding gateway artifacts
      * @throws ArtifactSynchronizerException if there are any errors when retrieving the Artifacts
      */
-     List<String> retrieveAllArtifacts(String gatewayLabel) throws ArtifactSynchronizerException, IOException;
+     List<String> retrieveAllArtifacts(String gatewayLabel, String tenantDomain) throws ArtifactSynchronizerException, IOException;
 
     /**
      * Will be called after all publishing is done or if init fails

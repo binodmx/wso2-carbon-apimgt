@@ -160,7 +160,7 @@ public class GatewayArtifactsMgtDAO {
      * @param label - Gateway label of the API
      * @throws APIManagementException if an error occurs
      */
-    public List<String> getAllGatewayPublishedAPIArtifacts(String label)
+    public List<String> getAllGatewayPublishedAPIArtifacts(String label, String tenantDomain)
             throws APIManagementException {
 
         ResultSet rs =null;
@@ -171,6 +171,7 @@ public class GatewayArtifactsMgtDAO {
             connection.commit();
             statement.setString(1, label);
             statement.setString(2, APIConstants.GatewayArtifactSynchronizer.GATEWAY_INSTRUCTION_PUBLISH);
+            statement.setString(3, tenantDomain);
             rs = statement.executeQuery();
             while (rs.next()) {
                 try (InputStream inputStream = rs.getBinaryStream(1)) {

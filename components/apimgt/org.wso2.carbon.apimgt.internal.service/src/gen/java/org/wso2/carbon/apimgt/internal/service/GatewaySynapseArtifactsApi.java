@@ -44,7 +44,7 @@ GatewaySynapseArtifactsApiService delegate = new GatewaySynapseArtifactsApiServi
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "An array of gatewayRuntimeArtifacts", response = SynapseArtifactListDTO.class),
         @ApiResponse(code = 200, message = "Unexpected error", response = ErrorDTO.class) })
-    public Response gatewaySynapseArtifactsGet( @ApiParam(value = "**Search condition**.  label associated with the API ")  @QueryParam("gatewayLabel") String gatewayLabel) throws APIManagementException{
-        return delegate.gatewaySynapseArtifactsGet(gatewayLabel, securityContext);
+    public Response gatewaySynapseArtifactsGet( @ApiParam(value = "**Search condition**.  tenantDomain associated with the API ")  @QueryParam("tenantDomain") String tenantDomain,  @ApiParam(value = "**Search condition**.  label associated with the API ")  @QueryParam("gatewayLabel") String gatewayLabel) throws APIManagementException{
+        return delegate.gatewaySynapseArtifactsGet(tenantDomain, gatewayLabel, securityContext);
     }
 }
