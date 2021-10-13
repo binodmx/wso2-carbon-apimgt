@@ -326,8 +326,6 @@ public final class APIImportUtil {
                 String newDefinition = apiDefinition.generateAPIDefinition(swaggerData, swaggerContent);
                 apiProvider.saveSwaggerDefinition(importedApi, newDefinition);
             }
-            // This is required to make url templates and scopes get effected
-            apiProvider.updateAPI(importedApi);
 
             //Since Image, documents, sequences and WSDL are optional, exceptions are logged and ignored in implementation
             ApiTypeWrapper apiTypeWrapperWithUpdatedApi = new ApiTypeWrapper(importedApi);
@@ -345,6 +343,9 @@ public final class APIImportUtil {
                 }
                 APIAndAPIProductCommonUtil.addClientCertificates(pathToArchive, apiProvider);
             }
+
+            // This is required to make url templates and scopes get effected
+            apiProvider.updateAPI(importedApi);
 
             // Change API lifecycle if state transition is required
             if (StringUtils.isNotEmpty(lifecycleAction)) {
@@ -645,7 +646,6 @@ public final class APIImportUtil {
                 URL wsdlFileUrl = new File(wsdlPath).toURI().toURL();
                 importedApi.setWsdlUrl(wsdlFileUrl.toString());
                 APIUtil.createWSDL(registry, importedApi);
-                apiProvider.updateAPI(importedApi);
             } catch (MalformedURLException e) {
                 //this exception is logged and ignored since WSDL is optional for an API
                 log.error("Error in getting WSDL URL. ", e);
@@ -655,9 +655,6 @@ public final class APIImportUtil {
             } catch (APIManagementException e) {
                 //this exception is logged and ignored since WSDL is optional for an API
                 log.error("Error in creating the WSDL resource in the registry. ", e);
-            } catch (FaultGatewaysException e) {
-                //This is logged and process is continued because WSDL is optional for an API
-                log.error("Failed to update API after adding WSDL. ", e);
             }
         }
     }

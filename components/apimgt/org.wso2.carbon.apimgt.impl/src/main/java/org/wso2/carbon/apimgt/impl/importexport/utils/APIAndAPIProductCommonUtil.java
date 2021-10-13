@@ -479,8 +479,6 @@ public class APIAndAPIProductCommonUtil {
             APIUtil.setResourcePermissions(identifier.getProviderName(), null, null, thumbPath);
             if (apiTypeWrapper.isAPIProduct()) {
                 apiProvider.updateAPIProduct(apiTypeWrapper.getApiProduct());
-            } else {
-                apiProvider.updateAPI(apiTypeWrapper.getApi());
             }
         } catch (FaultGatewaysException e) {
             //This is logged and process is continued because icon is optional for an API
