@@ -452,6 +452,7 @@ class APIDefinition extends React.Component {
                             component={Link}
                             download={fileName}
                             href={downloadLink}
+                            data-testid='download-definition-btn'
                         >
                             <CloudDownloadRounded className={classes.buttonIcon} />
                             <FormattedMessage

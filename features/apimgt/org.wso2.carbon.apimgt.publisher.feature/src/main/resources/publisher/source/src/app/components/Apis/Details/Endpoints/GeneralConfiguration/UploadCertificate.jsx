@@ -251,6 +251,7 @@ export default function UploadCertificate(props) {
                         <TextField
                             required
                             id='certificateAlias'
+                            data-testid='certificate-alias-textbox'
                             label={(
                                 <FormattedMessage
                                     id='Apis.Details.Endpoints.GeneralConfiguration.UploadCertificate.alias'
@@ -361,7 +362,7 @@ export default function UploadCertificate(props) {
                     />
                 </Button>
                 <Button
-                    data-testid='upload-cert-save-btn'
+                    data-testid={!isSaving && 'upload-cert-save-btn'}
                     onClick={saveCertificate}
                     variant='contained'
                     color='primary'

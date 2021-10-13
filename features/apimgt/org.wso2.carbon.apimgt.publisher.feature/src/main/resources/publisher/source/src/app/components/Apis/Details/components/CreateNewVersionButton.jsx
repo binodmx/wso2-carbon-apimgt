@@ -88,6 +88,7 @@ function CreateNewVersionButton(props) {
                         className={classes.createNewVersion}
                         to={'/apis/' + api.id + '/new_version'}
                         style={{ minWidth: 95 }}
+                        data-testid='create-new-version-btn'
                     >
 
                         <div>

@@ -457,6 +457,7 @@ function Properties(props) {
                         className={classes.button}
                         onClick={toggleAddProperty}
                         disabled={showAddProperty || isRestricted(['apim:api_create', 'apim:api_publish'], api)}
+                        data-testid='add-new-property'
                     >
                         <AddCircle className={classes.buttonIcon} />
                         <FormattedMessage
@@ -515,6 +516,7 @@ function Properties(props) {
                                     className={classes.button}
                                     onClick={toggleAddProperty}
                                     disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
+                                    data-testid='add-new-property'
                                 >
                                     <FormattedMessage
                                         id='Apis.Details.Properties.Properties.add.new.property'
@@ -647,6 +649,7 @@ function Properties(props) {
                                                             }
                                                             onClick={handleAddToList}
                                                             className={classes.marginRight}
+                                                            data-testid='properties-add'
                                                         >
                                                             <Typography variant='caption' component='div'>
                                                                 <FormattedMessage
@@ -708,6 +711,7 @@ function Properties(props) {
                                                 && !isAdditionalPropertiesStale)
                                                 || isRestricted(['apim:api_create', 'apim:api_publish'], api)
                                             }
+                                            data-testid={(!editing && !updating) && 'save-api-properties'}
                                         >
                                             {updating && (
                                                 <>

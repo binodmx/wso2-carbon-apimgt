@@ -278,6 +278,7 @@ class LifeCycleUpdate extends Component {
                                             className={classes.stateButton}
                                             key={transitionState.event}
                                             data-value={transitionState.event}
+                                            data-testid={transitionState.event}
                                             onClick={this.updateLifeCycleState}
                                         >
                                             {transitionState.displayName}

@@ -135,7 +135,13 @@ const APIDetailsTopMenu = (props) => {
                         : `/apis/${api.id}/overview`}
                     className={classes.backLink}
                 >
-                    <Typography variant='h4' component='h1' className={classes.apiName} id={api.name}>
+                    <Typography
+                        variant='h4'
+                        component='h1'
+                        className={classes.apiName}
+                        id={api.name}
+                        data-testid='api-name-version-title'
+                    >
                         {api.name}
                         {' '}
                         {isAPIProduct ? '' : ':' + api.version}

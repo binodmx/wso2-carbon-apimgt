@@ -541,7 +541,7 @@ export default function RuntimeConfiguration() {
                                 variant='contained'
                                 color='primary'
                                 onClick={handleSave}
-                                data-testid='save-runtime-configurations'
+                                data-testid={!isUpdating && 'save-runtime-configurations'}
                             >
                                 <FormattedMessage
                                     id='Apis.Details.Configuration.Configuration.save'

@@ -204,6 +204,7 @@ function TransportLevel(props) {
                                 />
                             )}
                             label='Mutual SSL'
+                            data-testid='mutual-ssl-checkbox'
                         />
                         {isMutualSSLEnabled && (
                             <FormControl component='fieldset'>

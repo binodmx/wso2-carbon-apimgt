@@ -422,7 +422,7 @@ function EditMediationPolicy(props) {
                                         </IconButton>
                                         <Button
                                             onClick={() => handleDownload(seq.id)}
-                                            data-testid={`download-${seq.id}`}
+                                            data-testid={`download-${seq.name}`}
                                         >
                                             <Icon>arrow_downward</Icon>
                                         </Button>

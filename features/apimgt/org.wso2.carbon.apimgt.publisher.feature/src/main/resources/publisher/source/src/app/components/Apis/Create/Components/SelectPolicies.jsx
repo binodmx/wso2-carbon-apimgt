@@ -63,10 +63,12 @@ export default function SelectPolicies(props) {
                 variant='outlined'
                 InputProps={{
                     id: 'itest-id-apipolicies-input',
+                    'data-testid': 'select-policy-dropdown-input',
                 }}
                 InputLabelProps={{
                     for: 'itest-id-apipolicies-input',
                 }}
+                data-testid='select-policy-dropdown'
             >
                 {policies.list.map((policy) => (
                     <MenuItem
@@ -75,6 +77,7 @@ export default function SelectPolicies(props) {
                         id={policy.name}
                         key={policy.name}
                         value={policy.displayName}
+                        data-testid={`policy-item-${policy.name}`}
                     >
                         {multiple && <Checkbox color='primary' checked={selectedPolicies.includes(policy.name)} />}
                         <ListItemText primary={policy.displayName} secondary={policy.description} />

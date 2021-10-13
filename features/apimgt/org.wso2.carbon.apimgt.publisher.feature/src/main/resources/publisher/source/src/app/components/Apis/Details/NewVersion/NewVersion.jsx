@@ -202,6 +202,7 @@ class CreateNewVersion extends React.Component {
                                     <TextField
                                         fullWidth
                                         id='newVersion'
+                                        data-testid='new-version-textbox'
                                         error={
                                             valid.version.empty
                                             || valid.version.alreadyExists
@@ -287,6 +288,7 @@ class CreateNewVersion extends React.Component {
                                                     variant='contained'
                                                     color='primary'
                                                     id='createBtn'
+                                                    data-testid='new-version-save-btn'
                                                     onClick={() => this.handleSubmit(api, newVersion, isDefaultVersion)}
                                                     disabled={
                                                         valid.version.empty

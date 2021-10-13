@@ -157,6 +157,7 @@ class SchemaValidation extends React.Component {
                                     inputProps={{
                                         'aria-label': 'switch Schema Validation',
                                     }}
+                                    data-testid='schema-validation-switch'
                                 />
                             )}
                         />
@@ -198,7 +199,12 @@ class SchemaValidation extends React.Component {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button color='primary' variant='contained' onClick={() => this.setIsOpen(false)}>
+                        <Button
+                            data-testid='schema-validation-yes-btn'
+                            color='primary'
+                            variant='contained'
+                            onClick={() => this.setIsOpen(false)}
+                        >
                             Yes
                         </Button>
                         <Button
