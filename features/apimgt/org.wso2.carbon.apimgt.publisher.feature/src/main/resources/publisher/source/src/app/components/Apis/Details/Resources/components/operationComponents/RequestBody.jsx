@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+v *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -48,15 +48,13 @@ function RequestBody(props) {
                 {operation.requestBody.required
                     ? (
                         <FormattedMessage
-                            id={'Apis.Details.Resources.components.operationComponents'
-                            + '.ListParameter.yes'}
+                            id='Apis.Details.Resources.components.operationComponents.ListParameter.yes'
                             defaultMessage='Yes'
                         />
                     )
                     : (
                         <FormattedMessage
-                            id={'Apis.Details.Resources.components.operationComponents'
-                            + '.ListParameter.no'}
+                            id='Apis.Details.Resources.components.operationComponents.ListParameter.no'
                             defaultMessage='No'
                         />
                     )}
@@ -72,8 +70,7 @@ function RequestBody(props) {
                     )}
                     <Tooltip title={(
                         <FormattedMessage
-                            id={'Apis.Details.Resources.components.operationComponents'
-                            + '.ListParameter.delete'}
+                            id='Apis.Details.Resources.components.operationComponents.ListParameter.delete'
                             defaultMessage='Delete'
                         />
                     )}
