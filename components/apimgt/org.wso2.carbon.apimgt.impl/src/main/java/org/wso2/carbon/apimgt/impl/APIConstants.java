@@ -2037,6 +2037,12 @@ public final class APIConstants {
     public static final String LOG_ALL_METHODS = "logAllMethods";
     public static final String AM_ACTIVITY_ID = "activityid";
 
+    /**
+     * Constants for message track logging
+     * */
+    public static final String MESSAGE_TRACK_LOGGER = "MessageTracker";
+    public static final String ENABLE_MESSAGE_TRACKING_LOGS = "enableMessageTrackingLogs";
+
     public static final String PDF_EXTENSION = "pdf";
     public static final String XLS_EXTENSION = "xls";
     public static final String XLSX_EXTENSION = "xlsx";

@@ -27,8 +27,10 @@ import org.apache.log4j.MDC;
 import org.apache.synapse.AbstractSynapseHandler;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
+import org.apache.synapse.transport.passthru.ServerWorker;
 import org.apache.synapse.transport.passthru.util.RelayUtils;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
+import org.wso2.carbon.apimgt.gateway.utils.GatewayUtils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 
 import java.io.IOException;
@@ -41,21 +43,31 @@ import javax.xml.stream.XMLStreamException;
  * This Handler can be used to log all external calls done by the api manager via synapse
  */
 public class LogsHandler extends AbstractSynapseHandler {
-    private static final Log log = LogFactory.getLog(APIConstants.CORRELATION_LOGGER);
-    private static boolean isEnabled = false;
-    private static boolean isSet = false;
-    private String apiName = null;
-    private String apiCTX = null;
-    private String apiMethod = null;
-    private String apiTo = null;
-    private long requestSize = 0;
-    private String apiElectedRsrc = null;
-    private String apiRestReqFullPath = null;
-    private String apiResponseSC = null;
-    private String apiMsgUUID = null;
-    private String apiRsrcCacheKey = null;
-    private String applicationName = null;
-    private String apiConsumerKey = null;
+
+    private static final Log correlationLog = LogFactory.getLog(APIConstants.CORRELATION_LOGGER);
+    private static final Log messageTrackLog = LogFactory.getLog(APIConstants.MESSAGE_TRACK_LOGGER);
+
+    private final String KEY_CORRELATION_ID = "CorrelationId: ";
+    private final String KEY_DIRECTION = "Direction: ";
+    private final String KEY_DESTINATION = "Destination: ";
+    private final String KEY_SOURCE_IP = "SourceIp: ";
+    private final String KEY_ORIGIN = "Origin: ";
+    private final String KEY_HTTP_METHOD = "HTTPMethod: ";
+    private final String KEY_HTTP_SC = "HTTPStatusCode: ";
+    private final String CORRELATION_ID = "correlation_id";
+    private final String HTTP_METHOD = "HTTP_METHOD";
+    private final String HTTP_SC = "HTTP_SC";
+    private final String ENDPOINT_PREFIX = "ENDPOINT_PREFIX";
+    private final String OUT_TRANSPORT_INFO = "OutTransportInfo";
+    private final String TRANSPORT_IN_URL = "TransportInURL";
+    private final String SEPARATOR = ", ";
+
+    private static boolean isCorrelationEnabled = false;
+    private static boolean isCorrelationEnabledSystemPropertyRead = false;
+    private static boolean isMessageTrackingEnabled = false;
+    private static boolean isMessageTrackingEnabledSystemPropertyRead = false;
+
+    private static final String API_INFO = "API_INFO";
 
     private static final String AUTH_HEADER = "AUTH_HEADER";
     private static final String ORG_ID_HEADER = "ORG_ID_HEADER";
@@ -68,25 +80,54 @@ public class LogsHandler extends AbstractSynapseHandler {
             " the response body size";
     private static final String REQUEST_EVENT_PUBLICATION_ERROR = "Cannot publish request event. ";
     private static final String RESPONSE_EVENT_PUBLICATION_ERROR = "Cannot publish response event. ";
+    private static final String MESSAGE_TRACK_BUILD_MESSAGE_ERROR = "Error occurred while building the log message. ";
 
-    private boolean isEnabled() {
-        if(!isSet) {
+    private boolean isCorrelationEnabled() {
+        if (!isCorrelationEnabledSystemPropertyRead) {
             String config = System.getProperty(APIConstants.ENABLE_CORRELATION_LOGS);
             if (config != null && !config.equals("")) {
-                isEnabled = Boolean.parseBoolean(config);
-                isSet = true;
+                isCorrelationEnabled = Boolean.parseBoolean(config);
             }
+            isCorrelationEnabledSystemPropertyRead = true;
         }
-        return isEnabled;
+        return isCorrelationEnabled;
+    }
+
+    private boolean isMessageTrackingEnabled() {
+        if (!isMessageTrackingEnabledSystemPropertyRead) {
+            String config = System.getProperty(APIConstants.ENABLE_MESSAGE_TRACKING_LOGS);
+            if (config != null && !config.equals("")) {
+                isMessageTrackingEnabled = Boolean.parseBoolean(config);
+            }
+            isMessageTrackingEnabledSystemPropertyRead = true;
+        }
+        return isMessageTrackingEnabled;
     }
 
     public boolean handleRequestInFlow(MessageContext messageContext) {
-        if (isEnabled()) {
+        if (isCorrelationEnabled()) {
             try {
-                apiTo = LogUtils.getTo(messageContext);
-                return true;
+                APIInfo apiInfo = new APIInfo();
+                apiInfo.setApiTo(LogUtils.getTo(messageContext));
+                messageContext.setProperty(API_INFO, apiInfo);
             } catch (Exception e) {
-                log.error(REQUEST_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
+                correlationLog.error(REQUEST_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
+                return false;
+            }
+        }
+        // Track messages
+        if (isMessageTrackingEnabled()) {
+            try {
+                org.apache.axis2.context.MessageContext axis2MessageContext =
+                        ((Axis2MessageContext) messageContext).getAxis2MessageContext();
+                String logMessage = KEY_CORRELATION_ID + axis2MessageContext.getProperty(CORRELATION_ID);
+                logMessage += SEPARATOR + KEY_DIRECTION + "RequestIn";
+                logMessage += SEPARATOR + KEY_HTTP_METHOD + axis2MessageContext.getProperty(HTTP_METHOD);
+                logMessage += SEPARATOR + KEY_DESTINATION + messageContext.getTo().getAddress();
+                logMessage += SEPARATOR + KEY_SOURCE_IP + GatewayUtils.getClientIp(messageContext);
+                messageTrackLog.info(logMessage);
+            } catch (Exception e) {
+                messageTrackLog.error(MESSAGE_TRACK_BUILD_MESSAGE_ERROR + e.getMessage(), e);
                 return false;
             }
         }
@@ -94,38 +135,52 @@ public class LogsHandler extends AbstractSynapseHandler {
     }
 
     public boolean handleRequestOutFlow(MessageContext messageContext) {
-        if (isEnabled()) {
+        if (isCorrelationEnabled()) {
             try {
-                requestSize = buildRequestMessage(messageContext);
+                // Set API related information to API_INFO property in messageContext
+                APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
+                apiInfo.setRequestSize(buildRequestMessage(messageContext));
+                apiInfo.setApiMsgUUID(messageContext.getMessageID());
+                apiInfo.setApiName(LogUtils.getAPIName(messageContext));
+                apiInfo.setApiCTX(LogUtils.getAPICtx(messageContext));
+                apiInfo.setApiMethod(LogUtils.getRestMethod(messageContext));
+                apiInfo.setApiElectedResource(LogUtils.getElectedResource(messageContext));
+                apiInfo.setApiRestReqFullPath(LogUtils.getRestReqFullPath(messageContext));
+                apiInfo.setApiResourceCacheKey(LogUtils.getResourceCacheKey(messageContext));
+                messageContext.setProperty(API_INFO, apiInfo);
+
+                // Set headers to relevant header properties in messageContext
                 Map headers = LogUtils.getTransportHeaders(messageContext);
-                Set<String> key = headers.keySet();
                 String authHeader = LogUtils.getAuthorizationHeader(headers);
                 String orgIdHeader = LogUtils.getOrganizationIdHeader(headers);
-                String SrcIdHeader = LogUtils.getSourceIdHeader(headers);
-                String applIdHeader = LogUtils.getApplicationIdHeader(headers);
-                String uuIdHeader = LogUtils.getUuidHeader(headers);
+                String srcIdHeader = LogUtils.getSourceIdHeader(headers);
+                String appIdHeader = LogUtils.getApplicationIdHeader(headers);
+                String uuidHeader = LogUtils.getUuidHeader(headers);
                 String correlationIdHeader = LogUtils.getCorrelationHeader(headers);
                 messageContext.setProperty(AUTH_HEADER, authHeader);
                 messageContext.setProperty(ORG_ID_HEADER, orgIdHeader);
-                messageContext.setProperty(SRC_ID_HEADER, SrcIdHeader);
-                messageContext.setProperty(APP_ID_HEADER, applIdHeader);
-                messageContext.setProperty(UUID_HEADER, uuIdHeader);
-
-                if (MDC.get(APIConstants.CORRELATION_ID) != null) {
-                    correlationIdHeader = (String) MDC.get(APIConstants.CORRELATION_ID);
-                }
+                messageContext.setProperty(SRC_ID_HEADER, srcIdHeader);
+                messageContext.setProperty(APP_ID_HEADER, appIdHeader);
+                messageContext.setProperty(UUID_HEADER, uuidHeader);
                 messageContext.setProperty(CORRELATION_ID_HEADER, correlationIdHeader);
-                apiName = LogUtils.getAPIName(messageContext);
-                apiCTX = LogUtils.getAPICtx(messageContext);
-                apiMethod = LogUtils.getRestMethod(messageContext);
-                // apiTo = LogUtils.getTo(messageContext);
-                apiElectedRsrc = LogUtils.getElectedResource(messageContext);
-                apiRestReqFullPath = LogUtils.getRestReqFullPath(messageContext);
-                apiMsgUUID = (String) messageContext.getMessageID();
-                apiRsrcCacheKey = LogUtils.getResourceCacheKey(messageContext);
-                return true;
             } catch (Exception e) {
-                log.error(REQUEST_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
+                correlationLog.error(REQUEST_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
+                return false;
+            }
+        }
+
+        // Track messages
+        if (isMessageTrackingEnabled()) {
+            try {
+                org.apache.axis2.context.MessageContext axis2MessageContext =
+                        ((Axis2MessageContext) messageContext).getAxis2MessageContext();
+                String logMessage = KEY_CORRELATION_ID + axis2MessageContext.getProperty(CORRELATION_ID);
+                logMessage += SEPARATOR + KEY_DIRECTION + "RequestOut";
+                logMessage += SEPARATOR + KEY_HTTP_METHOD + axis2MessageContext.getProperty(HTTP_METHOD);
+                logMessage += SEPARATOR + KEY_DESTINATION + messageContext.getTo().getAddress();
+                messageTrackLog.info(logMessage);
+            } catch (Exception e) {
+                messageTrackLog.error(MESSAGE_TRACK_BUILD_MESSAGE_ERROR + e.getMessage(), e);
                 return false;
             }
         }
@@ -133,42 +188,85 @@ public class LogsHandler extends AbstractSynapseHandler {
     }
 
     public boolean handleResponseInFlow(MessageContext messageContext) {
-        if (isEnabled()) {
+        if (isCorrelationEnabled()) {
             // default API would have the property LoggedResponse as true.
             String defaultAPI = (String) messageContext.getProperty("DefaultAPI");
-            if ("true".equals(defaultAPI)) {
-                log.debug("Default API is invoked");
-            } else {
+            if (!"true".equals(defaultAPI)) {
                 try {
+                    // Get properties to be logged
+                    APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
                     long responseTime = getResponseTime(messageContext);
                     long beTotalLatency = getBackendLatency(messageContext);
                     long responseSize = buildResponseMessage(messageContext);
-                    apiResponseSC = LogUtils.getRestHttpResponseStatusCode(messageContext);
-                    applicationName = LogUtils.getApplicationName(messageContext);
-                    apiConsumerKey = LogUtils.getConsumerKey(messageContext);
+                    String apiResponseSC = LogUtils.getRestHttpResponseStatusCode(messageContext);
+                    String applicationName = LogUtils.getApplicationName(messageContext);
+                    String apiConsumerKey = LogUtils.getConsumerKey(messageContext);
                     String authHeader = (String) messageContext.getProperty(AUTH_HEADER);
                     String orgIdHeader = (String) messageContext.getProperty(ORG_ID_HEADER);
-                    String SrcIdHeader = (String) messageContext.getProperty(SRC_ID_HEADER);
-                    String applIdHeader = (String) messageContext.getProperty(APP_ID_HEADER);
-                    String uuIdHeader = (String) messageContext.getProperty(UUID_HEADER);
+                    String srcIdHeader = (String) messageContext.getProperty(SRC_ID_HEADER);
+                    String appIdHeader = (String) messageContext.getProperty(APP_ID_HEADER);
+                    String uuidHeader = (String) messageContext.getProperty(UUID_HEADER);
                     String correlationIdHeader = (String) messageContext.getProperty(CORRELATION_ID_HEADER);
+
+                    // Log correlation related properties
+                    correlationLog.info(beTotalLatency + "|HTTP|" + apiInfo.getApiName()
+                            + "|" + apiInfo.getApiMethod() + "|" + apiInfo.getApiCTX() + apiInfo.getApiElectedResource()
+                            + "|" + apiInfo.getApiTo() + "|" + authHeader + "|" + orgIdHeader + "|" + srcIdHeader
+                            + "|" + appIdHeader + "|" + uuidHeader + "|" + apiInfo.getRequestSize()
+                            + "|" + responseSize + "|" + apiResponseSC + "|" + applicationName + "|" + apiConsumerKey
+                            + "|" + responseTime);
+
                     MDC.put(APIConstants.CORRELATION_ID, correlationIdHeader);
-                    log.info(beTotalLatency + "|HTTP|" + apiName + "|" + apiMethod + "|" + apiCTX + apiElectedRsrc
-                            + "|" + apiTo + "|" + authHeader + "|" + orgIdHeader + "|" + SrcIdHeader
-                            + "|" + applIdHeader + "|" + uuIdHeader + "|" + requestSize
-                            + "|" + responseSize + "|" + apiResponseSC + "|"
-                            + applicationName + "|" + apiConsumerKey + "|" + responseTime);
-                    return true;
+                    MDC.remove(APIConstants.CORRELATION_ID);
                 } catch (Exception e) {
-                    log.error(RESPONSE_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
+                    correlationLog.error(RESPONSE_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
                     return false;
                 }
+            }
+        }
+        // Track messages
+        if (isMessageTrackingEnabled()) {
+            try {
+                org.apache.axis2.context.MessageContext axis2MessageContext =
+                        ((Axis2MessageContext) messageContext).getAxis2MessageContext();
+                String logMessage = KEY_CORRELATION_ID + axis2MessageContext.getProperty(CORRELATION_ID);
+                logMessage += SEPARATOR + KEY_DIRECTION + "ResponseIn";
+                logMessage += SEPARATOR + KEY_HTTP_SC + axis2MessageContext.getProperty(HTTP_SC);
+                if (messageContext.getProperty(ENDPOINT_PREFIX) != null) {
+                    logMessage += SEPARATOR + KEY_ORIGIN + messageContext.getProperty(ENDPOINT_PREFIX);
+                }
+                messageTrackLog.info(logMessage);
+            } catch (Exception e) {
+                messageTrackLog.error(MESSAGE_TRACK_BUILD_MESSAGE_ERROR + e.getMessage(), e);
+                return false;
             }
         }
         return true;
     }
 
     public boolean handleResponseOutFlow(MessageContext messageContext) {
+        // Track messages
+        if (isMessageTrackingEnabled()) {
+            try {
+                org.apache.axis2.context.MessageContext axis2MessageContext =
+                        ((Axis2MessageContext) messageContext).getAxis2MessageContext();
+                String logMessage = KEY_CORRELATION_ID + axis2MessageContext.getProperty(CORRELATION_ID);
+                logMessage += SEPARATOR + KEY_DIRECTION + "ResponseOut";
+                logMessage += SEPARATOR + KEY_HTTP_SC + axis2MessageContext.getProperty(HTTP_SC);
+                if (axis2MessageContext.getProperty(OUT_TRANSPORT_INFO) != null &&
+                        axis2MessageContext.getProperty(OUT_TRANSPORT_INFO) instanceof ServerWorker) {
+                    ServerWorker outTransportInfo = (ServerWorker) axis2MessageContext.getProperty(OUT_TRANSPORT_INFO);
+                    org.apache.axis2.context.MessageContext requestContext = outTransportInfo.getRequestContext();
+                    if (requestContext.getProperty(TRANSPORT_IN_URL) != null) {
+                        logMessage += SEPARATOR + KEY_ORIGIN + requestContext.getProperty(TRANSPORT_IN_URL);
+                    }
+                }
+                messageTrackLog.info(logMessage);
+            } catch (Exception e) {
+                messageTrackLog.error(MESSAGE_TRACK_BUILD_MESSAGE_ERROR + e.getMessage(), e);
+                return false;
+            }
+        }
         return true;
     }
 
@@ -200,7 +298,7 @@ public class LogsHandler extends AbstractSynapseHandler {
             beTotalLatency = beEndTime - beStartTime;
 
         } catch (Exception e) {
-            log.error("Error getBackendLatency -  " + e.getMessage(), e);
+            correlationLog.error("Error getBackendLatency -  " + e.getMessage(), e);
         }
         return beTotalLatency;
     }
@@ -218,11 +316,14 @@ public class LogsHandler extends AbstractSynapseHandler {
             }
             responseTime = System.currentTimeMillis() - rtStartTime;
         } catch (Exception e) {
-            log.error("Error getResponseTime -  " + e.getMessage(), e);
+            correlationLog.error("Error getResponseTime -  " + e.getMessage(), e);
         }
         return responseTime;
     }
 
+    /*
+     * buildRequestMessage
+     */
     private long buildRequestMessage(org.apache.synapse.MessageContext messageContext) {
         long requestSize = 0;
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
@@ -237,7 +338,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                 RelayUtils.buildMessage(axis2MC);
             } catch (IOException | XMLStreamException ex) {
                 // In case of an exception, it won't be propagated up,and set response size to 0
-                log.error(REQUEST_BODY_SIZE_ERROR, ex);
+                correlationLog.error(REQUEST_BODY_SIZE_ERROR, ex);
             }
             SOAPEnvelope env = messageContext.getEnvelope();
             if (env != null) {
@@ -252,6 +353,9 @@ public class LogsHandler extends AbstractSynapseHandler {
         return requestSize;
     }
 
+    /*
+     * buildResponseMessage
+     */
     private long buildResponseMessage(org.apache.synapse.MessageContext messageContext) {
         long responseSize = 0;
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
@@ -266,7 +370,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                 RelayUtils.buildMessage(axis2MC);
             } catch (IOException | XMLStreamException ex) {
                 // In case of an exception, it won't be propagated up,and set response size to 0
-                log.error(REQUEST_BODY_SIZE_ERROR, ex);
+                correlationLog.error(REQUEST_BODY_SIZE_ERROR, ex);
             }
         }
         SOAPEnvelope env = messageContext.getEnvelope();
@@ -280,5 +384,102 @@ public class LogsHandler extends AbstractSynapseHandler {
         }
         return responseSize;
 
+    }
+
+    private long getContentLength(org.apache.synapse.MessageContext messageContext) {
+        long requestSize = -1;
+        org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
+                .getAxis2MessageContext();
+        Map headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        String contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
+        if (contentLength != null) {
+            requestSize = Integer.parseInt(contentLength);
+            // request size is left as -1 if chunking is enabled. this is to avoid building the message
+        }
+        return requestSize;
+    }
+
+    private static class APIInfo {
+        private String apiName;
+        private String apiCTX;
+        private String apiMethod;
+        private String apiTo;
+        private long requestSize;
+        private String apiElectedResource;
+        private String apiRestReqFullPath;
+        private String apiMsgUUID;
+        private String apiResourceCacheKey;
+
+        public String getApiName() {
+            return apiName;
+        }
+
+        public String getApiCTX() {
+            return apiCTX;
+        }
+
+        public String getApiMethod() {
+            return apiMethod;
+        }
+
+        public String getApiTo() {
+            return apiTo;
+        }
+
+        public long getRequestSize() {
+            return requestSize;
+        }
+
+        public String getApiElectedResource() {
+            return apiElectedResource;
+        }
+
+        public String getApiRestReqFullPath() {
+            return apiRestReqFullPath;
+        }
+
+        public String getApiMsgUUID() {
+            return apiMsgUUID;
+        }
+
+        public String getApiResourceCacheKey() {
+            return apiResourceCacheKey;
+        }
+
+        public void setApiName(String apiName) {
+            this.apiName = apiName;
+        }
+
+        public void setApiCTX(String apiCTX) {
+            this.apiCTX = apiCTX;
+        }
+
+        public void setApiMethod(String apiMethod) {
+            this.apiMethod = apiMethod;
+        }
+
+        public void setApiTo(String apiTo) {
+            this.apiTo = apiTo;
+        }
+
+        public void setRequestSize(long requestSize) {
+            this.requestSize = requestSize;
+        }
+
+        public void setApiElectedResource(String apiElectedResource) {
+            this.apiElectedResource = apiElectedResource;
+        }
+
+        public void setApiRestReqFullPath(String apiRestReqFullPath) {
+            this.apiRestReqFullPath = apiRestReqFullPath;
+        }
+
+        public void setApiMsgUUID(String apiMsgUUID) {
+            this.apiMsgUUID = apiMsgUUID;
+        }
+
+        public void setApiResourceCacheKey(String apiResourceCacheKey) {
+            this.apiResourceCacheKey = apiResourceCacheKey;
+        }
     }
 }
