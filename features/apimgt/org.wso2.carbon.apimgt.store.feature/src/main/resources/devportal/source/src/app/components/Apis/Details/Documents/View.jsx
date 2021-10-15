@@ -23,7 +23,7 @@ import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import Button from '@material-ui/core/Button';
 import ReactMarkdown from 'react-markdown';
-import ReactSafeHtml from 'react-safe-html';
+import sanitizeHtml from 'sanitize-html';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { ApiContext } from '../ApiContext';
 import API from 'AppData/api';
@@ -83,10 +83,13 @@ function View(props) {
     } = props;
     const { api } = useContext(ApiContext);
     const [code, setCode] = useState('');
-    const [isFileAvailable,setIsFileAvailable] = useState(false);
+    const [isFileAvailable, setIsFileAvailable] = useState(false);
     const restAPI = new API();
     const skipHtml = Settings.app.markdown.skipHtml;
-
+    const clean = sanitizeHtml(code, {
+        allowedTags: (Settings.app.sanitizeHtml && Settings.app.sanitizeHtml.allowedTags) || false,
+        allowedAttributes: (Settings.app.sanitizeHtml && Settings.app.sanitizeHtml.allowedAttributes) || false,
+    })
     useEffect(() => {
         if (doc.sourceType === 'MARKDOWN' || doc.sourceType === 'INLINE') loadContentForDoc();
         if (doc.sourceType === 'FILE') {
@@ -98,7 +101,7 @@ function View(props) {
                 .catch(() => {
                     setIsFileAvailable(false);
                 });
-        } 
+        }
     }, [props.doc]);
 
     const loadContentForDoc = () => {
@@ -107,8 +110,8 @@ function View(props) {
             .then((doc) => {
                 let text = doc.text;
 
-                Object.keys(api).map( fieldName => {
-                    let regex = new RegExp('\_\_\_'+ fieldName +'\_\_\_', 'g');
+                Object.keys(api).map(fieldName => {
+                    let regex = new RegExp('\_\_\_' + fieldName + '\_\_\_', 'g');
                     text = text.replace(regex, api[fieldName]);
                 });
                 setCode(text);
@@ -188,7 +191,7 @@ function View(props) {
             )}
 
             {doc.sourceType === 'MARKDOWN' && <ReactMarkdown skipHtml={skipHtml} source={code} />}
-            {doc.sourceType === 'INLINE' && <ReactSafeHtml html={code} />}
+            {doc.sourceType === 'INLINE' && (<div dangerouslySetInnerHTML={{ __html: clean }} />)}
             {doc.sourceType === 'URL' && (
                 <a className={classes.displayURL} href={doc.sourceUrl} target='_blank'>
                     {doc.sourceUrl}
@@ -196,8 +199,8 @@ function View(props) {
                 </a>
             )}
             {doc.sourceType === 'FILE' && (
-                <Button variant='contained' color='default' className={classes.button} 
-                disabled={!isFileAvailable} onClick={handleDownload} >
+                <Button variant='contained' color='default' className={classes.button}
+                    disabled={!isFileAvailable} onClick={handleDownload} >
                     <FormattedMessage id='Apis.Details.Documents.View.btn.download' defaultMessage='Download' />
 
                     <Icon>arrow_downward</Icon>
