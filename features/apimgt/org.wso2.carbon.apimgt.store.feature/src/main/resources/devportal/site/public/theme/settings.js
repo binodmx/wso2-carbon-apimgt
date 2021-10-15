@@ -25,6 +25,10 @@ const Settings = {
         propertyDisplaySuffix: '__display',
         markdown: {
             skipHtml: true,
+        },
+        sanitizeHtml: {
+            allowedTags: false, // You can pass the properties described at https://www.npmjs.com/package/sanitize-html
+            allowedAttributes: false,
         }
     },
     grantTypes: {

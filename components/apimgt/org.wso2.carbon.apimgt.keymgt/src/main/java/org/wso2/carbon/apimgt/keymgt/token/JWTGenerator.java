@@ -155,6 +155,8 @@ public class JWTGenerator extends AbstractJWTGenerator {
             if (!StringUtils.isEmpty(dialectURI)) {
                 properties.put(APIConstants.KeyManager.CLAIM_DIALECT, dialectURI);
             }
+            properties.put(APIConstants.KeyManager.BINDING_FEDERATED_USER_CLAIMS,
+                    jwtConfigurationDto.isBindFederatedUserClaims());
             String keymanagerName = validationContext.getValidationInfoDTO().getKeyManager();
             KeyManager keymanager = KeyManagerHolder
                     .getKeyManagerInstance(validationContext.getTenantDomain(), keymanagerName);

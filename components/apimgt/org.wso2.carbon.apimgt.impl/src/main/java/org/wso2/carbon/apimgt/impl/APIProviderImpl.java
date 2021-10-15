@@ -8240,6 +8240,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                 }
             }
         }
+        invalidateResourceCache(product.getContext(), product.getId().getVersion(), Collections.EMPTY_SET);
 
         //todo : check whether permissions need to be updated and pass it along
         updateApiProductArtifact(product, true, true);
@@ -8249,6 +8250,14 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                         || !failedGateways.get(APIConstants.PUBLISHED).isEmpty())) {
             throw new FaultGatewaysException(failedGateways);
         }
+
+        int productId = apiMgtDAO.getAPIProductId(product.getId());
+
+        APIEvent apiEvent = new APIEvent(UUID.randomUUID().toString(), System.currentTimeMillis(),
+                APIConstants.EventType.API_UPDATE.name(), tenantId, tenantDomain, product.getId().getName(), productId,
+                product.getId().getUUID(), product.getId().getVersion(), product.getType(), product.getContext(),
+                product.getId().getProviderName(), APIConstants.LC_PUBLISH_LC_STATE);
+        APIUtil.sendNotification(apiEvent, APIConstants.NotifierType.API.name());
 
         return apiToProductResourceMapping;
     }

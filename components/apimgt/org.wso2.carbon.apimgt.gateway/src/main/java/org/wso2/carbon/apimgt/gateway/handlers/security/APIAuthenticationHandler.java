@@ -88,6 +88,7 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
 
     protected ArrayList<Authenticator> authenticators = new ArrayList<>();
     protected boolean isAuthenticatorsInitialized = false;
+    protected boolean isOauthParamsInitialized = false;
     private SynapseEnvironment synapseEnvironment;
     private String securityContextHeader;
     protected APIKeyValidator keyValidator;
@@ -184,13 +185,13 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         }
         if (getApiManagerConfigurationService() != null) {
             initializeAuthenticators();
+            initOAuthParams();
         }
         if (StringUtils.isNotEmpty(keyManagers)) {
             Collections.addAll(keyManagersList, keyManagers.split(","));
         } else {
             keyManagersList.add(APIConstants.KeyManager.API_LEVEL_ALL_KEY_MANAGERS);
         }
-        initOAuthParams();
     }
 
     /**
@@ -268,6 +269,7 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         if (value != null) {
             setSecurityContextHeader(value);
         }
+        isOauthParamsInitialized = true;
     }
 
     public void setSecurityContextHeader(String securityContextHeader) {
@@ -401,6 +403,9 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
 
             if (!isAuthenticatorsInitialized) {
                 initializeAuthenticators();
+            }
+            if (!isOauthParamsInitialized) {
+                initOAuthParams();
             }
             String authenticationScheme = getAPIKeyValidator().getResourceAuthenticationScheme(messageContext);
             if(APIConstants.AUTH_NO_AUTHENTICATION.equals(authenticationScheme)) {

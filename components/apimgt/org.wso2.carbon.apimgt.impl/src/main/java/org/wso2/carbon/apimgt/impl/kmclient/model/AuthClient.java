@@ -21,21 +21,21 @@ import feign.Param;
 import feign.RequestLine;
 import org.wso2.carbon.apimgt.impl.kmclient.KeyManagerClientException;
 
+@Headers("Content-Type: application/x-www-form-urlencoded")
 public interface AuthClient {
 
     @RequestLine("POST ")
-    @Headers("Content-type:application/x-www-form-urlencoded")
     void revoke(@Param("client_id") String clientId, @Param("client_secret") String clientSecret,
                 @Param("token") String token) throws KeyManagerClientException;
 
     @RequestLine("POST ")
-    @Headers("Content-type:application/x-www-form-urlencoded")
-    TokenInfo generate(@Param("client_id") String clientId, @Param("client_secret") String clientSecret,
-                            @Param("grant_type") String grantType, @Param("scope") String scope)
+    @Headers("Authorization: Basic {auth_token}")
+    TokenInfo generate(@Param("auth_token") String authToken,
+                       @Param("grant_type") String grantType,
+                       @Param("scope") String scope)
             throws KeyManagerClientException;
 
     @RequestLine("POST ")
-    @Headers("Content-type:application/x-www-form-urlencoded")
     TokenInfo generateWithValidityPeriod(@Param("client_id") String clientId,
                                          @Param("client_secret") String clientSecret,
                                          @Param("grant_type") String grantType,
