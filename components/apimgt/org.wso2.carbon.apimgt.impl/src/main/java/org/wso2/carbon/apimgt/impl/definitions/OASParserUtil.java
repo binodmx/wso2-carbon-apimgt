@@ -316,6 +316,7 @@ public class OASParserUtil {
                     if (sourceRequestBodies != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             RequestBody requestBody = sourceRequestBodies.get(refKey);
+                            setRefOfRequestBody(requestBody, context);
                             if (requestBody != null) {
                                 components.addRequestBodies(refKey, requestBody);
                             }
@@ -596,6 +597,13 @@ public class OASParserUtil {
                 if (ref != null) {
                     extractReferenceWithoutSchema(ref, context);
                 }
+            }
+                                                                            // TODO: rashm1n check again
+            if (content != null) {
+                extractReferenceFromContent(content, context);
+            } else {
+                String ref = requestBody.get$ref();
+                addToReferenceObjectMap(ref, context);
             }
         }
     }
