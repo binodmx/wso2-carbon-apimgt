@@ -429,13 +429,15 @@ public class OASParserUtil {
                     if (parameters != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             Parameter parameter = parameters.get(refKey);
-                            Content content = parameter.getContent();
-                            if (content != null) {
-                                extractReferenceFromContent(content, context);
-                            } else {
-                                String ref = parameter.get$ref();
-                                if (ref != null) {
-                                    extractReferenceWithoutSchema(ref, context);
+                            if (parameter != null) {
+                                Content content = parameter.getContent();
+                                if (content != null) {
+                                    extractReferenceFromContent(content, context);
+                                } else {
+                                    String ref = parameter.get$ref();
+                                    if (ref != null) {
+                                        extractReferenceWithoutSchema(ref, context);
+                                    }
                                 }
                             }
                         }
