@@ -204,6 +204,7 @@ function NewEndpointCreate(props) {
                                                                     value={option.type}
                                                                     control={<Radio color='primary' />}
                                                                     label={option.name}
+                                                                    data-testid={option.name}
                                                                 />
                                                             );
                                                         }))}

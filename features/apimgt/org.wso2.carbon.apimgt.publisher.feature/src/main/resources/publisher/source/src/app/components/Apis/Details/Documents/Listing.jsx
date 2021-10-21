@@ -449,6 +449,7 @@ class Listing extends React.Component {
                             className={classes.button}
                             disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
                             to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}
+                            data-testid='add-new-document-btn'
                         >
                             <AddCircle className={classes.buttonIcon} />
                             <FormattedMessage
@@ -510,6 +511,7 @@ class Listing extends React.Component {
                                         disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
                                         component={Link}
                                         to={!isRestricted(['apim:api_create', 'apim:api_publish'], api) && url}
+                                        data-testid='add-new-document-btn'
                                     >
                                         <FormattedMessage
                                             id='Apis.Details.Documents.Listing.add.new.msg.button'
