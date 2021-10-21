@@ -598,13 +598,6 @@ public class OASParserUtil {
                     extractReferenceWithoutSchema(ref, context);
                 }
             }
-                                                                            // TODO: rashm1n check again
-            if (content != null) {
-                extractReferenceFromContent(content, context);
-            } else {
-                String ref = requestBody.get$ref();
-                addToReferenceObjectMap(ref, context);
-            }
         }
     }
 
@@ -640,27 +633,13 @@ public class OASParserUtil {
         }
     }
 
-    // TODO:rashm1n Check again
     private static void setRefOfParameters(List<Parameter> parameters, SwaggerUpdateContext context) {
         if (parameters != null) {
             for (Parameter parameter : parameters) {
-                Schema schema = parameter.getSchema();
                 Content content = parameter.getContent();
 
                 if (content != null) {
                     extractReferenceFromContent(content, context);
-                } else {
-                    String ref = parameter.get$ref();
-                    if (ref != null) {
-                        extractReferenceWithoutSchema(ref, context);
-                    }
-                }
-
-                if (schema != null) {
-                    String ref = schema.get$ref();
-                    if (ref != null) {
-                        addToReferenceObjectMap(ref, context);
-                    }
                 } else {
                     String ref = parameter.get$ref();
                     if (ref != null) {
@@ -701,8 +680,6 @@ public class OASParserUtil {
                 } else if (schema instanceof MapSchema) {
                     Schema additionalPropertiesSchema = (Schema) schema.getAdditionalProperties();
                     extractReferenceFromSchema(additionalPropertiesSchema, context);
-                } else if (OBJECT_DATA_TYPE.equalsIgnoreCase(schema.getType())) { // TODO: rashm1n check again
-                    references = addSchemaOfSchema(schema);
                 } else if (schema instanceof ComposedSchema) {
                     if (((ComposedSchema) schema).getAllOf() != null) {
                         for (Schema sc : ((ComposedSchema) schema).getAllOf()) {
