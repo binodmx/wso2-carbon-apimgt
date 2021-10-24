@@ -34,6 +34,10 @@ import Alert from 'AppComponents/Shared/Alert';
 import APIContext from 'AppComponents/Apis/Details/components/ApiContext';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Configurations from 'Config';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import {vscDarkPlus} from 'react-syntax-highlighter/dist/esm/styles/prism';
+import {vs} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const MonacoEditor = lazy(() => import('react-monaco-editor' /* webpackChunkName: "MDMonacoEditor" */));
 const ReactMarkdown = lazy(() => import('react-markdown' /* webpackChunkName: "MDReactMarkdown" */));
@@ -73,6 +77,8 @@ function Transition(props) {
 
 function MarkdownEditor(props) {
     const skipHtml = Configurations.app.markdown.skipHtml;
+    const markdownSyntaxHighlighterProps = Configurations.app.markdown.syntaxHighlighterProps || {};
+    const syntaxHighlighterDarkTheme = Configurations.app.markdown.syntaxHighlighterDarkTheme;
     const { intl, showAtOnce, history } = props;
     const { api, isAPIProduct } = useContext(APIContext);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -195,10 +201,33 @@ function MarkdownEditor(props) {
                                 />
                             </Suspense>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={6} className='markdown-content-wrapper'>
                             <div className={classes.markdownViewWrapper}>
                                 <Suspense fallback={<CircularProgress />}>
-                                    <ReactMarkdown skipHtml={skipHtml} source={code} />
+                                    <ReactMarkdown
+                                        skipHtml={skipHtml}
+                                        children={code}
+                                        remarkPlugins={[remarkGfm]}
+                                        components={{
+                                            code({ node, inline, className, children, ...props }) {
+                                                const match = /language-(\w+)/.exec(className || '')
+                                                return !inline && match ? (
+                                                    <SyntaxHighlighter
+                                                        children={String(children).replace(/\n$/, '')}
+                                                        style={syntaxHighlighterDarkTheme ? vscDarkPlus : vs}
+                                                        language={match[1]}
+                                                        PreTag="div"
+                                                        {...props}
+                                                        {...markdownSyntaxHighlighterProps}
+                                                    />
+                                                ) : (
+                                                    <code className={className} {...props}>
+                                                        {children}
+                                                    </code>
+                                                )
+                                            }
+                                        }}
+                                    />
                                 </Suspense>
                             </div>
                         </Grid>

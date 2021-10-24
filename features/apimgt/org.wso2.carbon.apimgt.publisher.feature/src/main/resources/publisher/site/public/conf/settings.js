@@ -30,6 +30,10 @@ const AppConfig = {
         propertyDisplaySuffix: '__display',
         markdown: {
             skipHtml: true,
+            syntaxHighlighterProps: {
+                showLineNumbers: false,
+            },
+            syntaxHighlighterDarkTheme: false,
         },
         alertMaxAPIGetLimit: 5000,
         alertMaxAPIProductGetLimit: 5000,
