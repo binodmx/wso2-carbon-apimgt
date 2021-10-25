@@ -112,6 +112,7 @@ import org.wso2.carbon.apimgt.impl.utils.APIMWSDLReader;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.impl.utils.APIVersionStringComparator;
 import org.wso2.carbon.apimgt.impl.utils.CertificateMgtUtils;
+import org.wso2.carbon.apimgt.impl.workflow.WorkflowStatus;
 import org.wso2.carbon.apimgt.impl.wsdl.SequenceGenerator;
 import org.wso2.carbon.apimgt.impl.wsdl.model.WSDLValidationResponse;
 import org.wso2.carbon.apimgt.impl.wsdl.util.SOAPOperationBindingUtils;
@@ -3956,6 +3957,12 @@ public class ApisApiServiceImpl implements ApisApiService {
 
             //todo: check if API's tiers are properly set before Publishing
             APIStateChangeResponse stateChangeResponse = apiProvider.changeLifeCycleStatus(apiIdentifier, action);
+
+            if (stateChangeResponse.getStateChangeStatus().equals(WorkflowStatus.APPROVED.toString())) {
+                API existingAPI = apiProvider.getAPIbyUUID(apiId, tenantDomain);
+                existingAPI.setEnableStore(true);
+                apiProvider.updateAPI(existingAPI);
+            }
 
             //returns the current lifecycle state
             LifecycleStateDTO stateDTO = getLifecycleState(apiIdentifier, apiId);
