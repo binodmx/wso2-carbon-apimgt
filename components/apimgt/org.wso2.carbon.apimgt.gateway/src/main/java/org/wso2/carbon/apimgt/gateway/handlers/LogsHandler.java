@@ -20,6 +20,7 @@ package org.wso2.carbon.apimgt.gateway.handlers;
 
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHeaders;
@@ -151,18 +152,20 @@ public class LogsHandler extends AbstractSynapseHandler {
 
                 // Set headers to relevant header properties in messageContext
                 Map headers = LogUtils.getTransportHeaders(messageContext);
-                String authHeader = LogUtils.getAuthorizationHeader(headers);
-                String orgIdHeader = LogUtils.getOrganizationIdHeader(headers);
-                String srcIdHeader = LogUtils.getSourceIdHeader(headers);
-                String appIdHeader = LogUtils.getApplicationIdHeader(headers);
-                String uuidHeader = LogUtils.getUuidHeader(headers);
-                String correlationIdHeader = LogUtils.getCorrelationHeader(headers);
-                messageContext.setProperty(AUTH_HEADER, authHeader);
-                messageContext.setProperty(ORG_ID_HEADER, orgIdHeader);
-                messageContext.setProperty(SRC_ID_HEADER, srcIdHeader);
-                messageContext.setProperty(APP_ID_HEADER, appIdHeader);
-                messageContext.setProperty(UUID_HEADER, uuidHeader);
-                messageContext.setProperty(CORRELATION_ID_HEADER, correlationIdHeader);
+                if (StringUtils.isNotBlank((CharSequence) headers)) {
+                    String authHeader = LogUtils.getAuthorizationHeader(headers);
+                    String orgIdHeader = LogUtils.getOrganizationIdHeader(headers);
+                    String srcIdHeader = LogUtils.getSourceIdHeader(headers);
+                    String appIdHeader = LogUtils.getApplicationIdHeader(headers);
+                    String uuidHeader = LogUtils.getUuidHeader(headers);
+                    String correlationIdHeader = LogUtils.getCorrelationHeader(headers);
+                    messageContext.setProperty(AUTH_HEADER, authHeader);
+                    messageContext.setProperty(ORG_ID_HEADER, orgIdHeader);
+                    messageContext.setProperty(SRC_ID_HEADER, srcIdHeader);
+                    messageContext.setProperty(APP_ID_HEADER, appIdHeader);
+                    messageContext.setProperty(UUID_HEADER, uuidHeader);
+                    messageContext.setProperty(CORRELATION_ID_HEADER, correlationIdHeader);
+                }
             } catch (Exception e) {
                 correlationLog.error(REQUEST_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
                 return false;
@@ -329,7 +332,10 @@ public class LogsHandler extends AbstractSynapseHandler {
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
                 .getAxis2MessageContext();
         Map headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-        String contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
+        String contentLength = null;
+        if (StringUtils.isNotBlank((CharSequence) headers)) {
+            contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
+        }
         if (contentLength != null) {
             requestSize = Integer.parseInt(contentLength);
         } else {
