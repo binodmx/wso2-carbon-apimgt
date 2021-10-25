@@ -16,27 +16,27 @@
  * under the License.
  */
 
+import React, { Component } from 'react';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import ApiContext from 'AppComponents/Apis/Details/components/ApiContext';
+import { injectIntl } from 'react-intl';
+import API from 'AppData/api';
+import { CircularProgress } from '@material-ui/core';
+import { ScopeValidation, resourceMethod, resourcePath } from 'AppData/ScopeValidation';
+import Alert from 'AppComponents/Shared/Alert';
+import Banner from 'AppComponents/Shared/Banner';
+
+import LifeCycleImage from './LifeCycleImage';
+import CheckboxLabels from './CheckboxLabels';
+import LifecyclePending from './LifecyclePending';
 import { API_SECURITY_MUTUAL_SSL_MANDATORY, API_SECURITY_OAUTH_BASIC_AUTH_API_KEY_MANDATORY }
     from '../Configuration/components/APISecurity/components/apiSecurityConstants';
-import React, { Component } from 'react';
-import { ScopeValidation, resourceMethod, resourcePath } from 'AppData/ScopeValidation';
-
-import API from 'AppData/api';
-import Alert from 'AppComponents/Shared/Alert';
-import ApiContext from 'AppComponents/Apis/Details/components/ApiContext';
-import Banner from 'AppComponents/Shared/Banner';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
-import CheckboxLabels from './CheckboxLabels';
-import { CircularProgress } from '@material-ui/core';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import Grid from '@material-ui/core/Grid';
-import LifeCycleImage from './LifeCycleImage';
-import LifecyclePending from './LifecyclePending';
-import PropTypes from 'prop-types';
-import { injectIntl } from 'react-intl';
-import { withStyles } from '@material-ui/core/styles';
 
 const styles = (theme) => ({
     buttonsWrapper: {
