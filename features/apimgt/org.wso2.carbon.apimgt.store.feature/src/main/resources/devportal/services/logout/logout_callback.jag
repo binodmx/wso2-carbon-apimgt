@@ -39,6 +39,18 @@
     response.addCookie(cookie);
 
     log.debug("redirecting to logout");
-    response.sendRedirect(site.context + "/logout");
+    var state = request.getParameter("state");
+        var hasAnonymousAccess = false;
+        if(state){
+            state = decodeURI(state);
+            if(state.indexOf('/apis') !== -1 || state.indexOf('/home') !== -1){
+                hasAnonymousAccess = true;
+            }
+        }
+        if(state && hasAnonymousAccess){
+            response.sendRedirect(site.context + "/logout?referrer=" + state);
+        } else {
+            response.sendRedirect(site.context + "/logout");
+        }
 
 %>

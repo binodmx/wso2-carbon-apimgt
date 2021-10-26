@@ -42,7 +42,19 @@
          postLogoutRedirectURI = serverUrl + appContext + LOGOUT_CALLBACK_URL_SUFFIX;
     }
     if (request.getParameter("error") === "login_required" ) {
+        var state = request.getParameter("state");
+        var hasAnonymousAccess = false;
+        if(state){
+            state = decodeURI(state);
+            if(state.indexOf('/apis') !== -1 || state.indexOf('/home') !== -1){
+                hasAnonymousAccess = true;
+            }
+        }
+        if(state && hasAnonymousAccess){
+            response.sendRedirect(postLogoutRedirectURI + '?state=' + state);
+        } else {
             response.sendRedirect(postLogoutRedirectURI);
+        }
     } else if (request.getParameter("code") != null) {
         var loginCallbackUrl = appUtils.getTenantBasedLoginCallBack();
         if (loginCallbackUrl == null) {
