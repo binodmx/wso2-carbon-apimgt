@@ -317,7 +317,65 @@ a {
 .swagger-ui .opblock .opblock-summary-method {
   color: #29292d !important;
 }
-
 .swagger-ui .opblock-delete .opblock-summary-method {
   color: #000 !important;
 }
+/* Styles to support rendering for markdown tables */
+.markdown-content-wrapper table{
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 600px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.markdown-content-wrapper thead tr {
+  background-color: #148b9c;
+  color: #ffffff;
+  text-align: left;
+}
+.markdown-content-wrapper th,
+.markdown-content-wrapper td {
+    padding: 12px 15px;
+}
+.markdown-content-wrapper tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+.markdown-content-wrapper tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+.markdown-content-wrapper tbody tr:last-of-type {
+  border-bottom: 2px solid #148b9c;
+}
+.markdown-content-wrapper tbody tr.active-row {
+  font-weight: bold;
+  color: #148b9c;
+}
+.markdown-content-wrapper blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 10px;
+  quotes: "\201C""\201D""\2018""\2019";
+}
+.markdown-content-wrapper blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}
+.markdown-content-wrapper blockquote p {
+  display: inline;
+}
+.markdown-content-wrapper  pre{
+  display: block;#148b9c
+  color: #333;
+  background: #f8f8f8;
+}
+
+/*
+  overflow-x: auto;
+  padding: 0.5em;
+*/

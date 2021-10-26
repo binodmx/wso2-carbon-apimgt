@@ -16,19 +16,25 @@
  * under the License.
  */
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, Suspense, lazy } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import Button from '@material-ui/core/Button';
-import ReactMarkdown from 'react-markdown';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import sanitizeHtml from 'sanitize-html';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import { ApiContext } from '../ApiContext';
 import API from 'AppData/api';
+import Settings from 'Settings';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { ApiContext } from '../ApiContext';
 import Alert from '../../../Shared/Alert';
-import { app } from 'Settings';
+
+const ReactMarkdown = lazy(() => import('react-markdown' /* webpackChunkName: "MDReactMarkdown" */));
 
 const styles = theme => ({
     root: {
@@ -86,6 +92,9 @@ function View(props) {
     const [isFileAvailable, setIsFileAvailable] = useState(false);
     const restAPI = new API();
     const skipHtml = Settings.app.markdown.skipHtml;
+    const markdownSyntaxHighlighterProps = Settings.app.markdown.syntaxHighlighterProps || {};
+    const syntaxHighlighterDarkTheme = Settings.app.markdown.syntaxHighlighterDarkTheme;
+
     const clean = sanitizeHtml(code, {
         allowedTags: (Settings.app.sanitizeHtml && Settings.app.sanitizeHtml.allowedTags) || false,
         allowedAttributes: (Settings.app.sanitizeHtml && Settings.app.sanitizeHtml.allowedAttributes) || false,
@@ -190,7 +199,34 @@ function View(props) {
                 </Typography>
             )}
 
-            {doc.sourceType === 'MARKDOWN' && <ReactMarkdown skipHtml={skipHtml} source={code} />}
+               {doc.sourceType === 'MARKDOWN' && <div className='markdown-content-wrapper'>
+                   <Suspense fallback={<CircularProgress />}>
+                       <ReactMarkdown
+                           skipHtml={skipHtml}
+                           children={code}
+                           remarkPlugins={[remarkGfm]}
+                           components={{
+                               code({ node, inline, className, children, ...props }) {
+                                   const match = /language-(\w+)/.exec(className || '')
+                                   return !inline && match ? (
+                                       <SyntaxHighlighter
+                                           children={String(children).replace(/\n$/, '')}
+                                           style={syntaxHighlighterDarkTheme ? vscDarkPlus : vs}
+                                           language={match[1]}
+                                           PreTag="div"
+                                           {...props}
+                                           {...markdownSyntaxHighlighterProps}
+                                       />
+                                   ) : (
+                                       <code className={className} {...props}>
+                                           {children}
+                                       </code>
+                                   )
+                               }
+                           }}
+                       />
+                   </Suspense>
+               </div>}
             {doc.sourceType === 'INLINE' && (<div dangerouslySetInnerHTML={{ __html: clean }} />)}
             {doc.sourceType === 'URL' && (
                 <a className={classes.displayURL} href={doc.sourceUrl} target='_blank'>
