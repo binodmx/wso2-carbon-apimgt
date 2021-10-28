@@ -316,7 +316,6 @@ public class OASParserUtil {
                     if (sourceRequestBodies != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             RequestBody requestBody = sourceRequestBodies.get(refKey);
-                            setRefOfRequestBody(requestBody, context);
                             if (requestBody != null) {
                                 components.addRequestBodies(refKey, requestBody);
                             }
@@ -343,17 +342,8 @@ public class OASParserUtil {
                     if (parameters != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             Parameter parameter = parameters.get(refKey);
-                            //Extract the parameter reference only if it exists in the source definition
-                            if(parameter != null) {
-                                Content content = parameter.getContent();
-                                if (content != null) {
-                                    extractReferenceFromContent(content, context);
-                                } else {
-                                    String ref = parameter.get$ref();
-                                    if (ref != null) {
-                                        extractReferenceWithoutSchema(ref, context);
-                                    }
-                                }
+                            if (parameter != null) {
+                                components.addParameters(refKey, parameter);
                             }
                         }
                     }
@@ -365,10 +355,8 @@ public class OASParserUtil {
                     if (responses != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             ApiResponse response = responses.get(refKey);
-                            //Extract the response reference only if it exists in the source definition
-                            if(response != null) {
-                                Content content = response.getContent();
-                                extractReferenceFromContent(content, context);
+                            if (response != null) {
+                                components.addResponses(refKey, response);
                             }
                         }
                     }
@@ -450,8 +438,11 @@ public class OASParserUtil {
                     if (responses != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             ApiResponse response = responses.get(refKey);
-                            Content content = response.getContent();
-                            extractReferenceFromContent(content, context);
+                            //Extract the response reference only if it exists in the source definition
+                            if(response != null) {
+                                Content content = response.getContent();
+                                extractReferenceFromContent(content, context);
+                            }
                         }
                     }
                 }
@@ -673,7 +664,6 @@ public class OASParserUtil {
             String ref = schema.get$ref();
             List<String> references = new ArrayList<String>();
             if (ref == null) {
-//                if (ARRAY_DATA_TYPE.equalsIgnoreCase(schema.getType())) {
                 if (schema instanceof ArraySchema) {
                     ArraySchema arraySchema = (ArraySchema) schema;
                     ref = arraySchema.getItems().get$ref();
