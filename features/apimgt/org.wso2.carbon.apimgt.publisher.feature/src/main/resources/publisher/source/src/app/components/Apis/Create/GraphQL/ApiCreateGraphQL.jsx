@@ -293,6 +293,7 @@ export default function ApiCreateGraphQL(props) {
                                     variant='contained'
                                     color='primary'
                                     disabled={!apiInputs.isFormValid}
+                                    data-testid='create-graphql-next-btn'
                                 >
                                     <FormattedMessage
                                         id='Apis.Create.GraphQL.ApiCreateGraphQL.next'
@@ -306,6 +307,8 @@ export default function ApiCreateGraphQL(props) {
                                     color='primary'
                                     disabled={!apiInputs.isFormValid || isCreating}
                                     onClick={createAPI}
+                                    data-testid={(apiInputs.isFormValid && !isCreating)
+                                        && 'itest-create-graphql-api-button'}
                                 >
                                     <FormattedMessage
                                         id='Apis.Create.GraphQL.ApiCreateGraphQL.create'

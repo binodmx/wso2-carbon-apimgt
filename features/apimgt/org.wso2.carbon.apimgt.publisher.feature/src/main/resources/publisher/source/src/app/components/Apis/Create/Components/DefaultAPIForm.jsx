@@ -286,6 +286,7 @@ export default function DefaultAPIForm(props) {
                     onChange={onChange}
                     InputProps={{
                         id: 'itest-id-apiname-input',
+                        'data-testid': 'itest-id-apiname-input',
                         onBlur: ({ target: { value } }) => {
                             validate('name', value);
                         },
@@ -303,6 +304,7 @@ export default function DefaultAPIForm(props) {
                                 <TextField
                                     fullWidth
                                     id='context'
+                                    data-testid='itest-id-apicontext-input'
                                     error={Boolean(validity.context)}
                                     label={(
                                         <>
@@ -345,6 +347,7 @@ export default function DefaultAPIForm(props) {
                                 <TextField
                                     fullWidth
                                     id='version'
+                                    data-testid='itest-id-apiversion-input'
                                     error={Boolean(validity.version)}
                                     label={(
                                         <>
@@ -419,6 +422,7 @@ export default function DefaultAPIForm(props) {
                     <TextField
                         fullWidth
                         id='itest-id-apiendpoint-input'
+                        data-testid='itest-id-apiendpoint-input'
                         label='Endpoint'
                         name='endpoint'
                         value={api.endpoint}

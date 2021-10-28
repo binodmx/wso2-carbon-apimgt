@@ -323,6 +323,7 @@ function APICreateDefault(props) {
                         <Grid item>
                             <Button
                                 id='itest-create-default-api-button'
+                                data-testid='itest-create-default-api-button'
                                 variant='contained'
                                 color='primary'
                                 disabled={isAPICreateDisabled || !apiInputs.isFormValid}

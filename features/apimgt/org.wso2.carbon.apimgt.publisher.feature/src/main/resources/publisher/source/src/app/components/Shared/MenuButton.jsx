@@ -77,6 +77,7 @@ class MenuButton extends React.Component {
             <>
                 <Button
                     id='itest-id-createapi'
+                    data-testid='itest-id-createapi'
                     buttonRef={(node) => {
                         this.anchorEl = node;
                     }}

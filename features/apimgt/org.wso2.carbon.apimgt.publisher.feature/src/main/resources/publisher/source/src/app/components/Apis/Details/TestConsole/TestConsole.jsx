@@ -511,6 +511,7 @@ class TestConsole extends React.Component {
                                             ], api)
                                             || loading}
                                             onClick={this.handleClick}
+                                            data-testid={!loading && 'initialize-test-btn'}
                                         >
 
                                             {loading ? (<CircularProgress size={32} />) : (

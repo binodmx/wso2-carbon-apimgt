@@ -622,6 +622,7 @@ function EndpointOverview(props) {
                         <FormControl component='fieldset' className={classes.formControl}>
                             <RadioGroup
                                 aria-label='EndpointType'
+                                data-testid='EndpointType'
                                 name='endpointType'
                                 className={classes.radioGroup}
                                 value={endpointType.key}
@@ -663,6 +664,7 @@ function EndpointOverview(props) {
                                                 control={(
                                                     <Radio
                                                         disabled={(isRestricted(['apim:api_create'], api))}
+                                                        data-testid={`${endpoint.key}-radio`}
                                                         color='primary'
                                                     />
                                                 )}
@@ -1090,6 +1092,7 @@ function EndpointOverview(props) {
                     <Button
                         onClick={() => { changeEndpointType(typeChangeConfirmation.type); }}
                         color='primary'
+                        data-testid='change-endpoint-type-btn'
                     >
                         <FormattedMessage
                             id='Apis.Details.Endpoints..EndpointOverview.change.type.proceed'
