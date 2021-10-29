@@ -394,9 +394,11 @@ public class OASParserUtil {
                 if (REQUEST_BODIES.equalsIgnoreCase(category)) {
                     Map<String, RequestBody> sourceRequestBodies = sourceComponents.getRequestBodies();
 
-                    for (String refKey : refCategoryEntry.getValue()) {
-                        RequestBody requestBody = sourceRequestBodies.get(refKey);
-                        setRefOfRequestBody(requestBody, context);
+                    if (sourceRequestBodies != null) {
+                        for (String refKey : refCategoryEntry.getValue()) {
+                            RequestBody requestBody = sourceRequestBodies.get(refKey);
+                            setRefOfRequestBody(requestBody, context);
+                        }
                     }
                 }
 
