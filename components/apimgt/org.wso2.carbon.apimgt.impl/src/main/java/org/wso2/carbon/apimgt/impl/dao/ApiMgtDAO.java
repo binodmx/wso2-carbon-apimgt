@@ -1209,7 +1209,7 @@ public class ApiMgtDAO {
             if (resultSet.next()) {
 
                 int applicationId = resultSet.getInt("APPLICATION_ID");
-                Application application = getApplicationById(applicationId);
+                Application application = getLightweightApplicationById(applicationId);
 
                 if (APIConstants.API_PRODUCT.equals(resultSet.getString("API_TYPE"))) {
                     APIProductIdentifier apiProductIdentifier = new APIProductIdentifier(
@@ -12629,8 +12629,7 @@ public class ApiMgtDAO {
                     }
 
                     // Check whether the given application is valid
-                    if ((MultitenantUtils.getTenantDomain(appOwner).equals(tenantDomain)) &&
-                            isValidApplication(appOwner, appName)) {
+                    if (isValidApplication(appOwner, appName)) {
                         valid = true;
                     } else {
                         throw new APIManagementException(
