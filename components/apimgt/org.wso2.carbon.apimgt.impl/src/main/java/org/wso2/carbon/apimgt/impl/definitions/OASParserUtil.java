@@ -36,7 +36,7 @@ import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.util.Yaml;
-import io.swagger.v3.oas.models.media.ArraySchema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -44,9 +44,6 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -139,6 +136,7 @@ public class OASParserUtil {
 
     private static final String REF_PREFIX = "#/components/";
     private static final String ARRAY_DATA_TYPE = "array";
+    private static final String OBJECT_DATA_TYPE = "object";
 
     static class SwaggerUpdateContext {
         private final Paths paths = new Paths();
@@ -396,9 +394,11 @@ public class OASParserUtil {
                 if (REQUEST_BODIES.equalsIgnoreCase(category)) {
                     Map<String, RequestBody> sourceRequestBodies = sourceComponents.getRequestBodies();
 
-                    for (String refKey : refCategoryEntry.getValue()) {
-                        RequestBody requestBody = sourceRequestBodies.get(refKey);
-                        setRefOfRequestBody(requestBody, context);
+                    if (sourceRequestBodies != null) {
+                        for (String refKey : refCategoryEntry.getValue()) {
+                            RequestBody requestBody = sourceRequestBodies.get(refKey);
+                            setRefOfRequestBody(requestBody, context);
+                        }
                     }
                 }
 
@@ -419,13 +419,15 @@ public class OASParserUtil {
                     if (parameters != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             Parameter parameter = parameters.get(refKey);
-                            Content content = parameter.getContent();
-                            if (content != null) {
-                                extractReferenceFromContent(content, context);
-                            } else {
-                                String ref = parameter.get$ref();
-                                if (ref != null) {
-                                    extractReferenceWithoutSchema(ref, context);
+                            if (parameter != null) {
+                                Content content = parameter.getContent();
+                                if (content != null) {
+                                    extractReferenceFromContent(content, context);
+                                } else {
+                                    String ref = parameter.get$ref();
+                                    if (ref != null) {
+                                        extractReferenceWithoutSchema(ref, context);
+                                    }
                                 }
                             }
                         }
@@ -438,8 +440,11 @@ public class OASParserUtil {
                     if (responses != null) {
                         for (String refKey : refCategoryEntry.getValue()) {
                             ApiResponse response = responses.get(refKey);
-                            Content content = response.getContent();
-                            extractReferenceFromContent(content, context);
+                            //Extract the response reference only if it exists in the source definition
+                            if(response != null) {
+                                Content content = response.getContent();
+                                extractReferenceFromContent(content, context);
+                            }
                         }
                     }
                 }
@@ -580,8 +585,14 @@ public class OASParserUtil {
     private static void setRefOfRequestBody(RequestBody requestBody, SwaggerUpdateContext context) {
         if (requestBody != null) {
             Content content = requestBody.getContent();
-
-            extractReferenceFromContent(content, context);
+            if (content != null) {
+                extractReferenceFromContent(content, context);
+            } else {
+                String ref = requestBody.get$ref();
+                if (ref != null) {
+                    extractReferenceWithoutSchema(ref, context);
+                }
+            }
         }
     }
 
@@ -589,8 +600,14 @@ public class OASParserUtil {
         if (responses != null) {
             for (ApiResponse response : responses.values()) {
                 Content content = response.getContent();
-
-                extractReferenceFromContent(content, context);
+                if (content != null) {
+                    extractReferenceFromContent(content, context);
+                } else {
+                    String ref = response.get$ref();
+                    if (ref != null) {
+                        extractReferenceWithoutSchema(ref, context);
+                    }
+                }
             }
         }
     }
@@ -614,12 +631,10 @@ public class OASParserUtil {
     private static void setRefOfParameters(List<Parameter> parameters, SwaggerUpdateContext context) {
         if (parameters != null) {
             for (Parameter parameter : parameters) {
-                Schema schema = parameter.getSchema();
-                if (schema != null) {
-                    String ref = schema.get$ref();
-                    if (ref != null) {
-                        addToReferenceObjectMap(ref, context);
-                    }
+                Content content = parameter.getContent();
+
+                if (content != null) {
+                    extractReferenceFromContent(content, context);
                 } else {
                     String ref = parameter.get$ref();
                     if (ref != null) {
@@ -649,15 +664,53 @@ public class OASParserUtil {
     private static void extractReferenceFromSchema(Schema schema, SwaggerUpdateContext context) {
         if (schema != null) {
             String ref = schema.get$ref();
+            List<String> references = new ArrayList<String>();
             if (ref == null) {
-                if (ARRAY_DATA_TYPE.equalsIgnoreCase(schema.getType())) {
+                if (schema instanceof ArraySchema) {
                     ArraySchema arraySchema = (ArraySchema) schema;
                     ref = arraySchema.getItems().get$ref();
+                } else if (schema instanceof ObjectSchema) {
+                    references = addSchemaOfSchema(schema);
+                } else if (schema instanceof MapSchema) {
+                    Schema additionalPropertiesSchema = (Schema) schema.getAdditionalProperties();
+                    extractReferenceFromSchema(additionalPropertiesSchema, context);
+                } else if (schema instanceof ComposedSchema) {
+                    if (((ComposedSchema) schema).getAllOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getAllOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
+                        }
+                    } else if (((ComposedSchema) schema).getAnyOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getAnyOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
+                        }
+                    } else if (((ComposedSchema) schema).getOneOf() != null) {
+                        for (Schema sc : ((ComposedSchema) schema).getOneOf()) {
+                            if (OBJECT_DATA_TYPE.equalsIgnoreCase(sc.getType())) {
+                                references.addAll(addSchemaOfSchema(sc));
+                            } else {
+                                references.add(sc.get$ref());
+                            }
+                        }
+                    } else {
+                        log.error("Unidentified schema. The schema is not available in the API definition.");
+                    }
                 }
             }
 
             if (ref != null) {
                 addToReferenceObjectMap(ref, context);
+            } else if (!references.isEmpty() && references.size() != 0) {
+                for (String reference : references) {
+                    addToReferenceObjectMap(reference, context);
+                }
             }
 
             // Process schema properties if present
@@ -669,6 +722,34 @@ public class OASParserUtil {
                 }
             }
         }
+    }
+
+    private static List<String> addSchemaOfSchema(Schema schema) {
+        List<String> references = new ArrayList<String>();
+        ObjectSchema os = (ObjectSchema) schema;
+        if (os.getProperties() != null) {
+            for (String propertyName : os.getProperties().keySet()) {
+                if (os.getProperties().get(propertyName) instanceof ComposedSchema) {
+                    ComposedSchema cs = (ComposedSchema) os.getProperties().get(propertyName);
+                    if (cs.getAllOf() != null) {
+                        for (Schema sc : cs.getAllOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    } else if (cs.getAnyOf() != null) {
+                        for (Schema sc : cs.getAnyOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    } else if (cs.getOneOf() != null) {
+                        for (Schema sc : cs.getOneOf()) {
+                            references.add(sc.get$ref());
+                        }
+                    } else {
+                        log.error("Unidentified schema. The schema is not available in the API definition.");
+                    }
+                }
+            }
+        }
+        return references;
     }
 
     private static void addToReferenceObjectMap(String ref, SwaggerUpdateContext context) {
