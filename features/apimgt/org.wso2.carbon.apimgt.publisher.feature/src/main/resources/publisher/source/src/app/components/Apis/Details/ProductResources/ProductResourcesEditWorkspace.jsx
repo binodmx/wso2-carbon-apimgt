@@ -585,6 +585,7 @@ function ProductResourcesEdit(props) {
                                     <Button
                                         onClick={() => addSelectedResourcesToTree(true)}
                                         onKeyDown={() => addSelectedResourcesToTree(true)}
+                                        data-testid='add-all-resources-btn'
                                     >
                                         <Typography variant='body2'>
                                             <FormattedMessage
@@ -596,7 +597,7 @@ function ProductResourcesEdit(props) {
                                         <Icon>fast_forward</Icon>
                                     </Button>
                                 </div>
-                                <div className={classes.ResourceWrapper}>
+                                <div className={classes.ResourceWrapper} data-testid='resource-wrapper'>
                                     <div className='frame'>
                                         <List dense>
                                             {Object.keys(selectedApiPaths).map((key) => {

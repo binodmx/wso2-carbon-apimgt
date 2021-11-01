@@ -77,7 +77,12 @@ function SampleAPI() {
                 </Typography>
                 {!AuthManager.isNotPublisher() && (
                     <div className={classes.actions}>
-                        <Link id='itest-id-createdefault' to='/api-products/create' className={classes.links}>
+                        <Link
+                            id='itest-id-createdefault'
+                            data-testid='itest-id-createdefault'
+                            to='/api-products/create'
+                            className={classes.links}
+                        >
                             <Button
                                 size='small'
                                 color='primary'
