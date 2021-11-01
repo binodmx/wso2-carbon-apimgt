@@ -12584,8 +12584,7 @@ public class ApiMgtDAO {
                     String appOwner = appArray[0];
                     String appName = appArray[1];
 
-                    if ((MultitenantUtils.getTenantDomain(appOwner).equals(tenantDomain)) &&
-                            isValidApplication(appOwner, appName)) {
+                    if (isValidApplication(appOwner, appName)) {
                         valid = true;
                     } else {
                         throw new APIManagementException("Couldn't Save Block Condition Due to Invalid Application " +
