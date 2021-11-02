@@ -272,6 +272,7 @@ class SampleAPI extends Component {
                                     disabled={deploying}
                                     variant='contained'
                                     onClick={this.handleDeploySample}
+                                    data-testid={!deploying && 'deploy-sample-api-btn'}
                                 >
                                     <GetApp />
                                     <FormattedMessage id='deploy.sample.api' defaultMessage='Deploy Sample API' />

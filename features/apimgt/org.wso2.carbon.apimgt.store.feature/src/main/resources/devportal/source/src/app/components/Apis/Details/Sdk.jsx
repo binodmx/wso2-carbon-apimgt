@@ -34,6 +34,7 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import InlineMessage from 'AppComponents/Shared/InlineMessage';
 import AuthManager from 'AppData/AuthManager';
 import { app } from 'Settings';
+import { ApiContext } from './ApiContext';
 import Api from '../../../data/api';
 
 const styles = theme => ({
@@ -189,6 +190,7 @@ class Sdk extends React.Component {
      * @memberof Sdk
      */
     render() {
+        const { api } = this.context;
         const languageList = this.state.items;
         const {
             onlyIcons, intl, classes, theme,
@@ -213,6 +215,8 @@ class Sdk extends React.Component {
                                         onClick={event => this.handleClick(event, language)}
                                         style={{ cursor: 'pointer' }}
                                         aria-label={'Download ' + language + ' SDK'}
+                                        data-testid='download-sdk-btn'
+                                        data-download-file={`${api.name}_${api.version}_${language}`}
                                     >
                                         <img
                                             alt={language}
@@ -287,7 +291,9 @@ class Sdk extends React.Component {
                                                         <Button
                                                             color='secondary'
                                                             onClick={event => this.handleClick(event, language)}
-                                                            area-label={'Download ' + language + ' SDK'}
+                                                            aria-label={'Download ' + language + ' SDK'}
+                                                            data-testid='download-sdk-btn'
+                                                            data-download-file={`${api.name}_${api.version}_${language}`}
                                                         >
                                                             <Icon>arrow_downward</Icon>
                                                             {'Download'}
@@ -324,5 +330,7 @@ class Sdk extends React.Component {
 Sdk.propTypes = {
     classes: PropTypes.instanceOf(Object).isRequired,
 };
+
+Sdk.contextType = ApiContext;
 
 export default injectIntl(withStyles(styles, { withTheme: true })(Sdk));

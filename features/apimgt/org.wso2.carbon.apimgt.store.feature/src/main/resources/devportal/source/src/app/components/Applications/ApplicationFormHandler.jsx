@@ -505,6 +505,7 @@ class ApplicationFormHandler extends React.Component {
                                             onClick={isEdit ? this.saveEdit : this.saveApplication}
                                             disabled={isEdit && AuthManager.getUser().name !== applicationOwner}
                                             className={classes.button}
+                                            data-testid='application-save-btn'
                                         >
                                             <FormattedMessage
                                                 id='Applications.Create.ApplicationFormHandler.save'

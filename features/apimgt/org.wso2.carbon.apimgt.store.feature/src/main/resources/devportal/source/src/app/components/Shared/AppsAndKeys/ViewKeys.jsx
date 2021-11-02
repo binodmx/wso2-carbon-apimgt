@@ -393,6 +393,7 @@ class ViewKeys extends React.Component {
                                                 classes={{ root: classes.iconButton }}
                                                 onClick={() => this.handleShowHidden('showCS')}
                                                 onMouseDown={this.handleMouseDownGeneric}
+                                                data-testid='visibility-toggle-btn'
                                             >
                                                 {showCS ? <Icon>visibility_off</Icon> : <Icon>visibility</Icon>}
                                             </IconButton>

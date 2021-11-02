@@ -133,6 +133,7 @@ function LeftMenuItem(props) {
             )}
             to={to}
             style={{ backgroundColor: activeBackground }}
+            data-testid={`left-menu-${routeToCheck}`}
         >
             {!submenu && (
                 // If the icon pro ( which is comming from the React Material library )

@@ -362,7 +362,10 @@ class InfoBar extends React.Component {
                 <div className={classes.root}>
                     <Grid item xs={10}>
                         <div style={{ marginLeft: theme.spacing(1) }}>
-                            <Link to={'/applications/' + applicationId + '/overview'} className={classes.linkTitle}>
+                            <Link
+                                to={'/applications/' + applicationId + '/overview'}
+                                className={classes.linkTitle}
+                                data-testid='application-title'>
                                 <Typography variant='h4'>{application.name}</Typography>
                             </Link>
                         </div>
