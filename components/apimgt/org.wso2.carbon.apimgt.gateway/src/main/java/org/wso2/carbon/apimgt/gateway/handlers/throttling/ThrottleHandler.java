@@ -480,7 +480,6 @@ public class ThrottleHandler extends AbstractHandler implements ManagedLifecycle
 
     private String getSubscriptionLevelThrottleKey(String subscriptionLevelTier, AuthenticationContext authContext,
                                                    String apiContext, String apiVersion) {
-
         String subscriptionLevelThrottleKey;
         if (authContext.getProductName() != null && authContext.getProductProvider() != null) {
             subscriptionLevelThrottleKey = authContext.getApplicationId() + ":" + authContext.getProductName() + ":"
