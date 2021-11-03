@@ -1154,6 +1154,7 @@ public class ApiMgtDAO {
             ps.setInt(1, subscriptionId);
             resultSet = ps.executeQuery();
             SubscribedAPI subscribedAPI = null;
+            
             if (resultSet.next()) {
                 int applicationId = resultSet.getInt("APPLICATION_ID");
                 Application application = getLightweightApplicationById(applicationId);
