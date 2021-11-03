@@ -3782,11 +3782,11 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
 
         // Retain the 'DEFAULT' token type of migrated applications unless the token type is changed to 'JWT'.
         if (APIConstants.DEFAULT_TOKEN_TYPE.equals(existingApp.getTokenType()) &&
-                APIConstants.OAuthConstants.OAUTH.equals(application.getTokenType())) {
+                APIConstants.TOKEN_TYPE_OAUTH.equals(application.getTokenType())) {
             application.setTokenType(APIConstants.DEFAULT_TOKEN_TYPE);
         }
 
-        // Prevent the change of token type of applications having JWT token type.
+        // Prevent the change of token type of applications having 'JWT' token type.
         if (APIConstants.TOKEN_TYPE_JWT.equals(existingApp.getTokenType()) &&
                 !APIConstants.TOKEN_TYPE_JWT.equals(application.getTokenType())) {
             throw new APIManagementException(
