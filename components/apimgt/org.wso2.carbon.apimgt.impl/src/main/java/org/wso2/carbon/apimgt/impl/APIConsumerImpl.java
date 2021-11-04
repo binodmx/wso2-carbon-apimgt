@@ -3664,6 +3664,8 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
                 APIConstants.AuditLogConstants.CREATED, this.username);
 
         boolean isTenantFlowStarted = false;
+        tenantDomain = MultitenantUtils.getTenantDomain(APIUtil.replaceEmailDomainBack(userId));
+        tenantId = APIUtil.getTenantIdFromTenantDomain(tenantDomain);
         if (tenantDomain != null && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
             isTenantFlowStarted = startTenantFlowForTenantDomain(tenantDomain);
         }
