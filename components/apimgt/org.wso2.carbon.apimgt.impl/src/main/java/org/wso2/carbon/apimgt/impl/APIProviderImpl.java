@@ -170,6 +170,7 @@ import org.wso2.carbon.registry.core.CollectionImpl;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.Tag;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.realm.RegistryAuthorizationManager;
@@ -1913,14 +1914,29 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
             GenericArtifact updateApiArtifact = APIUtil.createAPIArtifactContent(artifact, api);
             String artifactPath = GovernanceUtils.getArtifactPath(registry, updateApiArtifact.getId());
             org.wso2.carbon.registry.core.Tag[] oldTags = registry.getTags(artifactPath);
+            Set<String> oldTagsSet = new HashSet<>();
             if (oldTags != null) {
-                for (org.wso2.carbon.registry.core.Tag tag : oldTags) {
-                    registry.removeTag(artifactPath, tag.getTagName());
+                for (Tag tag : oldTags) {
+                    oldTagsSet.add(tag.getTagName());
                 }
             }
-            Set<String> tagSet = api.getTags();
-            if (tagSet != null) {
-                for (String tag : tagSet) {
+            Set<String> newTags = api.getTags();
+            Set<String> tagsToCreate = new HashSet<>();
+            if (newTags != null){
+                tagsToCreate.addAll(newTags);
+            }
+            tagsToCreate.removeAll(oldTagsSet);
+            Set<String> tagsToRemove = new HashSet<>(oldTagsSet);
+            oldTagsSet.retainAll(newTags);
+            tagsToRemove.removeAll(oldTagsSet);
+
+            if (tagsToRemove != null) {
+                for (String tag : tagsToRemove) {
+                    registry.removeTag(artifactPath, tag);
+                }
+            }
+            if (tagsToCreate != null) {
+                for (String tag : tagsToCreate) {
                     registry.applyTag(artifactPath, tag);
                 }
             }
