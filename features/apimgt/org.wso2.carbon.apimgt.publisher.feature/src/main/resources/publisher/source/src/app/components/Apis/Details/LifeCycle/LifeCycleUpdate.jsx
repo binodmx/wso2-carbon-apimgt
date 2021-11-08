@@ -105,6 +105,7 @@ class LifeCycleUpdate extends Component {
                 this.props.handleUpdate(true);
                 const newState = response.body.lifecycleState.state;
                 const { workflowStatus } = response.body;
+                this.context.updateAPI({ enableStore: true });
                 this.setState({ newState });
                 const { intl } = this.props;
 
