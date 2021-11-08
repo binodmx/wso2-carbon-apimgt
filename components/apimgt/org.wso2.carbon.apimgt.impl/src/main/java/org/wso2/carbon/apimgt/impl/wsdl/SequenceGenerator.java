@@ -88,6 +88,7 @@ import static org.wso2.carbon.apimgt.impl.utils.APIUtil.handleException;
  */
 public class SequenceGenerator {
     private static final Logger log = LoggerFactory.getLogger(SequenceGenerator.class);
+    private static String soapV = SOAPToRESTConstants.EMPTY_STRING;
 
     /**
      * Generates in/out sequences from the swagger given
@@ -127,6 +128,7 @@ public class SequenceGenerator {
                 String soapAction = SOAPToRESTConstants.EMPTY_STRING;
                 String namespace = SOAPToRESTConstants.EMPTY_STRING;
                 String soapVersion = SOAPToRESTConstants.EMPTY_STRING;
+                soapV = (String) ((LinkedHashMap) vendorExtensionObj).get(SOAPToRESTConstants.Swagger.SOAP_VERSION);
                 if (vendorExtensionObj != null) {
                     soapAction = (String) ((LinkedHashMap) vendorExtensionObj).get("soap-action");
                     namespace = (String) ((LinkedHashMap) vendorExtensionObj).get("namespace");
@@ -324,9 +326,12 @@ public class SequenceGenerator {
             Transformer transformer = transformerFactory.newTransformer();
             docBuilder = docFactory.newDocumentBuilder();
             Document doc = docBuilder.newDocument();
-            Element rootElement = doc.createElementNS(namespace, SOAPToRESTConstants.SequenceGen.NAMESPACE_PREFIX
-                    + SOAPToRESTConstants.SequenceGen.NAMESPACE_SEPARATOR + operationId);
-            doc.appendChild(rootElement);
+            Element rootElement = null;
+            if (!SOAPToRESTConstants.SOAP_VERSION_11.equals(soapV)) {
+                rootElement = doc.createElementNS(namespace, SOAPToRESTConstants.SequenceGen.NAMESPACE_PREFIX
+                        + SOAPToRESTConstants.SequenceGen.NAMESPACE_SEPARATOR + operationId);
+                doc.appendChild(rootElement);
+            }
             int count = 1;
             for (String parameter : parameterJsonPathMapping.keySet()) {
                 String parameterType = parameterJsonPathMapping.get(parameter);
@@ -352,13 +357,15 @@ public class SequenceGenerator {
                         }
                     }
                     if (StringUtils.isNotBlank(parameterTreeNode)) {
-                        if (SOAPToRESTConstants.ATTR_CONTENT_KEYWORD.equalsIgnoreCase(parameterTreeNode)) {
+                        if (SOAPToRESTConstants.ATTR_CONTENT_KEYWORD.equalsIgnoreCase(parameterTreeNode)
+                                && prevElement != null) {
                             String attName = parameterTreeNodes[++i];
                             prevElement
                                     .setAttribute(attName, SOAPToRESTConstants.SequenceGen.PROPERTY_ACCESSOR + count++);
                             break;
                         }
-                        if (SOAPToRESTConstants.BASE_CONTENT_KEYWORD.equalsIgnoreCase(parameterTreeNode)) {
+                        if (SOAPToRESTConstants.BASE_CONTENT_KEYWORD.equalsIgnoreCase(parameterTreeNode)
+                                && prevElement != null) {
                             prevElement.setTextContent(SOAPToRESTConstants.SequenceGen.PROPERTY_ACCESSOR + count++);
                             break;
                         }
@@ -395,7 +402,11 @@ public class SequenceGenerator {
                                 element.setTextContent(SOAPToRESTConstants.SequenceGen.PROPERTY_ACCESSOR + count);
                                 count++;
                             }
-                            prevElement.appendChild(element);
+                            if (!SOAPToRESTConstants.SOAP_VERSION_11.equals(soapV) || prevElement != null) {
+                                prevElement.appendChild(element);
+                            } else {
+                                doc.appendChild(element);
+                            }
                             prevElement = element;
                         }
                         elemPos++;
@@ -409,7 +420,11 @@ public class SequenceGenerator {
                             + SOAPToRESTConstants.SequenceGen.NAMESPACE_SEPARATOR + queryParam);
                     element.setTextContent(SOAPToRESTConstants.SequenceGen.PROPERTY_ACCESSOR + count);
                     count++;
-                    rootElement.appendChild(element);
+                    if (!SOAPToRESTConstants.SOAP_VERSION_11.equals(soapV)) {
+                        rootElement.appendChild(element);
+                    } else {
+                        doc.appendChild(element);
+                    }
                 }
             } else if (parameterJsonPathMapping.size() > 0 && queryPathParamMapping.size() > 0) {
                 log.warn("Query parameters along with the body parameter is not allowed");
