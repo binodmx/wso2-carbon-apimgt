@@ -20,18 +20,13 @@
 
 package org.wso2.carbon.apimgt.gateway.internal;
 
-import org.apache.axis2.context.ConfigurationContext;
-import org.bouncycastle.crypto.tls.TlsDHEKeyExchange;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.dto.ThrottleProperties;
 import org.wso2.carbon.utils.ConfigurationContextService;
-
-import javax.validation.constraints.AssertTrue;
 
 /**
  * Test class for ServiceReferenceHolder.
