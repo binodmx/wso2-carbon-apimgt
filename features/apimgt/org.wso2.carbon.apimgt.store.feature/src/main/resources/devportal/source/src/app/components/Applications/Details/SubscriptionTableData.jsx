@@ -58,7 +58,7 @@ class SubscriptionTableData extends React.Component {
             isMonetizedAPI: false,
             isDynamicUsagePolicy: false,
             tiers: [],
-            selectedTier: "",
+            selectedTier: null,
         };
         this.handleRequestClose = this.handleRequestClose.bind(this);
         this.handleRequestOpen = this.handleRequestOpen.bind(this);
@@ -239,7 +239,7 @@ class SubscriptionTableData extends React.Component {
                     { link }
                 </TableCell>
                 <TableCell>{apiInfo.lifeCycleStatus}</TableCell>
-                <TableCell>{throttlingPolicy}</TableCell>
+                <TableCell data-testid={`policy-for-${apiInfo.name}`}>{throttlingPolicy}</TableCell>
                 <TableCell>{status}</TableCell>
                 <TableCell>
                     <ScopeValidation
@@ -251,6 +251,7 @@ class SubscriptionTableData extends React.Component {
                             onClick={this.handleRequestOpenEditMenu}
                             startIcon={<Icon>edit</Icon>}
                             disabled={tiers.length === 0}
+                            data-testid={`edit-api-subscription-${apiInfo.name}`}
                         >
                             <FormattedMessage
                                 id='Applications.Details.SubscriptionTableData.edit.text'
@@ -305,7 +306,7 @@ class SubscriptionTableData extends React.Component {
                                                                 id='Applications.Details.SubscriptionTableData.update.throttling.policy.name'
                                                             />
                                                         )}
-                                                        value={selectedTier}
+                                                        value={selectedTier || throttlingPolicy}
                                                         name='throttlingPolicy'
                                                         onChange={e => this.setSelectedTier(e.target.value)}
                                                         helperText={(
@@ -316,9 +317,10 @@ class SubscriptionTableData extends React.Component {
                                                         )}
                                                         margin='normal'
                                                         variant='outlined'
+                                                        data-testid='edit-api-subscription-select'
                                                     >
                                                         {this.state.tiers.map((tier) => (
-                                                            <MenuItem key={tier.value} value={tier.value}>
+                                                            <MenuItem key={tier.value} value={tier.value} data-testid={`select-${tier.value}`}>
                                                                 {tier.label}
                                                             </MenuItem>
                                                         ))}
@@ -376,6 +378,7 @@ class SubscriptionTableData extends React.Component {
                                 color="default"
                                 onClick={this.handleRequestOpen}
                                 startIcon={<Icon>delete</Icon>}
+                                data-testid={`delete-api-subscription-${apiInfo.name}`}
                             >
                                 <FormattedMessage
                                     id='Applications.Details.SubscriptionTableData.delete.text'
@@ -401,7 +404,12 @@ class SubscriptionTableData extends React.Component {
                                         defaultMessage='Cancel'
                                     />
                                 </Button>
-                                <Button dense variant="contained" color='primary' onClick={() => this.handleRequestDelete(subscriptionId)}>
+                            <Button
+                                dense variant="contained" 
+                                color='primary' 
+                                onClick={() => this.handleRequestDelete(subscriptionId)}
+                                data-testid='delete-api-subscription-confirm-btn'
+                            >
                                     <FormattedMessage
                                         id='Applications.Details.SubscriptionTableData.delete'
                                         defaultMessage='Delete'

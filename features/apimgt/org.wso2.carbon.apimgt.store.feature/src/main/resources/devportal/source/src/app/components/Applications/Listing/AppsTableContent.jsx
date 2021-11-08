@@ -185,7 +185,7 @@ class AppsTableContent extends Component {
                                                 )
                                                 }>
                                                 <span>
-                                                <Link to={`/applications/${app.applicationId}/edit/`} className={!isAppOwner && classes.appOwner}>
+                                                <Link data-testid={`app-edit-${app.name}`} to={`/applications/${app.applicationId}/edit/`} className={!isAppOwner && classes.appOwner}>
                                                     <IconButton disabled={!isAppOwner} aria-label={'Edit Application ' + app.name}>
                                                         <Icon>
                                                             edit

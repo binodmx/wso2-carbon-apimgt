@@ -75,7 +75,7 @@ class SubscriptionPolicySelect extends React.Component {
      */
     render() {
         const {
-            classes, policies, apiId, handleSubscribe, applicationId,
+            classes, policies, apiId, handleSubscribe, applicationId, apiName,
         } = this.props;
         const { selectedPolicy } = this.state;
 
@@ -89,9 +89,10 @@ class SubscriptionPolicySelect extends React.Component {
                         onChange={(e) => {
                             this.setState({ selectedPolicy: e.target.value });
                         }}
+                        data-testid={`policy-select-${apiName}`}
                     >
                         {policies.map(policy => (
-                            <MenuItem value={policy} key={policy}>
+                            <MenuItem value={policy} key={policy} data-testid={`policy-select-${apiName}-${policy}`}>
                                 {policy}
                             </MenuItem>
                         ))}
@@ -108,6 +109,7 @@ class SubscriptionPolicySelect extends React.Component {
                             onClick={() => {
                                 handleSubscribe(applicationId, apiId, selectedPolicy);
                             }}
+                            data-testid={`policy-subscribe-btn-${apiName}`}
                         >
                             <FormattedMessage defaultMessage='Subscribe' id='Apis.Listing.SubscriptionPolicySelect.subscribe' />
                         </Button>

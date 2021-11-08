@@ -391,12 +391,11 @@ class InfoBar extends React.Component {
                                         style={{ padding: '4px' }}
                                         color='default'
                                         classes={{ label: classes.iconButton }}
-                                        aria-label={(
-                                            <FormattedMessage
+                                        aria-label={<FormattedMessage
                                                 id='Applications.Details.InfoBar.edit'
                                                 defaultMessage='Edit'
-                                            />
-                                        )}
+                                            />}
+                                        data-testid='edit-application'
                                     >
                                         <Icon>edit</Icon>
                                         <Typography variant='caption' style={{ marginTop: '2px' }} >
@@ -421,6 +420,7 @@ class InfoBar extends React.Component {
                                         defaultMessage='Delete'
                                     />
                                 )}
+                                data-testid='delete-application'
                             >
                                 <Icon>delete</Icon>
                                 <Typography variant='caption' style={{ marginTop: '2px' }} >

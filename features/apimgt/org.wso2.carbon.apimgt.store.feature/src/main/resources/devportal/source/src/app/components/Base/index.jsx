@@ -540,7 +540,7 @@ class Layout extends React.Component {
                                                                         </MenuItem> :
                                                                         null
                                                                     }
-                                                                    <MenuItem onClick={this.doOIDCLogout} className={classes.logoutLink}>
+                                                                    <MenuItem onClick={this.doOIDCLogout} className={classes.logoutLink} data-testid='logout-link'>
                                                                         <FormattedMessage
                                                                             id='Base.index.logout'
                                                                             defaultMessage='Logout'

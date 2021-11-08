@@ -422,6 +422,7 @@ class Credentials extends React.Component {
                                                 component={Link}
                                                 to={(isOnlyMutualSSL || isOnlyBasicAuth) ? null :
                                                     `/apis/${api.id}/credentials/wizard`}
+                                                data-testid='start-key-gen-wizard-btn'
                                             >
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.'
@@ -456,6 +457,7 @@ class Credentials extends React.Component {
                                                 className={classes.buttonElm}
                                                 onClick={() => this.handleSubscribe()}
                                                 disabled={!api.isSubscriptionAvailable || isSubscribing}
+                                                data-testid={!isSubscribing && 'subscribe-to-api-btn'}
                                             >
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.'
@@ -490,7 +492,7 @@ class Credentials extends React.Component {
                                         defaultMessage='( Applications Subscribed to this Api )'
                                     />
                                 </Typography>
-                                <div className={classes.tableMain}>
+                                <div className={classes.tableMain} data-testid='subscription-table'>
                                     <table>
                                         <tr>
                                             <th className={classes.th}>
@@ -561,6 +563,7 @@ class Credentials extends React.Component {
                                         component={Link}
                                         to={(isOnlyMutualSSL || isOnlyBasicAuth) ? null :
                                             `/apis/${api.id}/credentials/wizard`}
+                                        data-testid='start-key-gen-wizard-btn'
                                     >
                                         <Icon>add_circle_outline</Icon>
                                         <FormattedMessage

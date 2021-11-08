@@ -495,7 +495,7 @@ class Listing extends Component {
                         {data.size > 0 ? (
                             <div className={classes.appContent}>
                                 <Paper className={classes.appTablePaper}>
-                                    <Table>
+                                    <Table data-testid='application-listing-table'>
                                         <ApplicationTableHead
                                             order={order}
                                             orderBy={orderBy}
