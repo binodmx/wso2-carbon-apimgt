@@ -103,7 +103,13 @@ function ProductResourcesEdit() {
                     <Grid container direction='row' alignItems='flex-start' spacing={4}>
                         <Grid item>
                             <div>
-                                <Button variant='contained' color='primary' onClick={save} disabled={updating}>
+                                <Button
+                                    variant='contained'
+                                    color='primary'
+                                    onClick={save}
+                                    disabled={updating}
+                                    data-testid={!updating && 'save-product-resources'}
+                                >
                                     {updating && (
                                         <FormattedMessage
                                             id='Apis.Details.ProductResources.ProductResourcesEdit.updating'

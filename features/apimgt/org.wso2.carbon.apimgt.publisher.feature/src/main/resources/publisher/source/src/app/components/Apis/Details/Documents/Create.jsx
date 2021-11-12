@@ -178,6 +178,7 @@ function Create(props) {
                                         color='primary'
                                         onClick={() => addDocument(api.id)}
                                         disabled={saveDisabled}
+                                        data-testid={!saveDisabled && 'add-document-btn'}
                                     >
                                         <FormattedMessage
                                             id='Apis.Details.Documents.Create.markdown.editor.add.document.button'

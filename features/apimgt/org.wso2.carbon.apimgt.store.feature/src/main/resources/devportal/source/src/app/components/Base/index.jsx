@@ -540,7 +540,7 @@ class Layout extends React.Component {
                                                                         </MenuItem> :
                                                                         null
                                                                     }
-                                                                    <MenuItem onClick={this.doOIDCLogout} className={classes.logoutLink}>
+                                                                    <MenuItem onClick={this.doOIDCLogout} className={classes.logoutLink} data-testid='logout-link'>
                                                                         <FormattedMessage
                                                                             id='Base.index.logout'
                                                                             defaultMessage='Logout'
@@ -560,6 +560,7 @@ class Layout extends React.Component {
                                                 className={classes.userLink}
                                                 component='a'
                                                 href={app.context + '/services/configs'}
+                                                data-testid='itest-devportal-sign-in'
                                             >
                                                 <Icon>person</Icon>
                                                 <FormattedMessage id='Base.index.sign.in' defaultMessage=' Sign-in' />

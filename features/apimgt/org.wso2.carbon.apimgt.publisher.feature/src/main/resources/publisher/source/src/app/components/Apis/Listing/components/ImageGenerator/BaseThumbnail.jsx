@@ -180,6 +180,7 @@ const BaseThumbnail = (props) => {
                     className={classes.thumb}
                     onClick={onClick}
                     aria-label='edit api thumbnail'
+                    data-testid='edit-api-thumbnail-btn'
                 >
                     {view}
                     <span className={classes.thumbBackdrop} />

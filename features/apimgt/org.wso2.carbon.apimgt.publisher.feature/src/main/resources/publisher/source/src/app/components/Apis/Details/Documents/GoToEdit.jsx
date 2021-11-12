@@ -88,7 +88,7 @@ function GoToEdit(props) {
                         state: { doc: doc.body },
                     }}
                 >
-                    <Button color='primary'>
+                    <Button color='primary' data-testid='add-content-btn'>
                         <FormattedMessage
                             id='Apis.Details.Documents.GoToEdit.add.content'
                             defaultMessage='Add Content'
@@ -96,7 +96,7 @@ function GoToEdit(props) {
                     </Button>
                 </Link>)}
                 <Link to={listingPath}>
-                    <Button color='primary' autoFocus>
+                    <Button color='primary' autoFocus data-testid='add-content-back-to-listing-btn'>
                         <FormattedMessage
                             id='Apis.Details.Documents.GoToEdit.back.to.listing'
                             defaultMessage='Back to Listing'

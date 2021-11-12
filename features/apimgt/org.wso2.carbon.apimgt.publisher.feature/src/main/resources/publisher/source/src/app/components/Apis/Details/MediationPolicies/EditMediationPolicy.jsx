@@ -337,6 +337,7 @@ function EditMediationPolicy(props) {
                     <RadioGroup value={provideBy} onChange={handleChangeProvideBy} className={classes.radioWrapper}>
                         <FormControlLabel
                             value='none'
+                            data-testid='mediation-policy-none'
                             control={<Radio color='primary' />}
                             label={(
                                 <FormattedMessage
@@ -347,6 +348,7 @@ function EditMediationPolicy(props) {
                         />
                         <FormControlLabel
                             value='global'
+                            data-testid='mediation-policy-global'
                             control={<Radio color='primary' />}
                             label={(
                                 <FormattedMessage
@@ -357,6 +359,7 @@ function EditMediationPolicy(props) {
                         />
                         <FormControlLabel
                             value='custom'
+                            data-testid='mediation-policy-custom'
                             control={<Radio color='primary' />}
                             label={(
                                 <FormattedMessage
@@ -396,6 +399,7 @@ function EditMediationPolicy(props) {
                                 )}
                             </Dropzone>
                             <RadioGroup
+                                data-testid='download-custom-radio-group'
                                 aria-label='inflow'
                                 name='inflow'
                                 className={classes.radioGroup}
@@ -416,7 +420,10 @@ function EditMediationPolicy(props) {
                                         <IconButton onClick={() => handleDelete(seq.id)}>
                                             <Icon>delete</Icon>
                                         </IconButton>
-                                        <Button onClick={() => handleDownload(seq.id)}>
+                                        <Button
+                                            onClick={() => handleDownload(seq.id)}
+                                            data-testid={`download-${seq.name}`}
+                                        >
                                             <Icon>arrow_downward</Icon>
                                         </Button>
                                         <FormControlLabel
@@ -446,10 +453,14 @@ function EditMediationPolicy(props) {
                             className={classes.radioGroup}
                             value={localSelectedPolicyFile.name}
                             onChange={handleChange}
+                            data-testid='mediation-policy-global-radios'
                         >
                             {globalMediationPolicies.map((seq) => (
                                 <div>
-                                    <Button onClick={() => handleDownload(seq.id)}>
+                                    <Button
+                                        onClick={() => handleDownload(seq.id)}
+                                        data-testid={seq.name}
+                                    >
                                         <Icon>arrow_downward</Icon>
                                     </Button>
                                     <FormControlLabel
@@ -474,7 +485,7 @@ function EditMediationPolicy(props) {
                 </DialogContent>
             )}
             <DialogActions>
-                <Button onClick={cancelEditing} color='primary'>
+                <Button onClick={cancelEditing} color='primary' data-testid='cancel-seq'>
                     <FormattedMessage
                         id='Apis.Details.MediationPolicies.Edit.EditMediationPolicy.cancel.btn'
                         defaultMessage='Cancel'
@@ -485,6 +496,7 @@ function EditMediationPolicy(props) {
                     color='primary'
                     variant='contained'
                     disabled={provideBy === 'custom' && seqCustom && seqCustom.length === 0}
+                    data-testid='select-mediator-from-list'
                 >
                     <FormattedMessage
                         id='Apis.Details.MediationPolicies.Edit.EditMediationPolicy.select.btn'

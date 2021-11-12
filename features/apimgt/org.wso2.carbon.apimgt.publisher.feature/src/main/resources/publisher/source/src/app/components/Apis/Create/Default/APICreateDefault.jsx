@@ -322,6 +322,8 @@ function APICreateDefault(props) {
                     <Grid container direction='row' justify='flex-start' alignItems='center' spacing={2}>
                         <Grid item>
                             <Button
+                                id='itest-create-default-api-button'
+                                data-testid='itest-create-default-api-button'
                                 variant='contained'
                                 color='primary'
                                 disabled={isAPICreateDisabled || !apiInputs.isFormValid}

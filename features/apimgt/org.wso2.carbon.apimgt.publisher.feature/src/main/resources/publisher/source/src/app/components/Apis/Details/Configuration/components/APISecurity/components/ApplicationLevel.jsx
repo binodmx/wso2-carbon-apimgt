@@ -117,7 +117,10 @@ export default function ApplicationLevel(props) {
         <>
             <Grid item xs={12}>
                 <ExpansionPanel className={classes.expansionPanel}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        data-testid='application-level-security-head'
+                    >
                         <Typography className={classes.subHeading} variant='h6' component='h4'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Components.APISecurity.Components.
@@ -173,6 +176,7 @@ export default function ApplicationLevel(props) {
                                         })}
                                         value={API_SECURITY_BASIC_AUTH}
                                         color='primary'
+                                        data-testid='api-security-basic-auth-checkbox'
                                     />
                                 )}
                                 label='Basic'
@@ -188,6 +192,7 @@ export default function ApplicationLevel(props) {
                                         })}
                                         value={API_SECURITY_API_KEY}
                                         color='primary'
+                                        data-testid='api-security-api-key-checkbox'
                                     />
                                 )}
                                 label='Api Key'

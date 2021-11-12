@@ -204,6 +204,7 @@ function NewEndpointCreate(props) {
                                                                     value={option.type}
                                                                     control={<Radio color='primary' />}
                                                                     label={option.name}
+                                                                    data-testid={option.name}
                                                                 />
                                                             );
                                                         }))}
@@ -218,6 +219,7 @@ function NewEndpointCreate(props) {
                                         color='primary'
                                         className={classes.button}
                                         onClick={() => generateEndpointConfig(type.type, endpointImplType)}
+                                        data-testid={`${type.name.replace(/[^A-Z0-9]/ig, '_').toLowerCase()}-start`}
                                     >
                                         <FormattedMessage
                                             id='Apis.Details.Endpoints.NewEndpointCreate.create.button'

@@ -41,7 +41,12 @@ const APICreateMenu = (props) => {
     const createTypes = (
         <List>
             <ListItem>
-                <Link id='itest-id-createdefault' to='/apis/create/rest' className={classes.links}>
+                <Link
+                    data-testid='itest-id-createdefault'
+                    id='itest-id-createdefault'
+                    to='/apis/create/rest'
+                    className={classes.links}
+                >
                     <ListItemText
                         primary={(
                             <FormattedMessage
@@ -60,7 +65,11 @@ const APICreateMenu = (props) => {
             </ListItem>
             <Divider />
             <ListItem>
-                <Link to='/apis/create/openapi' className={classes.links}>
+                <Link
+                    to='/apis/create/openapi'
+                    data-testid='create-api-open-api'
+                    className={classes.links}
+                >
                     <ListItemText
                         primary={(
                             <FormattedMessage
@@ -79,7 +88,11 @@ const APICreateMenu = (props) => {
             </ListItem>
             <Divider />
             <ListItem>
-                <Link to='/apis/create/wsdl' className={classes.links}>
+                <Link
+                    data-testid='create-api-wsdl'
+                    to='/apis/create/wsdl'
+                    className={classes.links}
+                >
                     <ListItemText
                         primary={(
                             <FormattedMessage
@@ -98,7 +111,11 @@ const APICreateMenu = (props) => {
             </ListItem>
             <Divider />
             <ListItem>
-                <Link to='/apis/create/graphQL' className={classes.links}>
+                <Link
+                    data-testid='create-api-graphql'
+                    to='/apis/create/graphQL'
+                    className={classes.links}
+                >
                     <ListItemText
                         primary={(
                             <FormattedMessage
@@ -117,7 +134,11 @@ const APICreateMenu = (props) => {
             </ListItem>
             <Divider />
             <ListItem>
-                <Link to='/apis/create/ws' className={classes.links}>
+                <Link
+                    data-testid='create-api-websocket'
+                    to='/apis/create/ws'
+                    className={classes.links}
+                >
                     <ListItemText
                         primary={(
                             <FormattedMessage

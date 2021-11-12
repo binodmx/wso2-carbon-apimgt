@@ -437,6 +437,7 @@ function Endpoints(props) {
                                         variant='contained'
                                         color='primary'
                                         onClick={() => saveAPI()}
+                                        data-testid={!isUpdating && 'endpoint-save-btn'}
                                     >
                                         <FormattedMessage
                                             id='Apis.Details.Endpoints.Endpoints.save'

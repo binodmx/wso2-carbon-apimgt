@@ -855,6 +855,7 @@
   "Apis.Details.Subscriptions.SubscriptionPoliciesManage.sub.heading": "Attach business plans to API",
   "Apis.Details.Subscriptions.Subscriptions.cancel": "Cancel",
   "Apis.Details.Subscriptions.Subscriptions.save": "Save",
+  "Apis.Details.Subscriptions.Subscriptions.saving": "Saving",
   "Apis.Details.Subscriptions.SubscriptionsTable.active.subs.state": "Active",
   "Apis.Details.Subscriptions.SubscriptionsTable.blocked.production.only.subs.state": "Blocked Production Only",
   "Apis.Details.Subscriptions.SubscriptionsTable.blocked.subs.state": "Blocked",

@@ -362,7 +362,10 @@ class InfoBar extends React.Component {
                 <div className={classes.root}>
                     <Grid item xs={10}>
                         <div style={{ marginLeft: theme.spacing(1) }}>
-                            <Link to={'/applications/' + applicationId + '/overview'} className={classes.linkTitle}>
+                            <Link
+                                to={'/applications/' + applicationId + '/overview'}
+                                className={classes.linkTitle}
+                                data-testid='application-title'>
                                 <Typography variant='h4'>{application.name}</Typography>
                             </Link>
                         </div>
@@ -388,12 +391,11 @@ class InfoBar extends React.Component {
                                         style={{ padding: '4px' }}
                                         color='default'
                                         classes={{ label: classes.iconButton }}
-                                        aria-label={(
-                                            <FormattedMessage
+                                        aria-label={<FormattedMessage
                                                 id='Applications.Details.InfoBar.edit'
                                                 defaultMessage='Edit'
-                                            />
-                                        )}
+                                            />}
+                                        data-testid='edit-application'
                                     >
                                         <Icon>edit</Icon>
                                         <Typography variant='caption' style={{ marginTop: '2px' }} >
@@ -418,6 +420,7 @@ class InfoBar extends React.Component {
                                         defaultMessage='Delete'
                                     />
                                 )}
+                                data-testid='delete-application'
                             >
                                 <Icon>delete</Icon>
                                 <Typography variant='caption' style={{ marginTop: '2px' }} >

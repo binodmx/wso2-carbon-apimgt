@@ -136,7 +136,10 @@ export default function ProvideGraphQL(props) {
                 <Grid item md={11}>
                     {apiInputs.inputValue ? (
                         <List>
-                            <ListItem key={apiInputs.inputValue.path}>
+                            <ListItem
+                                key={apiInputs.inputValue.path}
+                                data-testid='uploaded-list-graphql'
+                            >
                                 <ListItemAvatar>
                                     <Avatar>
                                         <InsertDriveFile />
@@ -177,6 +180,7 @@ export default function ProvideGraphQL(props) {
                                     <Button
                                         color='primary'
                                         variant='contained'
+                                        data-testid='browse-to-upload-btn'
                                     >
                                         <FormattedMessage
                                             id='Apis.Create.GraphQL.Steps.ProvideGraphQL.Input.file.upload'

@@ -176,7 +176,10 @@ function TransportLevel(props) {
         <>
             <Grid item xs={12}>
                 <ExpansionPanel className={classes.expansionPanel}>
-                    <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <ExpansionPanelSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        data-testid='transport-level-security-head'
+                    >
                         <Typography className={classes.subHeading} variant='h6' component='h4'>
                             <FormattedMessage
                                 id='Apis.Details.Configuration.Components.APISecurity.Components.
@@ -201,6 +204,7 @@ function TransportLevel(props) {
                                 />
                             )}
                             label='Mutual SSL'
+                            data-testid='mutual-ssl-checkbox'
                         />
                         {isMutualSSLEnabled && (
                             <FormControl component='fieldset'>

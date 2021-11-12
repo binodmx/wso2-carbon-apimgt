@@ -171,6 +171,7 @@ function Operation(props) {
                     expandIcon={<ExpandMoreIcon />}
                     id={verb + target}
                     classes={{ content: classes.contentNoMargin }}
+                    data-testid={`operation-${target}-${verb && verb.toLowerCase()}`}
                 >
                     <Grid container direction='row' justify='space-between' alignItems='center' spacing={0}>
                         <Grid item md={4} style={{ display: 'flex', alignItems: 'center' }}>

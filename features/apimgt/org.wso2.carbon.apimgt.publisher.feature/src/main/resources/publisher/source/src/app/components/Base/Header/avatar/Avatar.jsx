@@ -94,6 +94,7 @@ class Avatar extends Component {
             <>
                 <IconButton
                     id='profile-menu-btn'
+                    data-testid='logout-menu-dropdown'
                     aria-owns='logout-menu'
                     aria-haspopup='true'
                     color='inherit'
@@ -125,7 +126,7 @@ class Avatar extends Component {
                     className={classes.profileMenu}
                 >
                     <Link to={{ pathname: '/services/logout' }}>
-                        <MenuItem onClick={this.doOIDCLogout} id='logout'>
+                        <MenuItem onClick={this.doOIDCLogout} id='logout' data-testid='logout-menu-item'>
                             <FormattedMessage
                                 id='Base.Header.avatar.Avatar.logout'
                                 defaultMessage='Logout'

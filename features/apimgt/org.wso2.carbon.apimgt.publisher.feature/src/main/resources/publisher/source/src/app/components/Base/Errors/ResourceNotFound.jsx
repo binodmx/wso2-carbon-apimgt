@@ -61,7 +61,7 @@ const ResourceNotFound = (props) => {
                                                 />
                                             </Typography>
                                         </Box>
-                                        <Link to='/apis/' style={{ marginRight: 8 }}>
+                                        <Link to='/apis/' style={{ marginRight: 8 }} data-testid='apis-link'>
                                             <Button variant='contained' color='primary'>
                                                 <FormattedMessage
                                                     id='Base.Errors.ResourceNotFound.api.list'
@@ -69,7 +69,7 @@ const ResourceNotFound = (props) => {
                                                 />
                                             </Button>
                                         </Link>
-                                        <Link to='/api-products/'>
+                                        <Link to='/api-products/' data-testid='api-products-link'>
                                             <Button variant='contained' color='primary'>
                                                 <FormattedMessage
                                                     id='Base.Errors.ResourceNotFound.api.product.list'

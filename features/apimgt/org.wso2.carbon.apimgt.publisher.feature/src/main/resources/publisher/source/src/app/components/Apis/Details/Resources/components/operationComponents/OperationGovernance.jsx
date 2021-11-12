@@ -112,11 +112,15 @@ export default function OperationGovernance(props) {
             <Grid item md={1} />
             <Grid item md={5}>
                 <TextField
+                    data-testid={`${target}-${verb}-operation-rate-limiting-policy`}
+                    id='operation_rate_limiting_policy'
                     select
                     fullWidth={!isOperationRateLimiting}
                     SelectProps={{
                         autoWidth: true,
                         IconComponent: isOperationRateLimiting ? ArrowDropDownIcon : 'span',
+                        classes: { select: 'selected' },
+
                     }}
                     disabled={disableUpdate || !isOperationRateLimiting}
                     label={
@@ -195,7 +199,11 @@ export default function OperationGovernance(props) {
                     variant='outlined'
                 >
                     {operationRateLimits.map((rateLimit) => (
-                        <MenuItem key={rateLimit.name} value={rateLimit.name}>
+                        <MenuItem
+                            key={rateLimit.name}
+                            value={rateLimit.name}
+                            data-testid={`${target}-${verb}-operation-rate-limiting-policy-${rateLimit.name}`}
+                        >
                             {rateLimit.displayName}
                         </MenuItem>
                     ))}
@@ -207,9 +215,11 @@ export default function OperationGovernance(props) {
                 { operation['x-auth-type'] && operation['x-auth-type'].toLowerCase() !== 'none' ? (
                     <TextField
                         select
+                        data-testid={`${target}-${verb}-operation-scope-select`}
                         SelectProps={{
                             multiple: true,
                             renderValue: (selected) => (Array.isArray(selected) ? selected.join(', ') : selected),
+                            classes: { select: 'selected' },
                         }}
                         disabled={disableUpdate}
                         fullWidth
@@ -249,6 +259,7 @@ export default function OperationGovernance(props) {
                                 key={apiScope.scope.name}
                                 value={apiScope.scope.name}
                                 dense
+                                data-testid={`${target}-${verb}-operation-scope-${apiScope.scope.name}`}
                             >
                                 <Checkbox checked={operationScopes.includes(apiScope.scope.name)} color='primary' />
                                 {apiScope.scope.name}
@@ -279,6 +290,7 @@ export default function OperationGovernance(props) {
                                 key={sharedScope.scope.name}
                                 value={sharedScope.scope.name}
                                 dense
+                                data-testid={`${target}-${verb}-operation-scope-${sharedScope.scope.name}`}
                             >
                                 <Checkbox checked={operationScopes.includes(sharedScope.scope.name)} color='primary' />
                                 {sharedScope.scope.name}

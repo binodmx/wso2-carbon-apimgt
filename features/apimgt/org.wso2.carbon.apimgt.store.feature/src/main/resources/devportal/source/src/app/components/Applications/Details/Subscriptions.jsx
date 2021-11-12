@@ -401,6 +401,7 @@ class Subscriptions extends React.Component {
                             className={classes.buttonElm}
                             size='small'
                             onClick={this.handleOpenDialog}
+                            data-testid='subscribe-api-btn'
                         >
                             <Icon>add_circle_outline</Icon>
                             <FormattedMessage
@@ -435,7 +436,7 @@ class Subscriptions extends React.Component {
                                             {subscriptionsNotFound ? (
                                                 <ResourceNotFound />
                                             ) : (
-                                                    <Table className={classes.subsTable}>
+                                                    <Table className={classes.subsTable} data-testid='subscriptions-table'>
                                                         <TableHead>
                                                             <TableRow>
                                                                 <TableCell className={classes.firstCell}>
@@ -537,11 +538,11 @@ class Subscriptions extends React.Component {
 
                             </Box>
 
-                            <IconButton aria-label='close' className={classes.closeButton} onClick={this.handleOpenDialog}>
+                            <IconButton aria-label='close' className={classes.closeButton} onClick={this.handleOpenDialog} data-testid='close-btn'>
                                 <Icon>cancel</Icon>
                             </IconButton>
                         </MuiDialogTitle>
-                        <Box padding={2}>
+                        <Box padding={2} data-testid='subscribe-to-api-table'>
                             <APIList
                                 apisNotFound={apisNotFound}
                                 subscriptions={subscriptions}

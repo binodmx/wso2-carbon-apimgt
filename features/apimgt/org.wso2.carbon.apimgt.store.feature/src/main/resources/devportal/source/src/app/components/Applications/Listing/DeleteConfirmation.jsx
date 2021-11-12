@@ -34,6 +34,7 @@ const DeleteConfirmation = (props) => {
                     variant='outlined'
                     color='primary'
                     onClick={handleAppDelete}
+                    data-testid='application-delete-confirm-btn'
                 >
                     <FormattedMessage
                         id='Applications.Listing.DeleteConfirmation.dialog,delete'

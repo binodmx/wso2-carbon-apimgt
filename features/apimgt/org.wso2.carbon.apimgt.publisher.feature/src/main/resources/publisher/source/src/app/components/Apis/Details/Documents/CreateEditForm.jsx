@@ -400,6 +400,7 @@ class CreateEditForm extends React.Component {
                     <TextField
                         fullWidth
                         id='doc-name'
+                        data-testid='doc-name-textbox'
                         InputProps={{
                             onBlur: ({ target: { value } }) => {
                                 this.validate('name', value);
@@ -430,6 +431,7 @@ class CreateEditForm extends React.Component {
                     <TextField
                         fullWidth
                         id='doc-summery'
+                        data-testid='doc-summery-textbox'
                         multiline
                         InputProps={{
                             onBlur: ({ target: { value } }) => {

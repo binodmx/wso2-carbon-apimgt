@@ -292,6 +292,7 @@ class Scopes extends React.Component {
                             </Typography>
                             <div className={classes.actions}>
                                 <Button
+                                    data-testid='create-scope-start-btn'
                                     variant='contained'
                                     color='primary'
                                     className={classes.button}
@@ -312,7 +313,7 @@ class Scopes extends React.Component {
         }
 
         return (
-            <div className={classes.heading}>
+            <div className={classes.heading} data-testid='scope-list-table'>
                 <div className={classes.titleWrapper}>
                     <Typography variant='h4' component='h2' align='left' className={classes.mainTitle}>
                         <FormattedMessage

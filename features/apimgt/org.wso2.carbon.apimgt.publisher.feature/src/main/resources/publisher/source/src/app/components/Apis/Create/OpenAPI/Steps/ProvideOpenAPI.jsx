@@ -172,7 +172,7 @@ export default function ProvideOpenAPI(props) {
         } else {
             urlStateEndAdornment = (
                 <InputAdornment position='end'>
-                    <CheckIcon fontSize='large' color='primary' />
+                    <CheckIcon fontSize='large' color='primary' data-testid='url-validated' />
                 </InputAdornment>
             );
         }
@@ -202,11 +202,13 @@ export default function ProvideOpenAPI(props) {
                                 value={ProvideOpenAPI.INPUT_TYPES.URL}
                                 control={<Radio color='primary' />}
                                 label='OpenAPI URL'
+                                data-testid='open-api-url-select-radio'
                             />
                             <FormControlLabel
                                 value={ProvideOpenAPI.INPUT_TYPES.FILE}
                                 control={<Radio color='primary' />}
                                 label='OpenAPI File/Archive'
+                                data-testid='open-api-file-select-radio'
                             />
                         </RadioGroup>
                     </FormControl>
@@ -271,6 +273,7 @@ export default function ProvideOpenAPI(props) {
                                             <Button
                                                 color='primary'
                                                 variant='contained'
+                                                data-testid='browse-to-upload-btn'
                                             >
                                                 <FormattedMessage
                                                     id='Apis.Create.OpenAPI.Steps.ProvideOpenAPI.Input.file.upload'
@@ -286,6 +289,7 @@ export default function ProvideOpenAPI(props) {
                         <TextField
                             autoFocus
                             id='outlined-full-width'
+                            data-testid='swagger-url-endpoint'
                             label='OpenAPI URL'
                             placeholder='Enter OpenAPI URL'
                             fullWidth

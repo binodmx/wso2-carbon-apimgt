@@ -334,6 +334,7 @@ function EndpointSecurity(props) {
         <Grid container direction='row' spacing={2}>
             <Grid item xs={6}>
                 <TextField
+                    data-testid='auth-type-select'
                     disabled={isRestricted(['apim:api_create'], api)}
                     fullWidth
                     select
@@ -352,7 +353,7 @@ function EndpointSecurity(props) {
                     onBlur={() => validateAndUpdateSecurityInfo(isProduction)}
                 >
                     {authTypes.map((type) => (
-                        <MenuItem value={type.key}>{type.value}</MenuItem>
+                        <MenuItem value={type.key} data-testid={`auth-type-${type.key}`}>{type.value}</MenuItem>
                     ))}
                 </TextField>
             </Grid>
@@ -779,6 +780,7 @@ function EndpointSecurity(props) {
                                 && endpointSecurityInfo.grantType !== 'CLIENT_CREDENTIALS'
                                 && (!isUsernameUpdated && !isPasswordUpdated))
                                 || (isUsernameUpdated && !isPasswordUpdated)}
+                    data-testid='endpoint-security-submit-btn'
                 >
                     <FormattedMessage
                         id='Apis.Details.Endpoints.GeneralConfiguration.EndpointSecurityConfig.config.save.button'

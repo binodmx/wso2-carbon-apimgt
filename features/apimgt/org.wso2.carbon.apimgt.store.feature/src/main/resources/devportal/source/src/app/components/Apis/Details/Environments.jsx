@@ -613,6 +613,7 @@ class Environments extends React.Component {
                                             <Button
                                                 size='small'
                                                 onClick={() => this.downloadSwagger(api.id, endpoint.environmentName)}
+                                                data-testid='swagger-download-btn'
                                             >
                                                 <CloudDownloadRounded className={classes.buttonIcon} />
                                                 <FormattedMessage

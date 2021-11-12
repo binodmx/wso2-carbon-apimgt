@@ -229,6 +229,7 @@ class APICardView extends React.Component {
                     customBodyRender: (value, tableMeta, updateValue) => {
                         if (tableMeta.rowData) {
                             const apiId = tableMeta.rowData[0];
+                            const apiName = tableMeta.rowData[1];
                             const policies = value;
                             if (!policies) {
                                 return (intl.formatMessage({
@@ -243,6 +244,7 @@ class APICardView extends React.Component {
                                     apiId={apiId}
                                     handleSubscribe={(app, api, policy) => handleSubscribe(app, api, policy)}
                                     applicationId={applicationId}
+                                    apiName={apiName}
                                 />
                             );
                         }

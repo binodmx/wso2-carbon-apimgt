@@ -152,22 +152,23 @@ const apiKeyRestrictions = (props) => {
             value={restrictSchema}
             row
             onChange={onRestrictSchemaChange}
+            data-testid='api-key-restrictions'
           >
             <FormControlLabel
               value="none"
-              control={<Radio color="primary" />}
+              control={<Radio color="primary" data-testid='api-key-restriction-none' />}
               label="None"
               labelPlacement="end"
             />
             <FormControlLabel
               value="ip"
-              control={<Radio color="primary" />}
+              control={<Radio color="primary" data-testid='api-key-restriction-ip' />}
               label="IP Addresses"
               labelPlacement="end"
             />
             <FormControlLabel
               value="referer"
-              control={<Radio color="primary" />}
+              control={<Radio color="primary" data-testid='api-key-restriction-referer' />}
               label="HTTP Referrers (Web Sites)"
               labelPlacement="end"
             />
@@ -186,6 +187,7 @@ const apiKeyRestrictions = (props) => {
               <Grid item md={10} xs={10}>
                 <TextField
                   label="IP Address"
+                  data-testid='ip-address-txt'
                   value={newIP}
                   onChange={onIpTextUpdate}
                   className={classes.inputText}
@@ -216,6 +218,7 @@ const apiKeyRestrictions = (props) => {
                     color="primary"
                     aria-label="add"
                     onClick={addIpItem}
+                    data-testid='ip-address-add-btn'
                   >
                     <AddIcon />
                   </Fab>
@@ -266,6 +269,7 @@ const apiKeyRestrictions = (props) => {
             >
               <Grid item md={10} xs={10}>
                 <TextField
+                  data-testid='referer-txt'
                   label="Referer"
                   value={newReferer}
                   onChange={onRefererTextUpdate}
@@ -296,6 +300,7 @@ const apiKeyRestrictions = (props) => {
                     color="primary"
                     aria-label="add"
                     onClick={addRefererItem}
+                    data-testid='referer-add-btn'
                   >
                     <AddIcon />
                   </Fab>

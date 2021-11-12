@@ -248,6 +248,7 @@ export default function ApiCreateOpenAPI(props) {
                                     variant='contained'
                                     color='primary'
                                     disabled={!apiInputs.isFormValid}
+                                    data-testid={apiInputs.isFormValid && 'api-create-next-btn'}
                                 >
                                     Next
                                 </Button>
@@ -258,6 +259,7 @@ export default function ApiCreateOpenAPI(props) {
                                     color='primary'
                                     disabled={!apiInputs.isFormValid || isCreating}
                                     onClick={createAPI}
+                                    data-testid={(apiInputs.isFormValid && !isCreating) && 'api-create-finish-btn'}
                                 >
                                     Create
                                     {' '}

@@ -216,6 +216,7 @@ function AddParameter(props) {
                             },
                         }}
                         error={isParameterExist}
+                        data-testid={`add-parameter-${target}-${verb}-param-type`}
                     >
                         {getParameterTypes(specVersion).map((paramType) => {
                             if ((paramType === 'body' || paramType === 'formData')
@@ -223,7 +224,11 @@ function AddParameter(props) {
                                 return null;
                             }
                             return (
-                                <MenuItem value={paramType} dense>
+                                <MenuItem
+                                    value={paramType}
+                                    dense
+                                    data-testid={`add-parameter-${target}-${verb}-${paramType}`}
+                                >
                                     {capitalizeFirstLetter(paramType)}
                                 </MenuItem>
                             );
@@ -251,6 +256,7 @@ function AddParameter(props) {
             <Grid item xs={2} md={2}>
                 <TextField
                     id={'name-' + verb + target}
+                    data-testid={`add-parameter-${target}-${verb}-param-name`}
                     label={newParameter.in === 'body'
                         ? iff(specVersion === '2.0',
                             <FormattedMessage
@@ -308,10 +314,15 @@ function AddParameter(props) {
                             },
                         }}
                         error={isParameterExist}
+                        data-testid={`add-parameter-${target}-${verb}-param-data-type`}
                     >
                         {getSupportedDataTypes(specVersion, newParameter.in).map((paramType) => {
                             return (
-                                <MenuItem value={paramType} dense>
+                                <MenuItem
+                                    value={paramType}
+                                    dense
+                                    data-testid={`add-parameter-${target}-${verb}-${paramType}`}
+                                >
                                     {capitalizeFirstLetter(paramType)}
                                 </MenuItem>
                             );
@@ -373,6 +384,7 @@ function AddParameter(props) {
                             aria-label='Add Parameter'
                             color='primary'
                             onClick={addNewParameter}
+                            data-testid={`add-parameter-${target}-${verb}-add-btn`}
                         >
                             <FormattedMessage
                                 id='Apis.Details.Resources.components.operationComponents.AddParameter.add'

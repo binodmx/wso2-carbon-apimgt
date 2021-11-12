@@ -46,7 +46,7 @@ const generateAccessTokenStep = (props) => {
         keyType: '',
     });
     const {
-        currentStep, createdApp, setCreatedToken, incrementStep, createdKeyType, intl, createdSelectedTab
+        currentStep, createdApp, setCreatedToken, incrementStep, createdKeyType, intl, createdSelectedTab, setStepStatus,
     } = props;
 
     useEffect(() => {
@@ -90,6 +90,7 @@ const generateAccessTokenStep = (props) => {
                 console.log('token generated successfully ' + response);
                 setCreatedToken(response);
                 incrementStep();
+                setStepStatus(stepStatuses.PROCEED);
             })
             .catch((error) => {
                 if (process.env.NODE_ENV !== 'production') {

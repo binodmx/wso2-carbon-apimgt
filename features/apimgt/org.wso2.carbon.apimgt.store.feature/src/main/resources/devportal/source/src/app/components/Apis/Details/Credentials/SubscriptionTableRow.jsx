@@ -17,7 +17,7 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import CustomIcon from 'AppComponents/Shared/CustomIcon';

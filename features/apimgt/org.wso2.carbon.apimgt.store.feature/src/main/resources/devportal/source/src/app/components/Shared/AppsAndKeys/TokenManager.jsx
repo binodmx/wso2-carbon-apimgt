@@ -839,6 +839,7 @@ class TokenManager extends React.Component {
                                                      className={classes.button}
                                                      onClick={key ? this.updateKeys : this.generateKeys}
                                                      disabled={hasError || (isLoading || !keymanager.enableOAuthAppCreation) || (mode && mode === 'MAPPED')}
+                                                     data-testid={!isLoading && 'generate-application-keys'}
                                                  >
                                                      {key ? 'Update' : 'Generate Keys'}
                                                      {isLoading && <CircularProgress size={20} />}

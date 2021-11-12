@@ -183,8 +183,8 @@ const subscribeToApi = (props) => {
                            options={applicationsList}
                            value={(applicationsList.length !== 0 && appSelected === '') ?
                                 applicationsList[0] : appSelected}
-                           onChange={(e, value) => handleChange('application', e, value)}
-                           getOptionLabel={(option) => option.label}
+                           onChange={(e, value) => value && handleChange('application', e, value)}
+                           getOptionLabel={(option) => option && option.label}
                            classes={{root:classes.fullWidth}}
                            renderInput={(params) => <TextField {...params} />}
                          />

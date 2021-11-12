@@ -107,7 +107,7 @@ class APIDefinition extends React.Component {
             swagger: null,
             swaggerModified: null,
             graphQL: null,
-            format: null,
+            format: 'yaml',
             convertTo: null,
             isAuditApiClicked: false,
             securityAuditProperties: [],
@@ -395,7 +395,7 @@ class APIDefinition extends React.Component {
             fileName = api.provider + '-' + api.name + '-' + api.version + '.graphql';
             isGraphQL = 1;
         } else {
-            downloadLink = 'data:text/' + format + ';charset=utf-8,' + encodeURIComponent(swagger);
+            downloadLink = 'data:text/' + format + ';charset=utf-8,' + swagger;
             fileName = 'swagger.' + format;
         }
         const editorOptions = {
@@ -452,6 +452,7 @@ class APIDefinition extends React.Component {
                             component={Link}
                             download={fileName}
                             href={downloadLink}
+                            data-testid='download-definition-btn'
                         >
                             <CloudDownloadRounded className={classes.buttonIcon} />
                             <FormattedMessage

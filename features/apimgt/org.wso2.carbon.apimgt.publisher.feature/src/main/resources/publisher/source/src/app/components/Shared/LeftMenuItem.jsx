@@ -108,6 +108,7 @@ function LeftMenuItem(props) {
 
     return (
         <Link
+            data-testid={`left-menu-item${text && text.replace(/\s/g, '')}`}
             className={classNames(
                 classes.leftLInk,
                 {

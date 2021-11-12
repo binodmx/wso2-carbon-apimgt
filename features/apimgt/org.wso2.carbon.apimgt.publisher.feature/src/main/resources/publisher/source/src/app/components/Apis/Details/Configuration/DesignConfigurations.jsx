@@ -300,6 +300,7 @@ export default function DesignConfigurations() {
                                             color='primary'
                                             className={classes.btnSpacing}
                                             onClick={handleSave}
+                                            data-testid={!isUpdating && 'design-config-save-btn'}
                                         >
                                             <FormattedMessage
                                                 id='Apis.Details.Configuration.Configuration.save'

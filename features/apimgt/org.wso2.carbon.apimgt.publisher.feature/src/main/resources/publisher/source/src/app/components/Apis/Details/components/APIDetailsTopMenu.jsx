@@ -135,7 +135,13 @@ const APIDetailsTopMenu = (props) => {
                         : `/apis/${api.id}/overview`}
                     className={classes.backLink}
                 >
-                    <Typography variant='h4' component='h1' className={classes.apiName} id={api.name}>
+                    <Typography
+                        variant='h4'
+                        component='h1'
+                        className={classes.apiName}
+                        id={api.name}
+                        data-testid='api-name-version-title'
+                    >
                         {api.name}
                         {' '}
                         {isAPIProduct ? '' : ':' + api.version}
@@ -197,6 +203,10 @@ const APIDetailsTopMenu = (props) => {
                         onClick={exportAPI}
                         onKeyDown='null'
                         className={classes.downloadApiFlex}
+                        data-testid='download-api-btn'
+                        data-download-file={`${userNameSplit.length > 0
+                            ? userNameSplit[0]
+                            : user.name}-${api.name}-${api.version}`}
                     >
                         <div>
                             <CloudDownloadRounded />

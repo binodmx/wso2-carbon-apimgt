@@ -79,6 +79,7 @@ class BusinessInformation extends React.Component {
             businessOwnerEmail,
             technicalOwner,
             technicalOwnerEmail,
+            saving: false,
         };
         this.isFormUpdated = false;
         this.isValidBusinessOwnerEmail = true;
@@ -126,7 +127,11 @@ class BusinessInformation extends React.Component {
         const businessInformation = {
             businessOwner, businessOwnerEmail, technicalOwner, technicalOwnerEmail,
         };
-        updateAPI({ businessInformation });
+        this.setState({ saving: true });
+        updateAPI({ businessInformation })
+            .finally(() => {
+                this.setState({ saving: false });
+            });
     }
 
     /**
@@ -138,7 +143,7 @@ class BusinessInformation extends React.Component {
     render() {
         const { classes, api, updateAPI } = this.props;
         const {
-            businessOwner, businessOwnerEmail, technicalOwner, technicalOwnerEmail,
+            businessOwner, businessOwnerEmail, technicalOwner, technicalOwnerEmail, saving,
         } = this.state;
 
         return (
@@ -203,6 +208,7 @@ class BusinessInformation extends React.Component {
                                     value={businessOwner}
                                     onChange={this.handleChange('businessOwner')}
                                     autoFocus
+                                    data-testid='business-owner-name'
                                 />
                                 <TextField
                                     error={!this.isValidBusinessOwnerEmail}
@@ -246,6 +252,7 @@ class BusinessInformation extends React.Component {
                                     value={businessOwnerEmail}
                                     onChange={this.handleChange('businessOwnerEmail')}
                                     variant='outlined'
+                                    data-testid='business-owner-email'
                                 />
                                 <TextField
                                     disabled={isRestricted(['apim:api_create', 'apim:api_publish'], api)}
@@ -277,6 +284,7 @@ class BusinessInformation extends React.Component {
                                     value={technicalOwner}
                                     onChange={this.handleChange('technicalOwner')}
                                     variant='outlined'
+                                    data-testid='technical-owner-name'
                                 />
                                 <TextField
                                     error={!this.isValidTechnicalOwnerEmail}
@@ -318,6 +326,7 @@ class BusinessInformation extends React.Component {
                                     value={technicalOwnerEmail}
                                     onChange={this.handleChange('technicalOwnerEmail')}
                                     variant='outlined'
+                                    data-testid='technical-owner-email'
                                 />
                             </form>
                             <div className={classes.buttonWrapper}>
@@ -338,6 +347,7 @@ class BusinessInformation extends React.Component {
                                                     isRestricted(['apim:api_create', 'apim:api_publish'], api)
                                                     || !this.isValid()
                                                 }
+                                                data-testid={!saving && 'business-info-save'}
                                             >
                                                 <FormattedMessage id='save' defaultMessage='Save' />
                                             </Button>

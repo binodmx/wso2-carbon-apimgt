@@ -55,6 +55,7 @@ export default function SaveOperations(props) {
                     onClick={saveChanges}
                     variant='contained'
                     color='primary'
+                    data-testid={!isSaving && 'resources-save-operations'}
                 >
                     Save
                     {isSaving && <CircularProgress size={24} />}

@@ -185,7 +185,7 @@ class AppsTableContent extends Component {
                                                 )
                                                 }>
                                                 <span>
-                                                <Link to={`/applications/${app.applicationId}/edit/`} className={!isAppOwner && classes.appOwner}>
+                                                <Link data-testid={`app-edit-${app.name}`} to={`/applications/${app.applicationId}/edit/`} className={!isAppOwner && classes.appOwner}>
                                                     <IconButton disabled={!isAppOwner} aria-label={'Edit Application ' + app.name}>
                                                         <Icon>
                                                             edit
@@ -219,6 +219,7 @@ class AppsTableContent extends Component {
                                                 onClick={toggleDeleteConfirmation}
                                                 color='default'
                                                 aria-label={'Delete Application ' + app.name}
+                                                data-testid={`delete-${app.name}-btn`}
                                             >
                                                 <Icon>delete</Icon>
                                             </IconButton>
