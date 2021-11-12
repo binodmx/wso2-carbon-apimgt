@@ -318,6 +318,9 @@ function TryOutController(props) {
                     keyType = selectedKeyType;
                 }
             }
+            if (!selectedApplication || (selectedApplication && selectedApplication.length === 0)) {
+                return;
+            }
             Application.get(selectedApplication)
                 .then((application) => {
                     return application.getKeys(keyType || 'PRODUCTION');
@@ -723,6 +726,7 @@ function TryOutController(props) {
                                                 className={classes.genKeyButton}
                                                 disabled={!user || (subscriptions && subscriptions.length === 0)
                                                     || (!ksGenerated && securitySchemeType === 'OAUTH')}
+                                                data-testid='gen-test-key'
                                             >
                                                 {isUpdating && (
                                                     <CircularProgress size={15} />

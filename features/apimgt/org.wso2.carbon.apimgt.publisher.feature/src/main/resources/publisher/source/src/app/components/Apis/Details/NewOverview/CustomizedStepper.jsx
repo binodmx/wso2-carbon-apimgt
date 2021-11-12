@@ -265,7 +265,7 @@ export default function CustomizedSteppers() {
                 return (
                     <Grid xs={12} display='block'>
                         <Grid xs={12}>
-                            <Typography variant='h5' component='div'>
+                            <Typography variant='h5' component='div' data-testid='published-status'>
                                 <FormattedMessage
                                     id='Apis.Details.Overview.CustomizedStepper.published'
                                     defaultMessage='Published'
@@ -346,6 +346,7 @@ export default function CustomizedSteppers() {
 
                             ) : (
                                 <Button
+                                    data-testid='publish-btn'
                                     variant='contained'
                                     color='primary'
                                     onClick={() => updateLCStateOfAPI(api.id, 'Publish')}

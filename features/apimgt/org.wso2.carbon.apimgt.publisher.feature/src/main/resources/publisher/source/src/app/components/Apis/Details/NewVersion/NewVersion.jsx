@@ -26,7 +26,7 @@ import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 import FormControl from '@material-ui/core/FormControl';
 import Tooltip from '@material-ui/core/Tooltip';
 import HelpOutline from '@material-ui/icons/HelpOutline';
@@ -144,7 +144,7 @@ class CreateNewVersion extends React.Component {
                     redirectToReferrer: true,
                     apiId: response.obj.id,
                 });
-                Alert.error(intl.formatMessage({
+                Alert.success(intl.formatMessage({
                     id: 'Apis.Details.NewVersion.NewVersion.success',
                     defaultMessage: 'Successfully created new version',
                 }) + newVersion);
@@ -334,4 +334,4 @@ CreateNewVersion.propTypes = {
     }).isRequired,
 };
 
-export default withAPI(withStyles(styles)(CreateNewVersion));
+export default withAPI(withStyles(styles)(injectIntl(CreateNewVersion)));

@@ -204,7 +204,9 @@ const APIDetailsTopMenu = (props) => {
                         onKeyDown='null'
                         className={classes.downloadApiFlex}
                         data-testid='download-api-btn'
-                        data-download-file={`admin-${api.name}-${api.version}`}
+                        data-download-file={`${userNameSplit.length > 0
+                            ? userNameSplit[0]
+                            : user.name}-${api.name}-${api.version}`}
                     >
                         <div>
                             <CloudDownloadRounded />
