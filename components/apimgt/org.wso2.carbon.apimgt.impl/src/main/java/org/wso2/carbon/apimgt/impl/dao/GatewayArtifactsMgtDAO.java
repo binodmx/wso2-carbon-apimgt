@@ -285,11 +285,11 @@ public class GatewayArtifactsMgtDAO {
      * @param tenantDomain - Tenant Domain of the API
      * @throws APIManagementException if an error occurs
      */
-    public String getGatewayAPIId(String apiName, String version, String tenantDomain)
+    public List<String> getGatewayAPIId(String apiName, String version, String tenantDomain)
             throws APIManagementException {
 
         ResultSet rs = null;
-        String apiID =  null;
+        List<String> apiIdList = new ArrayList<String>();
         try (Connection connection = GatewayArtifactsMgtDBUtil.getArtifactSynchronizerConnection();
                 PreparedStatement statement = connection.prepareStatement(SQLConstants.GET_API_ID)) {
             connection.setAutoCommit(false);
@@ -299,14 +299,14 @@ public class GatewayArtifactsMgtDAO {
             statement.setString(3, version);
             rs = statement.executeQuery();
             while (rs.next()) {
-                 apiID = rs.getString("API_ID");
+                apiIdList.add(rs.getString("API_ID"));
             }
         } catch (SQLException e) {
             handleException("Failed to get artifacts " , e);
         } finally {
             GatewayArtifactsMgtDBUtil.closeResultSet(rs);
         }
-        return apiID;
+        return apiIdList;
     }
 
     /**

@@ -23,11 +23,30 @@ public class SynapseAttributesApiServiceImpl implements SynapseAttributesApiServ
 
     @Override public Response synapseAttributesGet(String apiName, String tenantDomain, String version,
             MessageContext messageContext) {
+        List<String> apiIds = null;
         String apiId = null;
-        List<String> labels;
+        List<String> labels = null;
         try {
-            apiId = gatewayArtifactsMgtDAO.getGatewayAPIId(apiName, version, tenantDomain);
-            labels = gatewayArtifactsMgtDAO.getGatewayAPILabels(apiId);
+            /*
+             *  For some scenarios, there will be multiple api ids for same name and version. (ex: When api is
+             *  deleted and created using the same name) . We retrive lables for all these ids. labels are
+             *  only returned for published apis and not for removed apis. 
+             */
+            apiIds = gatewayArtifactsMgtDAO.getGatewayAPIId(apiName, version, tenantDomain);
+            if (debugEnabled) {
+                log.debug("API Ids for " + apiName + ":" + version + " - " + apiIds.toString());
+            }
+            for (String id : apiIds) {
+                apiId = id;
+                labels = gatewayArtifactsMgtDAO.getGatewayAPILabels(id);
+                if (debugEnabled) {
+                    log.debug("Labels - " + labels.toString());
+                }
+                if (labels != null && !labels.isEmpty()) {
+                    break;
+                }
+            }
+            
         } catch (APIManagementException e) {
             JSONObject responseObj = new JSONObject();
             responseObj.put("Message", "Error retrieving apiID and label of  " + apiName+ " from DB");
