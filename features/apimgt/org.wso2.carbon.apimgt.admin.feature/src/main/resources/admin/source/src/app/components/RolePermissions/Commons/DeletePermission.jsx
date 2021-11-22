@@ -76,6 +76,7 @@ export default function DeletePermission(props) {
                 onClick={handleClickOpen}
                 size='small'
                 variant='outlined'
+                data-testid={`${role.replace(/\s/g, '')}-delete`}
             >
                 Delete
             </Button>

@@ -177,11 +177,12 @@ function ListBase(props) {
                     sort: false,
                     customBodyRender: (value, tableMeta) => {
                         const dataRow = data[tableMeta.rowIndex];
+                        const itemName = (typeof tableMeta.rowData === 'object') ? tableMeta.rowData[0] : '';
                         if (editComponentProps && editComponentProps.routeTo) {
                             if (typeof tableMeta.rowData === 'object') {
                                 const artifactId = tableMeta.rowData[tableMeta.rowData.length - 2];
                                 return (
-                                    <>
+                                    <div data-testid={`${itemName}-actions`}>
                                         <RouterLink to={editComponentProps.routeTo + artifactId}>
                                             <IconButton color='primary' component='span'>
                                                 <EditIcon />
@@ -199,14 +200,14 @@ function ListBase(props) {
                                                 <AddedComponent rowData={tableMeta.rowData} updateList={fetchData} />
                                             );
                                         })}
-                                    </>
+                                    </div>
                                 );
                             } else {
                                 return (<div />);
                             }
                         }
                         return (
-                            <>
+                            <div data-testid={`${itemName}-actions`}>
                                 {EditComponent && (
                                     <EditComponent
                                         dataRow={dataRow}
@@ -221,7 +222,7 @@ function ListBase(props) {
                                         <AddedComponent rowData={tableMeta.rowData} updateList={fetchData} />
                                     );
                                 })}
-                            </>
+                            </div>
                         );
                     },
                     setCellProps: () => {

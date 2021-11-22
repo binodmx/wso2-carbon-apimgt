@@ -267,7 +267,7 @@ function AddEdit(props) {
                     return null;
                 })
                 .finally(() => {
-                    updateList();
+                    if (updateList) { updateList(); }
                 });
         } else {
             promisedAddCustomPolicy = restApi.addCustomPolicy(
@@ -291,7 +291,7 @@ function AddEdit(props) {
                     return null;
                 })
                 .finally(() => {
-                    updateList();
+                    if (updateList) { updateList(); }
                 });
         }
     };

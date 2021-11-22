@@ -32,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         marginBottom: theme.spacing(2),
     },
-    table: {
-        minWidth: 750,
-    },
 }));
 
 
@@ -97,7 +94,6 @@ export default function AdminTable(props) {
             <div className={classes.root}>
                 <TableContainer>
                     <Table
-                        className={classes.table}
                         aria-labelledby='tableTitle'
                         size='medium'
                         aria-label='enhanced table'
