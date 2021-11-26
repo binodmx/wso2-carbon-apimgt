@@ -434,8 +434,11 @@ public class SubscriptionDataLoaderImpl implements SubscriptionDataLoader {
         do {
             try {
                 httpResponse = httpClient.execute(method);
+                if (HttpStatus.SC_OK != httpResponse.getStatusLine().getStatusCode()) {
+                    throw new DataLoadingException("Error while retrieving subscription");
+                }
                 retry = false;
-            } catch (IOException ex) {
+            } catch (IOException | DataLoadingException ex) {
                 retryCount++;
                 if (retryCount < retrievalRetries) {
                     retry = true;
