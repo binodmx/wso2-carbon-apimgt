@@ -435,6 +435,9 @@ public class SubscriptionDataLoaderImpl implements SubscriptionDataLoader {
             try {
                 httpResponse = httpClient.execute(method);
                 if (HttpStatus.SC_OK != httpResponse.getStatusLine().getStatusCode()) {
+                    log.error("Could not retrieve subscriptions for tenantDomain: " + tenantDomain
+                            + ". Received response with status code "
+                            + httpResponse.getStatusLine().getStatusCode());
                     throw new DataLoadingException("Error while retrieving subscription");
                 }
                 retry = false;
