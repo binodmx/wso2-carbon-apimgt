@@ -20,7 +20,6 @@ package org.wso2.carbon.apimgt.gateway.handlers;
 
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.axiom.soap.SOAPEnvelope;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHeaders;
@@ -152,7 +151,7 @@ public class LogsHandler extends AbstractSynapseHandler {
 
                 // Set headers to relevant header properties in messageContext
                 Map headers = LogUtils.getTransportHeaders(messageContext);
-                if (StringUtils.isNotBlank((CharSequence) headers)) {
+                if (headers != null) {
                     String authHeader = LogUtils.getAuthorizationHeader(headers);
                     String orgIdHeader = LogUtils.getOrganizationIdHeader(headers);
                     String srcIdHeader = LogUtils.getSourceIdHeader(headers);
@@ -333,7 +332,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                 .getAxis2MessageContext();
         Map headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
         String contentLength = null;
-        if (StringUtils.isNotBlank((CharSequence) headers)) {
+        if (headers != null) {
             contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
         }
         if (contentLength != null) {
