@@ -30,8 +30,10 @@ import org.wso2.carbon.apimgt.api.model.Application;
 import org.wso2.carbon.apimgt.api.model.SubscribedAPI;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.APIInfoDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.ApplicationInfoDTO;
+import org.wso2.carbon.apimgt.rest.api.store.v1.dto.PaginationDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.SubscriptionDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.SubscriptionListDTO;
+import org.wso2.carbon.apimgt.rest.api.util.RestApiConstants;
 import org.wso2.carbon.apimgt.rest.api.util.utils.RestApiUtil;
 import org.wso2.carbon.apimgt.rest.api.util.RestApiConstants;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.PaginationDTO;
@@ -124,8 +126,8 @@ public class SubscriptionMappingUtil {
      * @param offset              starting index
      * @param size                max offset
      */
-    public static void setPaginationParams(SubscriptionListDTO subscriptionListDTO, String apiId,
-                                           String groupId, int limit, int offset, int size) {
+    public static void setPaginationParams(SubscriptionListDTO subscriptionListDTO, String apiId,  String applicationId,
+            String groupId, int limit, int offset, int size) {
 
         String paginatedPrevious = "";
         String paginatedNext = "";
@@ -133,16 +135,29 @@ public class SubscriptionMappingUtil {
         Map<String, Integer> paginatedParams = RestApiUtil.getPaginationParams(offset, limit, size);
 
         if (paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_OFFSET) != null) {
-            paginatedPrevious = RestApiUtil
-                    .getSubscriptionPaginatedURLForAPIId(
-                            paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_OFFSET),
-                            paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_LIMIT), apiId, groupId);
+            if (apiId != null) {
+                paginatedPrevious = RestApiUtil
+                        .getSubscriptionPaginatedURLForAPIId(
+                                paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_OFFSET),
+                                paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_LIMIT), apiId, groupId);
+            } else {
+                paginatedPrevious = RestApiUtil
+                        .getSubscriptionPaginatedURLForApplicationId(
+                                paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_OFFSET),
+                                paginatedParams.get(RestApiConstants.PAGINATION_PREVIOUS_LIMIT), applicationId);
+            }
         }
 
         if (paginatedParams.get(RestApiConstants.PAGINATION_NEXT_OFFSET) != null) {
-            paginatedNext = RestApiUtil
-                    .getSubscriptionPaginatedURLForAPIId(paginatedParams.get(RestApiConstants.PAGINATION_NEXT_OFFSET),
-                            paginatedParams.get(RestApiConstants.PAGINATION_NEXT_LIMIT), apiId, groupId);
+            if (apiId != null) {
+                paginatedNext = RestApiUtil
+                        .getSubscriptionPaginatedURLForAPIId(paginatedParams.get(RestApiConstants.PAGINATION_NEXT_OFFSET),
+                                paginatedParams.get(RestApiConstants.PAGINATION_NEXT_LIMIT), apiId, groupId);
+            } else {
+                paginatedNext = RestApiUtil
+                        .getSubscriptionPaginatedURLForApplicationId(paginatedParams.get(RestApiConstants.PAGINATION_NEXT_OFFSET),
+                                paginatedParams.get(RestApiConstants.PAGINATION_NEXT_LIMIT), applicationId);
+            }
         }
 
         PaginationDTO pagination = new PaginationDTO();
