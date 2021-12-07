@@ -69,9 +69,9 @@
         "react-syntax-highlighter": "^15.4.4",
         "react-tagcloud": "^1.4.0",
         "react-tap-event-plugin": "^2.0.1",
-        "sanitize-html": "^2.5.1",
         "remark-gfm": "^3.0.0",
-        "swagger-client": "^3.10.0",
+        "sanitize-html": "^2.5.1",
+        "swagger-client": "^3.17.0",
         "swagger-ui-react": "^3.25.0"
     },
     "devDependencies": {
