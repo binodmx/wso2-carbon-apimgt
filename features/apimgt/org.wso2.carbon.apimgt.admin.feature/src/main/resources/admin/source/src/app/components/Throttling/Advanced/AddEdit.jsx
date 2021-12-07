@@ -125,20 +125,22 @@ function AddEdit(props) {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        const restApi = new API();
-        restApi
-            .getThrottlingPoliciesAdvancedPolicyId(id)
-            .then((result) => {
-                const { body } = result;
-                return body;
-            })
-            .then((data) => {
-                dispatch({ field: 'all', value: data });
-            })
-            .catch((error) => {
-                throw error;
-            });
-    }, []);
+        if (id) {
+            const restApi = new API();
+            restApi
+                .getThrottlingPoliciesAdvancedPolicyId(id)
+                .then((result) => {
+                    const { body } = result;
+                    return body;
+                })
+                .then((data) => {
+                    dispatch({ field: 'all', value: data });
+                })
+                .catch((error) => {
+                    throw error;
+                });
+        }
+    }, [id]);
 
     const onChange = (e) => {
         dispatch({ field: e.target.name, value: e.target.value });
@@ -255,7 +257,7 @@ function AddEdit(props) {
             history.push('/throttling/advanced/');
         }).catch((e) => {
             Alert.error(e);
-        }).finaly(() => {
+        }).finally(() => {
             setSaving(false);
         });
         return true;
