@@ -242,6 +242,7 @@ public class APIClientGenerationManager {
         codegenConfigurator.setInputSpec(specLocation);
         codegenConfigurator.setGeneratorName(sdkLanguage);
         codegenConfigurator.setOutputDir(temporaryOutputPath);
+        codegenConfigurator.setValidateSpec(false);
         final ClientOptInput clientOptInput = codegenConfigurator.toClientOptInput();
         new DefaultGenerator().opts(clientOptInput).generate();
 
