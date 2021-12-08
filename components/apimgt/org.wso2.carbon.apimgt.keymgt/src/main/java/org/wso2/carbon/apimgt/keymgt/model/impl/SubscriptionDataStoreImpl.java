@@ -44,9 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -73,7 +75,22 @@ public class SubscriptionDataStoreImpl implements SubscriptionDataStore {
     private boolean subscriptionPoliciesInitialized;
     private boolean apiPoliciesInitialized;
     private String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(LOADING_POOL_SIZE);
+
+    private ScheduledExecutorService executorService = Executors
+            .newScheduledThreadPool(LOADING_POOL_SIZE, new ThreadFactory() {
+                final AtomicInteger POOL_NUMBER = new AtomicInteger(1);
+                final AtomicInteger threadNumber = new AtomicInteger(1);
+                final SecurityManager securityManager = System.getSecurityManager();
+                final ThreadGroup group = (securityManager != null) ?
+                        securityManager.getThreadGroup() :
+                        Thread.currentThread().getThreadGroup();
+                final String namePrefix = "SubscriptionDataStore-pool-" + POOL_NUMBER.getAndIncrement() + "-thread-";
+
+                @Override public Thread newThread(Runnable r) {
+                    return new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+                }
+            });
+
     public SubscriptionDataStoreImpl(String tenantDomain) {
 
         this.tenantDomain = tenantDomain;
@@ -703,6 +720,11 @@ public class SubscriptionDataStoreImpl implements SubscriptionDataStore {
     public List<API> getAPIs() {
 
         return new ArrayList<>(apiMap.values());
+    }
+
+    @Override
+    public void destroy() {
+        executorService.shutdown();
     }
 
     @Override

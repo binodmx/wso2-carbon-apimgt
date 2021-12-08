@@ -136,6 +136,8 @@ public interface SubscriptionDataStore {
 
     API getDefaultApiByContext(String context);
 
+    void destroy();
+
     void addOrUpdateScope(Scope scope);
 
     void deleteScope(Scope scope);
