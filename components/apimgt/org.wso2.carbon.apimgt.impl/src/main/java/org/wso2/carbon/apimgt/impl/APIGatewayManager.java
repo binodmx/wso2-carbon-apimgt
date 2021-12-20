@@ -493,6 +493,22 @@ public class APIGatewayManager {
                     }
                 }
             }
+
+            // Handle migrated APIs
+            if (api.isEndpointSecured()) {
+                String secureVaultAlias =
+                        api.getId().getProviderName() + "--" + api.getId().getApiName() + api.getId().getVersion();
+
+                CredentialDto credentialDto = new CredentialDto();
+                credentialDto.setAlias(secureVaultAlias);
+                credentialDto.setPassword(api.getEndpointUTPassword());
+                gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
+                        gatewayAPIDTO.getCredentialsToBeAdd()));
+                if (debugEnabled) {
+                    log.debug("SecureVault alias " + secureVaultAlias + " is created for " + api.getId()
+                            .getApiName());
+                }
+            }
         }
     }
 
