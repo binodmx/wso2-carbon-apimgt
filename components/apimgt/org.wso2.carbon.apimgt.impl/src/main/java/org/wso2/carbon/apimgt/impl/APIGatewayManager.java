@@ -448,6 +448,21 @@ public class APIGatewayManager {
                         getAPIManagerConfiguration().getFirstProperty(APIConstants.API_SECUREVAULT_ENABLE));
 
         if (isSecureVaultEnabled) {
+            // Handle migrated APIs
+            if (api.isEndpointSecured()) {
+                String secureVaultAlias =
+                        api.getId().getProviderName() + "--" + api.getId().getApiName() + api.getId().getVersion();
+
+                CredentialDto credentialDto = new CredentialDto();
+                credentialDto.setAlias(secureVaultAlias);
+                credentialDto.setPassword(api.getEndpointUTPassword());
+                gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
+                        gatewayAPIDTO.getCredentialsToBeAdd()));
+                if (debugEnabled) {
+                    log.debug("SecureVault alias " + secureVaultAlias + " is created for " + api.getId()
+                            .getApiName());
+                }
+            }
             JSONObject endpointConfig = new JSONObject(api.getEndpointConfig());
 
             if (endpointConfig.has(APIConstants.ENDPOINT_SECURITY)) {
@@ -491,22 +506,6 @@ public class APIGatewayManager {
                         log.debug("SecureVault alias " +  secureVaultAlias + "--sandbox" + " is created for " +
                                 api.getId().getApiName());
                     }
-                }
-            }
-
-            // Handle migrated APIs
-            if (api.isEndpointSecured()) {
-                String secureVaultAlias =
-                        api.getId().getProviderName() + "--" + api.getId().getApiName() + api.getId().getVersion();
-
-                CredentialDto credentialDto = new CredentialDto();
-                credentialDto.setAlias(secureVaultAlias);
-                credentialDto.setPassword(api.getEndpointUTPassword());
-                gatewayAPIDTO.setCredentialsToBeAdd(addCredentialsToList(credentialDto,
-                        gatewayAPIDTO.getCredentialsToBeAdd()));
-                if (debugEnabled) {
-                    log.debug("SecureVault alias " + secureVaultAlias + " is created for " + api.getId()
-                            .getApiName());
                 }
             }
         }
