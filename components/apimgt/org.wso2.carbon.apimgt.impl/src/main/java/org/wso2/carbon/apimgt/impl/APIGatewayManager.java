@@ -467,14 +467,20 @@ public class APIGatewayManager {
 
             if (endpointConfig.has(APIConstants.ENDPOINT_SECURITY)) {
                 JSONObject endpoints = (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
-                JSONObject productionEndpointSecurity = (JSONObject)
-                        endpoints.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
-                JSONObject sandboxEndpointSecurity = (JSONObject) endpoints.get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
-
-                boolean isProductionEndpointSecured = (boolean)
-                        productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
-                boolean isSandboxEndpointSecured = (boolean)
-                        sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
+                JSONObject productionEndpointSecurity = null;
+                JSONObject sandboxEndpointSecurity = null;
+                boolean isProductionEndpointSecured = false;
+                boolean isSandboxEndpointSecured = false;
+                if (!endpoints.isNull(APIConstants.ENDPOINT_SECURITY_PRODUCTION)) {
+                    productionEndpointSecurity = (JSONObject) endpoints.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
+                    isProductionEndpointSecured =
+                            (boolean) productionEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
+                }
+                if (!endpoints.isNull(APIConstants.ENDPOINT_SECURITY_SANDBOX)) {
+                    sandboxEndpointSecurity = (JSONObject) endpoints.get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
+                    isSandboxEndpointSecured =
+                            (boolean) sandboxEndpointSecurity.get(APIConstants.ENDPOINT_SECURITY_ENABLED);
+                }
                 String secureVaultAlias = api.getId().getProviderName() + "--" + api.getId().getApiName() +
                         api.getId().getVersion();
                 //for production endpoints
