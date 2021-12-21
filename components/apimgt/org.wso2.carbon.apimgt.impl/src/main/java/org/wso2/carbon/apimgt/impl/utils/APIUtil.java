@@ -11012,20 +11012,42 @@ public final class APIUtil {
         try {
             endpointSecurityMap.put(APIConstants.ENDPOINT_SECURITY_PRODUCTION, new EndpointSecurity());
             endpointSecurityMap.put(APIConstants.ENDPOINT_SECURITY_SANDBOX, new EndpointSecurity());
+            String endpointConfig = api.getEndpointConfig();
             if (api.isEndpointSecured()) {
                 EndpointSecurity productionEndpointSecurity = new EndpointSecurity();
                 productionEndpointSecurity.setEnabled(true);
-                productionEndpointSecurity.setUsername(api.getEndpointUTUsername());
-                productionEndpointSecurity.setPassword(api.getEndpointUTPassword());
-                if (api.isEndpointAuthDigest()) {
-                    productionEndpointSecurity.setType(APIConstants.ENDPOINT_SECURITY_TYPE_DIGEST.toUpperCase());
+                if (api.getEndpointUTUsername() != null && api.getEndpointUTPassword() != null) {
+                    productionEndpointSecurity.setUsername(api.getEndpointUTUsername());
+                    productionEndpointSecurity.setPassword(api.getEndpointUTPassword());
+                    if (api.isEndpointAuthDigest()) {
+                        productionEndpointSecurity.setType(APIConstants.ENDPOINT_SECURITY_TYPE_DIGEST.toUpperCase());
+                    } else {
+                        productionEndpointSecurity.setType(APIConstants.ENDPOINT_SECURITY_TYPE_BASIC.toUpperCase());
+                    }
+                    endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, productionEndpointSecurity);
+                    endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX, productionEndpointSecurity);
                 } else {
-                    productionEndpointSecurity.setType(APIConstants.ENDPOINT_SECURITY_TYPE_BASIC.toUpperCase());
+                    if (endpointConfig != null) {
+                        JSONObject endpointConfigJsonObj = (JSONObject) new JSONParser().parse(endpointConfig);
+                        if (endpointConfigJsonObj.get(APIConstants.ENDPOINT_SECURITY) != null) {
+                            JSONObject endpointSecurity =
+                                    (JSONObject) endpointConfigJsonObj.get(APIConstants.ENDPOINT_SECURITY);
+                            if (endpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION) != null) {
+                                JSONObject productionEndpointSecurityObj =
+                                        (JSONObject) endpointSecurity.get(APIConstants.ENDPOINT_SECURITY_PRODUCTION);
+                                endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, new ObjectMapper()
+                                        .convertValue(productionEndpointSecurityObj, EndpointSecurity.class));
+                            }
+                            if (endpointSecurity.get(APIConstants.ENDPOINT_SECURITY_SANDBOX) != null) {
+                                JSONObject sandboxEndpointSecurityObj =
+                                        (JSONObject) endpointSecurity.get(APIConstants.ENDPOINT_SECURITY_SANDBOX);
+                                endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX, new ObjectMapper()
+                                        .convertValue(sandboxEndpointSecurityObj, EndpointSecurity.class));
+                            }
+                        }
+                    }
                 }
-                endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, productionEndpointSecurity);
-                endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX, productionEndpointSecurity);
             } else {
-                String endpointConfig = api.getEndpointConfig();
                 if (endpointConfig != null) {
                     JSONObject endpointConfigJson = (JSONObject) new JSONParser().parse(endpointConfig);
                     if (endpointConfigJson.get(APIConstants.ENDPOINT_SECURITY) != null) {
