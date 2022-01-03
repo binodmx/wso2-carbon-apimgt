@@ -296,15 +296,18 @@ public class ImportApiServiceImpl implements ImportApiService {
 
             // check whether keys need to be skipped while import
             if (skipApplicationKeys == null || !skipApplicationKeys) {
-                // if this is an update, old keys will be removed and the OAuth app will be overridden with new values
-                if (update) {
-                    if (applicationDetails.getKeys().size() > 0 && importedApplication.getKeys().size() > 0) {
-                        importedApplication.getKeys().clear();
+                List<String> availableTypes = new ArrayList<String>();
+                if (importedApplication.getKeys().size() != 0) {
+                    for (APIKey appKey : importedApplication.getKeys()) {
+                        availableTypes.add(appKey.getType());
                     }
                 }
                 // Add application keys if present and keys does not exists in the current application
-                if (applicationDetails.getKeys().size() > 0 && importedApplication.getKeys().size() == 0) {
+                if (applicationDetails.getKeys().size() > 0) {
                     for (APIKey apiKey : applicationDetails.getKeys()) {
+                        if (!availableTypes.contains(apiKey.getType())) {
+                            importExportManager.addApplicationKey(ownerId, importedApplication, apiKey, false);
+                        }
                         importExportManager.addApplicationKey(ownerId, importedApplication, apiKey, update);
                     }
                 }
