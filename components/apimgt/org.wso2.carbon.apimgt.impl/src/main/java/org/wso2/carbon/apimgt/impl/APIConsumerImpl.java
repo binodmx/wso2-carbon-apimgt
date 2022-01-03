@@ -4846,7 +4846,7 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
                 }
             }
 
-            if (apiKey == null || APIConstants.OAuthAppMode.MAPPED.name().equals(apiKey.getCreateMode())) {
+            if (apiKey != null && APIConstants.OAuthAppMode.MAPPED.name().equals(apiKey.getCreateMode())) {
                 throw new APIManagementException("Mapped applications are not allowed to update.");
             }
             //call update method.
