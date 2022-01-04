@@ -11027,6 +11027,7 @@ public final class APIUtil {
                     endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_PRODUCTION, productionEndpointSecurity);
                     endpointSecurityMap.replace(APIConstants.ENDPOINT_SECURITY_SANDBOX, productionEndpointSecurity);
                 } else {
+                    // Handle endpoint password null cases for migrated APIs
                     if (endpointConfig != null) {
                         JSONObject endpointConfigJsonObj = (JSONObject) new JSONParser().parse(endpointConfig);
                         if (endpointConfigJsonObj.get(APIConstants.ENDPOINT_SECURITY) != null) {
