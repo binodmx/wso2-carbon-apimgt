@@ -514,7 +514,6 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         APISecurityUtils.setAuthenticationContext(messageContext, authContext, securityContextHeader);
     }
 
-
     /**
      * Authenticates the given request using the authenticators which have been initialized.
      *
