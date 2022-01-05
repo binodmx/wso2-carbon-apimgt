@@ -307,8 +307,9 @@ public class ImportApiServiceImpl implements ImportApiService {
                     for (APIKey apiKey : applicationDetails.getKeys()) {
                         if (!availableTypes.contains(apiKey.getType())) {
                             importExportManager.addApplicationKey(ownerId, importedApplication, apiKey, false);
+                        } else {
+                            importExportManager.addApplicationKey(ownerId, importedApplication, apiKey, update);
                         }
-                        importExportManager.addApplicationKey(ownerId, importedApplication, apiKey, update);
                     }
                 }
             }
