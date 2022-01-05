@@ -234,6 +234,15 @@ function ProductResourcesEdit(props) {
             });
         }
     };
+    const isValidHttpVerb = (innerKey) => {
+        if (innerKey === resourceMethod.DELETE || innerKey === resourceMethod.POST
+                || innerKey === resourceMethod.GET || innerKey === resourceMethod.PUT
+                || innerKey === resourceMethod.PATCH || innerKey === resourceMethod.OPTIONS
+                || innerKey === resourceMethod.HEAD) {
+            return true;
+        }
+        return false;
+    };
     const addPropsToSelectedApiPaths = (paths, apiId, latestApiResources = apiResources) => {
         /* Add checked field to each resource object */
         Object.keys(paths).map((key) => {
@@ -241,10 +250,7 @@ function ProductResourcesEdit(props) {
             Object.keys(methodObj).map((innerKey) => {
                 // We are setting the check property at this level because we need to
                 // add resources for each verb ( post, get, put etc.. )
-                if (innerKey === resourceMethod.DELETE || innerKey === resourceMethod.POST
-                || innerKey === resourceMethod.GET || innerKey === resourceMethod.PUT
-                || innerKey === resourceMethod.PATCH || innerKey === resourceMethod.OPTIONS
-                || innerKey === resourceMethod.HEAD) {
+                if (isValidHttpVerb(innerKey)) {
                     methodObj[innerKey].checked = false;
 
                     // We need to check the latestApiResources for the same
@@ -418,6 +424,7 @@ function ProductResourcesEdit(props) {
         // Then we set state
         setSelectedApiPaths(prevSelectedApiPaths);
     };
+
     const addSelectedResourcesToTree = (addAll = false) => {
         /* Add checked field to each resource object */
         const newApiResources = cloneDeep(apiResources);
@@ -426,7 +433,7 @@ function ProductResourcesEdit(props) {
             Object.keys(methodObj).map((innerKey) => {
                 // We are setting the check property at this level because we need to
                 // add resources for each verb ( post, get, put etc.. )
-                if (methodObj[innerKey].checked || addAll) {
+                if ((methodObj[innerKey].checked || addAll) && isValidHttpVerb(innerKey)) {
                     // We need to add this to apiResources array
                     updateResourceTree(
                         {
