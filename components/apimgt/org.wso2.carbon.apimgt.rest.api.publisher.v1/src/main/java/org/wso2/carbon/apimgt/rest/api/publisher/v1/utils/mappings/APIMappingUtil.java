@@ -1935,7 +1935,7 @@ public class APIMappingUtil {
                 defaultThrottlingPolicy =
                         APIUtil.getDefaultAPILevelPolicy(APIUtil.getTenantIdFromTenantDomain(tenantDomain));
 
-                if (StringUtils.isNotEmpty(defaultThrottlingPolicy)) {
+                if (StringUtils.isEmpty(defaultThrottlingPolicy)) {
                     log.error("No throttle policies available in the tenant " + tenantDomain);
                 }
             } catch (APIManagementException e) {
