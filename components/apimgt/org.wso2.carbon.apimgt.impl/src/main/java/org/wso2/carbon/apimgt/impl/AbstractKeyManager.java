@@ -260,7 +260,7 @@ public abstract class AbstractKeyManager implements KeyManager {
     /**
      * common method to throw exceptions.
      *
-     * @param msg this parameter contain error message that we need to throw.
+     * @param msg this parameter contains error message that we need to throw.
      * @param e   Exception object.
      * @throws APIManagementException
      */
