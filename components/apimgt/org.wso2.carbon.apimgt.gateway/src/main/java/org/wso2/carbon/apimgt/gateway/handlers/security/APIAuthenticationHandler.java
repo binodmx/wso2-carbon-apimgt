@@ -183,8 +183,10 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
         if (log.isDebugEnabled()) {
             log.debug("Initializing API authentication handler instance");
         }
-        initializeAuthenticators();
-        initOAuthParams();
+        if (getApiManagerConfigurationService() != null) {
+            initializeAuthenticators();
+            initOAuthParams();
+        }
         if (StringUtils.isNotEmpty(keyManagers)) {
             Collections.addAll(keyManagersList, keyManagers.split(","));
         } else {
