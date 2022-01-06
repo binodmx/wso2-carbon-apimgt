@@ -156,7 +156,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             FullHttpRequest req = (FullHttpRequest) msg;
 
             // This block is for the health check of the ports 8099 and 9099
-            if (!req.headers().contains("Upgrade")) {
+            if (!req.headers().contains(HttpHeaders.UPGRADE)) {
                 FullHttpResponse httpResponse =
                         new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
                 httpResponse.headers().set("content-type", "text/plain; charset=UTF-8");
