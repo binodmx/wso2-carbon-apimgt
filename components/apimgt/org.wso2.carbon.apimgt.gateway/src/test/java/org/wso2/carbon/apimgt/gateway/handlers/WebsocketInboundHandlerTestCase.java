@@ -142,6 +142,7 @@ public class WebsocketInboundHandlerTestCase {
         Mockito.when(fullHttpRequest.headers()).thenReturn(headers);
         Mockito.when(headers.get(org.apache.http.HttpHeaders.AUTHORIZATION)).thenReturn(AUTHORIZATION);
         Mockito.when(headers.get(org.apache.http.HttpHeaders.USER_AGENT)).thenReturn(USER_AGENT);
+        Mockito.when(headers.contains(org.apache.http.HttpHeaders.UPGRADE)).thenReturn(true);
         Mockito.when(fullHttpRequest.headers()).thenReturn(headers);
         Mockito.when(apiManagerConfigurationService.getAPIAnalyticsConfiguration()).thenReturn(apiManagerAnalyticsConfiguration);
         Mockito.when(apiManagerConfiguration.getFirstProperty(APIConstants.TOKEN_CACHE_EXPIRY)).thenReturn("900");
@@ -197,6 +198,7 @@ public class WebsocketInboundHandlerTestCase {
         Mockito.when(fullHttpRequest.headers()).thenReturn(headers);
         Mockito.when(headers.get(org.apache.http.HttpHeaders.AUTHORIZATION)).thenReturn(AUTHORIZATION);
         Mockito.when(headers.get(org.apache.http.HttpHeaders.USER_AGENT)).thenReturn(USER_AGENT);
+        Mockito.when(headers.contains(org.apache.http.HttpHeaders.UPGRADE)).thenReturn(true);
         Mockito.when(fullHttpRequest.headers()).thenReturn(headers);
         WebsocketInboundHandler websocketInboundHandler1 = new WebsocketInboundHandler() {
             @Override

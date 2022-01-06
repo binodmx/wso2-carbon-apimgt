@@ -154,6 +154,17 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         //check if the request is a handshake
         if (msg instanceof FullHttpRequest) {
             FullHttpRequest req = (FullHttpRequest) msg;
+
+            // This block is for the health check of the ports 8099 and 9099
+            if (!req.headers().contains("Upgrade")) {
+                FullHttpResponse httpResponse =
+                        new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                httpResponse.headers().set("content-type", "text/plain; charset=UTF-8");
+                httpResponse.headers().set("content-length", httpResponse.content().readableBytes());
+                ctx.writeAndFlush(httpResponse);
+                return;
+            }
+
             uri = req.getUri();
             URI uriTemp = new URI(uri);
             apiContextUri = new URI(uriTemp.getScheme(), uriTemp.getAuthority(), uriTemp.getPath(),
