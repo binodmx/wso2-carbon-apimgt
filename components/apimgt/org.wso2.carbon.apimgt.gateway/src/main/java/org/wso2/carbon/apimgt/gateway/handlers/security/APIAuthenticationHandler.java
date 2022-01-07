@@ -327,19 +327,6 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
             isMutualSSLMandatory = true;
         }
 
-        // Retrieve authorization header name
-        if (authorizationHeader == null) {
-            try {
-                authorizationHeader = APIUtil
-                        .getOAuthConfigurationFromAPIMConfig(APIConstants.AUTHORIZATION_HEADER);
-                if (authorizationHeader == null) {
-                    authorizationHeader = HttpHeaders.AUTHORIZATION;
-                }
-            } catch (APIManagementException e) {
-                log.error("Error while reading authorization header from APIM configurations", e);
-            }
-        }
-
         // Set authenticators
         Authenticator authenticator;
         if (isMutualSSLProtected) {

@@ -78,10 +78,10 @@ import javax.cache.Cache;
 public class ApiKeyAuthenticator implements Authenticator {
 
     private static final Log log = LogFactory.getLog(ApiKeyAuthenticator.class);
-    private AbstractAPIMgtGatewayJWTGenerator apiMgtGatewayJWTGenerator;
-    private JWTConfigurationDto jwtConfigurationDto;
-    private boolean jwtGenerationEnabled;
-    private boolean isGatewayTokenCacheEnabled;
+    private AbstractAPIMgtGatewayJWTGenerator apiMgtGatewayJWTGenerator = null;
+    private JWTConfigurationDto jwtConfigurationDto = null;
+    private boolean jwtGenerationEnabled = false;
+    private boolean isGatewayTokenCacheEnabled = false;
     private static boolean gatewayApiKeyCacheInit = false;
     private static boolean gatewayApiKeyKeyCacheInit = false;
     private static boolean gatewayInvalidApiKeyCacheInit = false;
@@ -93,19 +93,12 @@ public class ApiKeyAuthenticator implements Authenticator {
     public ApiKeyAuthenticator(String authorizationHeader, String apiLevelPolicy, boolean isApiKeyMandatory) {
         this.securityParam = authorizationHeader;
         this.apiLevelPolicy = apiLevelPolicy;
-        this.isGatewayTokenCacheEnabled = GatewayUtils.isGatewayTokenCacheEnabled();
         this.isMandatory = isApiKeyMandatory;
-        this.jwtConfigurationDto =
-                ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
-        this.jwtGenerationEnabled  = jwtConfigurationDto.isEnabled();
-        this.apiMgtGatewayJWTGenerator =
-                ServiceReferenceHolder.getInstance().getApiMgtGatewayJWTGenerator()
-                        .get(jwtConfigurationDto.getGatewayJWTGeneratorImpl());
     }
 
     @Override
     public void init(SynapseEnvironment env) {
-        initParams();
+        // Nothing to do in init phase.
     }
 
     @Override
@@ -124,6 +117,19 @@ public class ApiKeyAuthenticator implements Authenticator {
             String apiKey = extractApiKey(synCtx);
             JWTTokenPayloadInfo payloadInfo = null;
 
+            if (jwtConfigurationDto == null) {
+                jwtConfigurationDto =
+                        ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
+            }
+
+            if (jwtGenerationEnabled == false) {
+                jwtGenerationEnabled = jwtConfigurationDto.isEnabled();
+            }
+
+            if (apiMgtGatewayJWTGenerator == null) {
+                apiMgtGatewayJWTGenerator = ServiceReferenceHolder.getInstance().getApiMgtGatewayJWTGenerator()
+                        .get(jwtConfigurationDto.getGatewayJWTGeneratorImpl());
+            }
             String splitToken[] = apiKey.split("\\.");
             JWSHeader decodedHeader;
             JWTClaimsSet payload = null;
@@ -200,6 +206,9 @@ public class ApiKeyAuthenticator implements Authenticator {
             boolean isVerified = false;
 
             // Validate from cache
+            if (isGatewayTokenCacheEnabled == false) {
+                isGatewayTokenCacheEnabled = GatewayUtils.isGatewayTokenCacheEnabled();
+            }
             if (isGatewayTokenCacheEnabled) {
                 String cacheToken = (String) getGatewayApiKeyCache().get(tokenIdentifier);
                 if (cacheToken != null) {
@@ -597,17 +606,10 @@ public class ApiKeyAuthenticator implements Authenticator {
         return java.util.Base64.getUrlDecoder().decode(payload.getBytes(StandardCharsets.UTF_8));
     }
 
-    protected void initParams () {
+    public String getContextHeader() {
         APIManagerConfiguration apimConf = ServiceReferenceHolder.getInstance().getAPIManagerConfiguration();
         JWTConfigurationDto jwtConfigDto = apimConf.getJwtConfigurationDto();
-        String header = jwtConfigDto.getJwtHeader();
-        if (header != null) {
-            setContextHeader(header);
-        }
-    }
-
-    public String getContextHeader() {
-        return contextHeader;
+        return jwtConfigDto.getJwtHeader();
     }
 
     public void setContextHeader(String contextHeader) {
