@@ -18,6 +18,7 @@
 
 import React from 'react';
 import Link from '@material-ui/core/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import CustomIcon from 'AppComponents/Shared/CustomIcon';
@@ -78,6 +79,7 @@ const subscriptionTableRow = (props) => {
                             to={'/applications/' + app.value}
                             id={app.label + '-MA'}
                             aria-labelledby={app.label + '-MA ' + app.label}
+                            component={RouterLink}
                         >
                             <span>
                                 <FormattedMessage
