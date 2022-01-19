@@ -62,7 +62,7 @@ public interface KeyManager {
     default OAuthApplicationInfo updateApplicationOwner(OAuthAppRequest appInfoDTO, String owner)
             throws APIManagementException {
 
-        log.warn("This is not supported");
+        log.warn("Application owner update operation is not supported");
         return null;
     }
 
