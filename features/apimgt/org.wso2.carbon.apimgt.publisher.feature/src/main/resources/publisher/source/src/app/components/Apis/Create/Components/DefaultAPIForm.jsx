@@ -99,8 +99,7 @@ function actualContext({ context, version }) {
  */
 function checkContext(value, result) {
     const contextVal = value.includes('/') ? value.toLowerCase() : '/' + value.toLowerCase();
-    if (contextVal === '/' + result.toLowerCase().slice(result.toLowerCase().lastIndexOf('/') + 1)
-     || contextVal === result.toLowerCase()) {
+    if (contextVal === result.toLowerCase()) {
         return true;
     }
     return false;
