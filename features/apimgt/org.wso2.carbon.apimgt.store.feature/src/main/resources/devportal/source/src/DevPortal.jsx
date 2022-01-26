@@ -313,7 +313,7 @@ class DevPortal extends React.Component {
     render() {
         const { settings, tenantDomain, theme, messages, language, redirecting } = this.state;
         const { app: { context } } = Settings;
-        if(redirecting) {
+        if(redirecting || !settings) {
             return (
                 <Progress />
             )
