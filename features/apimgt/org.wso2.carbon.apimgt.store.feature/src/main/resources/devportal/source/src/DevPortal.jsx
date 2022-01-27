@@ -300,6 +300,7 @@ class DevPortal extends React.Component {
         if (!sessionStorage.getItem(CONSTS.LOGINSTATUS)) {
             sessionStorage.setItem(CONSTS.LOGINSTATUS, 'check-Login-status');
             window.location = Settings.app.context + '/services/configs?loginPrompt=false';
+            this.setState( { redirecting: true});
         } else if (sessionStorage.getItem(CONSTS.LOGINSTATUS)) {
             sessionStorage.removeItem(CONSTS.LOGINSTATUS);
         }
