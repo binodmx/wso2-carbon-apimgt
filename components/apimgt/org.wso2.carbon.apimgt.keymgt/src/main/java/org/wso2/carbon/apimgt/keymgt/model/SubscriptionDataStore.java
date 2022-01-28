@@ -144,6 +144,8 @@ public interface SubscriptionDataStore {
 
     Map<String, Scope> getScopesByTenant(String tenantDomain);
 
+    Map<String,API> getAllAPIsByContextList();
+
     boolean isScopesInitialized();
 
     List<Subscription> getSubscriptionsByAPIId(int apiId);

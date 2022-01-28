@@ -1558,6 +1558,8 @@ public final class APIConstants {
     public static final String API_DATA_URL = "url";
     public static final String API_UUID = "apiUUID";
 
+    public static final String TRANSPORT_URL_IN = "TransportInURL";
+
     // mock response generation
     public static final String MOCK_GEN_POLICY_LIST = "policyList";
 

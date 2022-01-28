@@ -45,6 +45,7 @@ import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.core.axis2.Axis2Sender;
 import org.apache.synapse.rest.API;
 import org.apache.synapse.rest.RESTConstants;
+import org.apache.synapse.rest.RESTUtils;
 import org.apache.synapse.transport.nhttp.NhttpConstants;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
@@ -54,6 +55,8 @@ import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.SubscriptionDataHolder;
+import org.wso2.carbon.apimgt.keymgt.model.SubscriptionDataStore;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -63,11 +66,13 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.cache.Caching;
 import javax.security.cert.CertificateEncodingException;
@@ -568,6 +573,34 @@ public class Utils {
             return Base64.encodeBase64URLSafeString(base64EncodedString.getBytes());
         } else {
             return APIConstants.BEGIN_CERTIFICATE_STRING_SPACE.concat(new String(encoded)).concat(" ").concat(APIConstants.END_CERTIFICATE_STRING);
+        }
+    }
+
+    public static TreeMap<String, org.wso2.carbon.apimgt.keymgt.model.entity.API> getSelectedAPIList(String path,
+            String tenantDomain) {
+        TreeMap<String, org.wso2.carbon.apimgt.keymgt.model.entity.API> selectedAPIMap =
+                new TreeMap<>(new ContextLengthSorter());
+        SubscriptionDataStore tenantSubscriptionStore =
+                SubscriptionDataHolder.getInstance().getTenantSubscriptionStore(tenantDomain);
+        if (tenantSubscriptionStore != null) {
+            Map<String, org.wso2.carbon.apimgt.keymgt.model.entity.API> contextAPIMap =
+                    tenantSubscriptionStore.getAllAPIsByContextList();
+            if (contextAPIMap != null) {
+                contextAPIMap.forEach((context, api) -> {
+                    if (RESTUtils.matchApiPath(path, context)) {
+                        selectedAPIMap.put(context, api);
+                    }
+                });
+            }
+        }
+
+        return selectedAPIMap;
+    }
+    private static class ContextLengthSorter implements Comparator<String> {
+
+        @Override
+        public int compare(String o1, String o2) {
+            return o2.length() - o1.length();
         }
     }
 }
