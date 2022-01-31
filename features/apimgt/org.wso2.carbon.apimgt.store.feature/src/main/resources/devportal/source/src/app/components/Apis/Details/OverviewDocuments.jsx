@@ -127,7 +127,7 @@ function OverviewDocuments(props) {
                     Alert.error('Error occurred');
                 }
             });
-    }, []);
+    }, [apiId]);
 
     const gotoDoc = (documentId) => {
         history.push('/apis/' + apiId + '/documents/' + documentId);

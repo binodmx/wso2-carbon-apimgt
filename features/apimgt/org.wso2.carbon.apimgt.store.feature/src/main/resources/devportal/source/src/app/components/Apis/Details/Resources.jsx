@@ -98,17 +98,18 @@ class Resources extends React.Component {
         this.api = new Api();
     }
 
-    /**
-     *
-     *
-     * @memberof Resources
-     */
-    componentDidMount() {
-        const { api } = this.props;
+    componentDidUpdate(prevProps) {
+        const { api: {id} } = this.props;
+        const { api: {id: oldId}} = prevProps;
+        if ( id !== oldId) {
+            this.updateResources(id);
+        }
+    }
+    updateResources(apiId) {
         let promisedApi = null;
 
         const apiClient = new Api();
-        promisedApi = apiClient.getSwaggerByAPIId(api.id);
+        promisedApi = apiClient.getSwaggerByAPIId(apiId);
 
         promisedApi
             .then((response) => {
@@ -127,6 +128,15 @@ class Resources extends React.Component {
                     this.props.history.push({ pathname: '/login', search: params });
                 }
             });
+    }
+    /**
+     *
+     *
+     * @memberof Resources
+     */
+    componentDidMount() {
+        const { api } = this.props;
+        this.updateResources(api.id);
     }
 
     /**
