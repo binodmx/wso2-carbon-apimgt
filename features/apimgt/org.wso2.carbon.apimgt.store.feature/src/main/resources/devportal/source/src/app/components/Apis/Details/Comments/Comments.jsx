@@ -111,19 +111,37 @@ class Comments extends Component {
         this.handleExpandClick = this.handleExpandClick.bind(this);
         this.handleLoadMoreComments = this.handleLoadMoreComments.bind(this);
     }
-
+    /**
+     * Update all the comments when the newApi prop updates
+     * @memberof Comments
+     */
+    componentDidUpdate(prevProps) {
+        const { apiId, match } = this.props;
+        const { apiId: oldId } = prevProps;
+        if (apiId !== oldId) {
+            let { apiId } = this.props;
+            if (match) apiId = match.params.apiUuid;
+            this.getComments(apiId);
+        }
+    }
     /**
      * Gets all the comments for a particular API, when component mounts
      * @memberof Comments
      */
     componentDidMount() {
-        let {
-            apiId, theme, match, intl, isOverview, setCount,
-        } = this.props;
+        let { apiId, match } = this.props;
         if (match) apiId = match.params.apiUuid;
-
+        this.getComments(apiId);
+    }
+    /**
+     * Get comments for api
+     * @memberof Comments
+     */
+    getComments(apiId) {
+        const {
+            theme, isOverview, setCount,
+        } = this.props;
         const restApi = new API();
-
         restApi
             .getAllComments(apiId)
             .then((result) => {
@@ -156,7 +174,6 @@ class Comments extends Component {
                 }
             });
     }
-
     /**
      * Handles loading the previous comments
      * @memberof Comments
@@ -231,7 +248,7 @@ class Comments extends Component {
      */
     isCrossTenant(currentUser) {
         const { tenantDomain } = this.props;
-        if(!tenantDomain) {
+        if (!tenantDomain) {
             return false;
         }
         let loggedInUserDomain = null;
@@ -278,17 +295,17 @@ class Comments extends Component {
                             </div>
                         )}
                         {!showLatest && AuthManager.getUser() &&
-                        !this.isCrossTenant(AuthManager.getUser()) && (
-                            <Paper className={classes.paper}>
-                                <CommentAdd
-                                    apiId={api.id}
-                                    commentsUpdate={this.updateCommentList}
-                                    allComments={allComments}
-                                    parentCommentId={null}
-                                    cancelButton
-                                />
-                            </Paper>
-                        )}
+                            !this.isCrossTenant(AuthManager.getUser()) && (
+                                <Paper className={classes.paper}>
+                                    <CommentAdd
+                                        apiId={api.id}
+                                        commentsUpdate={this.updateCommentList}
+                                        allComments={allComments}
+                                        parentCommentId={null}
+                                        cancelButton
+                                    />
+                                </Paper>
+                            )}
                         {!allComments && (
                             <Paper className={classes.paperProgress}>
                                 <CircularProgress size={24} />

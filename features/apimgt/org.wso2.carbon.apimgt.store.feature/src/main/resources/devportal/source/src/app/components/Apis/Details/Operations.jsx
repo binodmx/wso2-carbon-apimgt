@@ -15,19 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { withStyles, withTheme } from '@material-ui/core/styles';
+import { makeStyles, withTheme } from '@material-ui/core/styles';
 import { FormattedMessage } from 'react-intl';
-import { injectIntl } from 'react-intl';
 import Table from '@material-ui/core/Table';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-
 import PropTypes from 'prop-types';
 import Chip from '@material-ui/core/Chip';
-import Api from 'AppData/api';
 
 /**
  *
@@ -49,19 +45,13 @@ function RenderMethodBase(props) {
     }
     return <Chip label={method} style={{ backgroundColor: chipColor, color: chipTextColor, height: 20 }} />;
 }
-
 RenderMethodBase.propTypes = {
     theme: PropTypes.object.isRequired,
     method: PropTypes.object.isRequired,
 };
-
 const RenderMethod = withTheme(RenderMethodBase);
-/**
- *
- *
- * @param {*} theme
- */
-const styles = {
+
+const useStyles = makeStyles(() => ({
     root: {
         display: 'flex',
         flexDirection: 'row',
@@ -71,79 +61,39 @@ const styles = {
     heading: {
         marginRight: 20,
     },
-};
-/**
- *
- *
- * @class Operations
- * @extends {React.Component}
- */
-class Operations extends React.Component {
-    /**
-     *Creates an instance of Operations.
-     * @param {*} props
-     * @memberof Operations
-     */
-    constructor(props) {
-        super(props);
-        this.state = {
-            operations: null,
-        };
-        this.api = new Api();
-    }
+}));
 
-    /**
-     *
-     *
-     * @memberof Operations
-     */
-    componentDidMount() {
-        const { api } = this.props;
-        this.setState({ operations: api.operations });
+function Operations(props) {
+    const { api: {operations} } = props;
+    if (!operations) {
+        return <div>
+            <FormattedMessage
+                id='Apis.Details.Operations.notFound'
+                defaultMessage='Operations Not Found'
+            />
+        </div>;
     }
+    const classes = useStyles();
 
-    /**
-     *
-     *
-     * @returns
-     * @memberof Operations
-     */
-    render() {
-        const { operations } = this.state;
-        if (!operations) {
-            return <div>
-                <FormattedMessage
-                    id='Apis.Details.Operations.notFound'
-                    defaultMessage='Operations Not Found'
-                />
-            </div>;
-        }
-        const { classes } = this.props;
-
-        return (
-            <Table>
-                {operations && operations.length !== 0 && operations.map(item => (
-                    <TableRow style={{ borderStyle: 'hidden' }} key={item.target + '_' + item.verb}>
-                        <TableCell>
-                            <Typography className={classes.heading} component='p' variant='body1'>
-                                {item.target}
-                            </Typography>
-                        </TableCell>
-                        <TableCell>
-                            <RenderMethod method={item.verb.toLowerCase()} />
-                        </TableCell>
-                    </TableRow>
-                ))}
-            </Table>
-        );
-    }
+    return (
+        <Table>
+            {operations && operations.length !== 0 && operations.map(item => (
+                <TableRow style={{ borderStyle: 'hidden' }} key={item.target + '_' + item.verb}>
+                    <TableCell>
+                        <Typography className={classes.heading} component='p' variant='body1'>
+                            {item.target}
+                        </Typography>
+                    </TableCell>
+                    <TableCell>
+                        <RenderMethod method={item.verb.toLowerCase()} />
+                    </TableCell>
+                </TableRow>
+            ))}
+        </Table>
+    );
 }
 Operations.propTypes = {
-    classes: PropTypes.object.isRequired,
-    intl: PropTypes.shape({
-        formatMessage: PropTypes.func,
-    }).isRequired,
-   
+    api: PropTypes.object.isRequired,
 };
 
-export default injectIntl(withStyles(styles)(Operations));
+export default Operations;
