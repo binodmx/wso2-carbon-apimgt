@@ -115,10 +115,6 @@ public class GatewayArtifactsMgtDAOTest {
                 1, APIConstants.GatewayArtifactSynchronizer.GATEWAY_INSTRUCTION_PUBLISH,
                 SQLConstants.ADD_GW_API_ARTIFACT);
         Assert.assertTrue(result);
-    }
-
-    @Test
-    public void testGetAllGatewayPublishedAPIArtifacts() throws APIManagementException {
         List<String> artifacts = gatewayArtifactsMgtDAO
                 .getAllGatewayPublishedAPIArtifacts(label, String.valueOf(MultitenantConstants.SUPER_TENANT_ID));
         Assert.assertTrue(artifacts.size() == 1);
