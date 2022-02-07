@@ -54,6 +54,7 @@ public class GraphQLProcessorTest {
 
     @Before
     public void setup() {
+        System.setProperty("carbon.home", "test");
         channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
         usageDataPublisher = Mockito.mock(APIMgtUsageDataPublisher.class);
         PowerMockito.mockStatic(PrivilegedCarbonContext.class);
