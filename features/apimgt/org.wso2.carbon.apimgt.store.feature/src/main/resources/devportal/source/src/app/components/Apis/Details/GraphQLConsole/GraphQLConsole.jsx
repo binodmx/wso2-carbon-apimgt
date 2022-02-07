@@ -231,6 +231,7 @@ export default function GraphQLConsole() {
                     sandboxApiKey={sandboxApiKey}
                     environmentObject={environmentObject}
                     api={api}
+                    URLs={URLs}
                 />
                 <Paper />
 
