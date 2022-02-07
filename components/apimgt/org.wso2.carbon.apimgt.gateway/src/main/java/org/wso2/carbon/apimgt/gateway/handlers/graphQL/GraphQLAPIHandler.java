@@ -17,7 +17,10 @@
  */
 package org.wso2.carbon.apimgt.gateway.handlers.graphQL;
 
-import graphql.language.*;
+
+import graphql.language.Definition;
+import graphql.language.Document;
+import graphql.language.OperationDefinition;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import graphql.schema.GraphQLSchema;
@@ -25,7 +28,6 @@ import graphql.schema.GraphQLType;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import graphql.schema.idl.UnExecutableSchemaGenerator;
-import graphql.validation.ValidationError;
 import graphql.validation.Validator;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
@@ -40,17 +42,21 @@ import org.apache.synapse.config.Entry;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.rest.AbstractHandler;
 import org.apache.synapse.transport.passthru.util.RelayUtils;
-import org.wso2.carbon.apimgt.api.model.URITemplate;
+import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessorUtil;
+import org.wso2.carbon.apimgt.gateway.graphQL.QueryValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.Utils;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
 import org.wso2.carbon.apimgt.impl.APIConstants;
-import org.wso2.carbon.apimgt.impl.definitions.GraphQLSchemaDefinition;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 import static org.apache.axis2.Constants.Configuration.HTTP_METHOD;
 
@@ -66,13 +72,13 @@ public class GraphQLAPIHandler extends AbstractHandler {
     private static final String CLASS_NAME_AND_METHOD = "_GraphQLAPIHandler_handleRequest";
     private static final Log log = LogFactory.getLog(GraphQLAPIHandler.class);
     private GraphQLSchema schema = null;
-    private static Validator validator;
     private String apiUUID;
-    private String schemaDefinition;
+    private static String schemaDefinition;
+    private QueryValidator queryValidator;
 
     public GraphQLAPIHandler() {
 
-        validator = new Validator();
+        queryValidator = new QueryValidator(new Validator());
     }
 
     public String getApiUUID() {
@@ -132,7 +138,8 @@ public class GraphQLAPIHandler extends AbstractHandler {
                             messageContext.setProperty(HTTP_VERB, httpVerb);
                             ((Axis2MessageContext) messageContext).getAxis2MessageContext().setProperty(HTTP_METHOD,
                                     operation.getOperation().toString());
-                            String operationList = getOperationList(messageContext, operation);
+                            String operationList = GraphQLProcessorUtil.getOperationList(operation, null,
+                                    schemaDefinition);
                             messageContext.setProperty(APIConstants.API_ELECTED_RESOURCE, operationList);
                             if (log.isDebugEnabled()) {
                                 log.debug("Operation list has been successfully added to elected property");
@@ -155,68 +162,6 @@ public class GraphQLAPIHandler extends AbstractHandler {
     }
 
     /**
-     * This method used to extract operation List
-     *
-     * @param messageContext messageContext
-     * @param operation      operation
-     * @return operationList
-     */
-    private String getOperationList(MessageContext messageContext, OperationDefinition operation) {
-        String operationList;
-        GraphQLSchemaDefinition graphql = new GraphQLSchemaDefinition();
-        ArrayList<String> operationArray = new ArrayList<>();
-
-        List<URITemplate> list = graphql.extractGraphQLOperationList(schemaDefinition,
-                operation.getOperation().toString());
-        ArrayList<String> supportedFields = getSupportedFields(list);
-
-        getNestedLevelOperations(operation.getSelectionSet().getSelections(), supportedFields, operationArray);
-        operationList = String.join(",", operationArray);
-        return operationList;
-    }
-
-    /**
-     * This method support to extracted nested level operations
-     *
-     * @param selectionList   selection List
-     * @param supportedFields supportedFields
-     * @param operationArray  operationArray
-     */
-    public void getNestedLevelOperations(List<Selection> selectionList, ArrayList<String> supportedFields,
-                                         ArrayList<String> operationArray) {
-        for (Selection selection : selectionList) {
-            if (!(selection instanceof Field)) {
-                continue;
-            }
-            Field levelField = (Field) selection;
-            if (!operationArray.contains(levelField.getName()) &&
-                    supportedFields.contains(levelField.getName())) {
-                operationArray.add(levelField.getName());
-                if (log.isDebugEnabled()) {
-                    log.debug("Extracted operation: " + levelField.getName());
-                }
-            }
-            if (levelField.getSelectionSet() != null) {
-                getNestedLevelOperations(levelField.getSelectionSet().getSelections(), supportedFields, operationArray);
-            }
-        }
-    }
-
-    /**
-     * This method helps to extract only supported operation names
-     *
-     * @param list URITemplates
-     * @return supported Fields
-     */
-    private ArrayList<String> getSupportedFields(List<URITemplate> list) {
-        ArrayList<String> supportedFields = new ArrayList<>();
-        for (URITemplate template : list) {
-            supportedFields.add(template.getUriTemplate());
-        }
-        return supportedFields;
-    }
-
-    /**
      * Support GraphQL APIs for basic,JWT  authentication, this method extract the scopes and operations from
      * local Entry and set them to properties. If the operations have scopes, scopes operation mapping and scope
      * role mappings are added to schema as additional types before adding them to local entry
@@ -225,8 +170,7 @@ public class GraphQLAPIHandler extends AbstractHandler {
      */
     private void supportForBasicAndAuthentication(MessageContext messageContext) {
         ArrayList<String> roleArrayList = new ArrayList<>();
-        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-        HashMap<String, String> operationThrottlingMappingList = new HashMap<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") HashMap<String, String> operationThrottlingMappingList = new HashMap<>();
         @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         HashMap<String, Boolean> operationAuthSchemeMappingList = new HashMap<>();
         HashMap<String, String> operationScopeMappingList = new HashMap<>();
@@ -308,8 +252,6 @@ public class GraphQLAPIHandler extends AbstractHandler {
      * @return true or false
      */
     private boolean validatePayloadWithSchema(MessageContext messageContext, Document document) {
-        ArrayList<String> validationErrorMessageList = new ArrayList<>();
-        List<ValidationError> validationErrors;
         String validationErrorMessage;
 
         synchronized (apiUUID + CLASS_NAME_AND_METHOD) {
@@ -325,15 +267,8 @@ public class GraphQLAPIHandler extends AbstractHandler {
             }
         }
 
-        validationErrors = validator.validateDocument(schema, document);
-        if (validationErrors != null && validationErrors.size() > 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Validation failed for " + document);
-            }
-            for (ValidationError error : validationErrors) {
-                validationErrorMessageList.add(error.getDescription());
-            }
-            validationErrorMessage = String.join(",", validationErrorMessageList);
+        validationErrorMessage = queryValidator.validatePayload(schema, document);
+        if (validationErrorMessage != null) {
             handleFailure(messageContext, validationErrorMessage);
             return false;
         }
@@ -384,5 +319,3 @@ public class GraphQLAPIHandler extends AbstractHandler {
         return true;
     }
 }
-
-

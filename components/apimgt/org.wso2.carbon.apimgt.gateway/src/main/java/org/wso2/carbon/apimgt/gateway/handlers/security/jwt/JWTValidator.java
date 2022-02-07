@@ -30,6 +30,7 @@ import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.MethodStats;
 import org.wso2.carbon.apimgt.gateway.dto.JWTInfoDto;
+import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APIKeyValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
@@ -39,7 +40,6 @@ import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.jwt.RevokedJWTDataHolder;
 import org.wso2.carbon.apimgt.gateway.utils.GatewayUtils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
-import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
@@ -264,16 +264,15 @@ public class JWTValidator {
      * Authenticates the given WebSocket handshake request with a JWT token to see if an API consumer is allowed to
      * access a particular API or not.
      *
-     * @param signedJWTInfo   The JWT token sent with the API request
-     * @param apiContext The context of the invoked API
-     * @param apiVersion The version of the invoked API
+     * @param signedJWTInfo SignedJWTInfo
+     * @param apiContext    API context
+     * @param apiVersion    API version
      * @return an AuthenticationContext object which contains the authentication information
      * @throws APISecurityException in case of authentication failure
      */
     @MethodStats
-    public AuthenticationContext authenticateForWebSocket(SignedJWTInfo signedJWTInfo, String apiContext,
-                                                          String apiVersion)
-            throws APISecurityException {
+    public AuthenticationContext authenticateForWSAndGraphQL(SignedJWTInfo signedJWTInfo,
+            String apiContext, String apiVersion) throws APISecurityException {
 
         String tokenSignature = signedJWTInfo.getSignedJWT().getSignature().toString();
 
@@ -286,12 +285,11 @@ public class JWTValidator {
         jwtValidationInfo = getJwtValidationInfo(signedJWTInfo, jti);
         if (RevokedJWTDataHolder.isJWTTokenSignatureExistsInRevokedMap(tokenSignature)) {
             if (log.isDebugEnabled()) {
-                log.debug("Token retrieved from the revoked jwt token map. Token: " + GatewayUtils.
-                        getMaskedToken(jwtHeader));
+                log.debug("Token retrieved from the revoked jwt token map. Token: " + GatewayUtils.getMaskedToken(
+                        jwtHeader));
             }
             log.error("Invalid JWT token. " + GatewayUtils.getMaskedToken(jwtHeader));
-            throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS,
-                    "Invalid JWT token");
+            throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS, "Invalid JWT token");
         }
 
         if (jwtValidationInfo != null && jwtValidationInfo.isValid()) {
@@ -302,21 +300,20 @@ public class JWTValidator {
                 apiVersion = apiKeyValidationInfoDTO.getApiVersion();
             }
             if (log.isDebugEnabled()) {
-                log.debug("Subscription validation via Key Manager: " + jwtValidationInfo.getKeyManager() + ". Status: " +
-                        apiKeyValidationInfoDTO.isAuthorized());
+                log.debug("Subscription validation via Key Manager: " + jwtValidationInfo.getKeyManager() + ". Status: "
+                        + apiKeyValidationInfoDTO.isAuthorized());
             }
             if (apiKeyValidationInfoDTO.isAuthorized()) {
                 log.debug("JWT authentication successful. user: " + apiKeyValidationInfoDTO.getEndUserName());
                 String endUserToken = null;
                 JWTInfoDto jwtInfoDto;
                 if (jwtGenerationEnabled) {
-                    jwtInfoDto = GatewayUtils.generateJWTInfoDto(jwtValidationInfo,
-                            apiKeyValidationInfoDTO, apiContext, apiVersion);
+                    jwtInfoDto = GatewayUtils.generateJWTInfoDto(jwtValidationInfo, apiKeyValidationInfoDTO, apiContext,
+                            apiVersion);
                     endUserToken = generateAndRetrieveJWTToken(tokenSignature, jwtInfoDto);
                 }
-                AuthenticationContext context = GatewayUtils
-                        .generateAuthenticationContext(jti, jwtValidationInfo, apiKeyValidationInfoDTO,
-                                endUserToken, true);
+                AuthenticationContext context = GatewayUtils.generateAuthenticationContext(jti, jwtValidationInfo,
+                        apiKeyValidationInfoDTO, endUserToken, true);
                 context.setApiVersion(apiVersion);
                 return context;
             } else {
@@ -325,8 +322,7 @@ public class JWTValidator {
                 throw new APISecurityException(apiKeyValidationInfoDTO.getValidationStatus(), message);
             }
         } else if (!jwtValidationInfo.isValid()) {
-            throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS,
-                    "Invalid JWT token");
+            throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS, "Invalid JWT token");
         }
         throw new APISecurityException(APISecurityConstants.API_AUTH_GENERAL_ERROR,
                 APISecurityConstants.API_AUTH_GENERAL_ERROR_MESSAGE);
@@ -518,4 +514,45 @@ public class JWTValidator {
         return CacheProvider.getGatewayJWTTokenCache();
     }
 
+    /**
+     * Validate scopes for GraphQL subscription API calls using token scopes in authentication context.
+     *
+     * @param apiContext       API Context
+     * @param apiVersion       API Version
+     * @param jwtToken         JWT Token
+     * @param matchingResource Matching resource
+     * @throws APISecurityException if an error occurs
+     */
+    public void validateScopesForGraphQLSubscriptions(String apiContext, String apiVersion, String matchingResource,
+            SignedJWTInfo jwtToken, AuthenticationContext authenticationContext) throws APISecurityException {
+
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        // Generate TokenValidationContext
+        TokenValidationContext tokenValidationContext = new TokenValidationContext();
+
+        APIKeyValidationInfoDTO apiKeyValidationInfoDTO = new APIKeyValidationInfoDTO();
+        Set<String> scopeSet = new HashSet<>();
+        scopeSet.addAll(authenticationContext.getRequestTokenScopes());
+        apiKeyValidationInfoDTO.setScopes(scopeSet);
+        tokenValidationContext.setValidationInfoDTO(apiKeyValidationInfoDTO);
+
+        tokenValidationContext.setAccessToken(jwtToken.getToken());
+        tokenValidationContext.setHttpVerb(GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME);
+        tokenValidationContext.setMatchingResource(matchingResource);
+        tokenValidationContext.setContext(apiContext);
+        tokenValidationContext.setVersion(apiVersion);
+
+        boolean valid = this.apiKeyValidator.validateScopes(tokenValidationContext, tenantDomain);
+        if (valid) {
+            if (log.isDebugEnabled()) {
+                log.debug("Scope validation successful for the resource: " + matchingResource + ", user: "
+                        + authenticationContext.getUsername());
+            }
+        } else {
+            String message =
+                    "User is NOT authorized to access the Resource: " + matchingResource + ". Scope validation failed.";
+            log.debug(message);
+            throw new APISecurityException(APISecurityConstants.INVALID_SCOPE, message);
+        }
+    }
 }

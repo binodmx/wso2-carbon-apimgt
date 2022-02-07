@@ -717,6 +717,8 @@
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="sequencesToBeRemove" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="tenantDomain" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="version" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="graphQLWSSequenceToBeAdd" nillable="true" type="ax2104:GatewayContentDTO"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="graphQLWSSequencesToBeRemove" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="GatewayContentDTO">

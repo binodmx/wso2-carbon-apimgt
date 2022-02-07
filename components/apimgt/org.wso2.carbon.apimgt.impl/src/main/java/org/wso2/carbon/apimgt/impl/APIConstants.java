@@ -1206,6 +1206,7 @@ public final class APIConstants {
     public static final String API_TYPE = "API_TYPE";
     public static final String HTTP_VERB = "HTTP_VERB";
     public static final String GRAPHQL_API = "GRAPHQL";
+    public static final String GRAPHQL_SUBSCRIPTION_REQUEST = "isGraphqlSubscriptionRequest";
     public static final String GRAPHQL_API_OPERATION_RESOURCE = "OPERATION_RESOURCE";
     public static final String GRAPHQL_API_OPERATION_TYPE = "OPERATION_TYPE";
     public static final String GRAPHQL_API_OPERATION_VERB_INFO_DTO = "OPERATION_VERB_INFO_DTO";
@@ -1590,6 +1591,7 @@ public final class APIConstants {
     public static final String ENDPOINT_SECURITY_CLIENT_ID = "clientId";
     public static final String ENDPOINT_SECURITY_CLIENT_SECRET = "clientSecret";
     public static final String ENDPOINT_SECURITY_ENABLED = "enabled";
+    public static final String ENDPOINT_TYPE_GRAPHQL = "graphql";
 
     public static final String API_ENDPOINT_CONFIG_TIMEOUT = "timeout";
     public static final String API_ENDPOINT_CONFIG_PROTOCOL_TYPE = "endpoint_type";
@@ -1610,6 +1612,13 @@ public final class APIConstants {
     public static final String HTTP_PROTOCOL_URL_PREFIX = "http://";
     public static final int HTTPS_PROTOCOL_PORT = 443;
     public static final int HTTP_PROTOCOL_PORT = 80;
+
+    public static final String WS_PROTOCOL = "ws";
+    public static final String WS_PROTOCOL_URL_PREFIX = "ws://";
+    public static final String WSS_PROTOCOL = "wss";
+    public static final String WSS_PROTOCOL_URL_PREFIX = "wss://";
+    public static final int WSS_PROTOCOL_PORT = 8099;
+    public static final int WS_PROTOCOL_PORT = 9099;
 
     public static final String EMAIL_TRANSPORT = "mailto";
 

@@ -278,6 +278,20 @@ public class APIGatewayAdminClient extends AbstractAPIGatewayAdminClient {
                 gatewayAPIDTOStub.addSequencesToBeRemove(alias);
             }
         }
+        if (gatewayAPIDTO.getGraphQLWSSequenceToBeAdd() != null) {
+            for (GatewayContentDTO sequence : gatewayAPIDTO.getGraphQLWSSequenceToBeAdd()) {
+                org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO sequenceDto =
+                        new org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO();
+                sequenceDto.setName(sequence.getName());
+                sequenceDto.setContent(sequence.getContent());
+                gatewayAPIDTOStub.addGraphQLWSSequenceToBeAdd(sequenceDto);
+            }
+        }
+        if (gatewayAPIDTO.getGraphQLWSSequencesToBeRemove() != null) {
+            for (String alias : gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()) {
+                gatewayAPIDTOStub.addGraphQLWSSequencesToBeRemove(alias);
+            }
+        }
         if (gatewayAPIDTO.getLocalEntriesToBeAdd() != null) {
             for (GatewayContentDTO localEntry : gatewayAPIDTO.getLocalEntriesToBeAdd()) {
                 org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO localEntryDto =

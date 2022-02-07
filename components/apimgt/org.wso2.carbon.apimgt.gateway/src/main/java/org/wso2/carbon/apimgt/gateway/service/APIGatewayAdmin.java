@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.apimgt.gateway.service;
 
+import graphql.schema.GraphQLSchema;
+import graphql.schema.idl.SchemaParser;
+import graphql.schema.idl.TypeDefinitionRegistry;
+import graphql.schema.idl.UnExecutableSchemaGenerator;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.llom.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
@@ -28,6 +32,8 @@ import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.gateway.CredentialDto;
 import org.wso2.carbon.apimgt.api.gateway.GatewayAPIDTO;
 import org.wso2.carbon.apimgt.api.gateway.GatewayContentDTO;
+import org.wso2.carbon.apimgt.api.gateway.GraphQLSchemaDTO;
+import org.wso2.carbon.apimgt.gateway.internal.DataHolder;
 import org.wso2.carbon.apimgt.gateway.utils.EndpointAdminServiceProxy;
 import org.wso2.carbon.apimgt.gateway.utils.GatewayUtils;
 import org.wso2.carbon.apimgt.gateway.utils.LocalEntryServiceProxy;
@@ -37,6 +43,7 @@ import org.wso2.carbon.apimgt.gateway.utils.SequenceAdminServiceProxy;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.certificatemgt.CertificateManager;
 import org.wso2.carbon.apimgt.impl.certificatemgt.CertificateManagerImpl;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.rest.api.APIData;
 import org.wso2.carbon.rest.api.ResourceData;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -780,6 +787,38 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
             log.debug(gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion() + " Default API Definition deployed");
             log.debug(gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion() + "Deployed successfully");
         }
+        // Store the GraphQL schema in DataHolder
+        addDeployedGraphqlQLToAPI(gatewayAPIDTO);
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, true);
+            SequenceAdminServiceProxy graphQLWSSequenceAdminServiceProxy =
+                    getSequenceAdminServiceClient(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            // Add GraphQL WS Sequences
+            if (gatewayAPIDTO.getGraphQLWSSequenceToBeAdd() != null) {
+                for (GatewayContentDTO sequence : gatewayAPIDTO.getGraphQLWSSequenceToBeAdd()) {
+                    OMElement element;
+                    try {
+                        element = AXIOMUtil.stringToOM(sequence.getContent());
+                    } catch (XMLStreamException e) {
+                        log.error("Exception occurred while converting String to an OM.", e);
+                        throw new AxisFault(e.getMessage());
+                    }
+                    if (graphQLWSSequenceAdminServiceProxy.isExistingSequence(sequence.getName())) {
+                        if (gatewayAPIDTO.isOverride()) {
+                            graphQLWSSequenceAdminServiceProxy.deleteSequence(sequence.getName());
+                            graphQLWSSequenceAdminServiceProxy.addSequence(element);
+                        }
+                    } else {
+                        graphQLWSSequenceAdminServiceProxy.addSequence(element);
+                    }
+                }
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
 
         return true;
     }
@@ -890,6 +929,26 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
                     "successfully");
             log.debug(gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion() + "undeployed successfully");
         }
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME, true);
+            SequenceAdminServiceProxy graphQLWSSequenceAdminServiceProxy =
+                    getSequenceAdminServiceClient(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            // Remove GraphQL WS Sequences to be removed.
+            if (gatewayAPIDTO.getGraphQLWSSequencesToBeRemove() != null) {
+                for (String sequenceName : gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()) {
+                    if (graphQLWSSequenceAdminServiceProxy.isExistingSequence(sequenceName) && gatewayAPIDTO.isOverride()) {
+                        graphQLWSSequenceAdminServiceProxy.deleteSequence(sequenceName);
+                    }
+                }
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+        // Remove the GraphQL schema from the DataHolder
+        DataHolder.getInstance().getApiToGraphQLSchemaDTOMap().remove(gatewayAPIDTO.getApiId());
     }
 
     public boolean unDeployAPI(GatewayAPIDTO gatewayAPIDTO) throws AxisFault {
@@ -907,5 +966,23 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
         unDeployAPI(certificateManager, sequenceAdminServiceProxy, restapiAdminServiceProxy, localEntryServiceProxy,
                 endpointAdminServiceProxy, gatewayAPIDTO, mediationSecurityAdminServiceProxy);
         return true;
+    }
+
+
+    /**
+     * Add GraphQLSchemaDTO of deployed GraphQL API to Gateway internal data holder.
+     *
+     * @param gatewayAPIDTO GatewayAPIDTO
+     */
+    public static void addDeployedGraphqlQLToAPI(GatewayAPIDTO gatewayAPIDTO) {
+
+        if (gatewayAPIDTO != null && gatewayAPIDTO.getGraphQLSchema() != null) {
+            String apiId = gatewayAPIDTO.getApiId();
+            SchemaParser schemaParser = new SchemaParser();
+            TypeDefinitionRegistry registry = schemaParser.parse(gatewayAPIDTO.getGraphQLSchema());
+            GraphQLSchema schema = UnExecutableSchemaGenerator.makeUnExecutableSchema(registry);
+            GraphQLSchemaDTO schemaDTO = new GraphQLSchemaDTO(schema, registry);
+            DataHolder.getInstance().addApiToGraphQLSchemaDTO(apiId, schemaDTO);
+        }
     }
 }

@@ -587,7 +587,7 @@ public class Utils {
                     tenantSubscriptionStore.getAllAPIsByContextList();
             if (contextAPIMap != null) {
                 contextAPIMap.forEach((context, api) -> {
-                    if (path != null && context != null && RESTUtils.matchApiPath(path, context)) {
+                    if (RESTUtils.matchApiPath(path, context)) {
                         selectedAPIMap.put(context, api);
                     }
                 });
@@ -596,6 +596,7 @@ public class Utils {
 
         return selectedAPIMap;
     }
+
     private static class ContextLengthSorter implements Comparator<String> {
 
         @Override
