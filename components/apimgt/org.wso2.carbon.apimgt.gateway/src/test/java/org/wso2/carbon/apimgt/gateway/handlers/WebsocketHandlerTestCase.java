@@ -71,9 +71,13 @@ public class WebsocketHandlerTestCase {
 
     @Before
     public void setup() {
+        System.setProperty("carbon.home", "test");
         PowerMockito.mockStatic(GraphQLProcessor.class);
         PowerMockito.mockStatic(ServiceReferenceHolder.class);
         PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        PowerMockito.mockStatic(PrivilegedCarbonContext.class);
+        PrivilegedCarbonContext privilegedCarbonContext = Mockito.mock(PrivilegedCarbonContext.class);
+        PowerMockito.when(PrivilegedCarbonContext.getThreadLocalCarbonContext()).thenReturn(privilegedCarbonContext);
         serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
         apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
