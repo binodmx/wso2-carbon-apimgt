@@ -15439,4 +15439,39 @@ public class ApiMgtDAO {
         }
         return true;
     }
+
+    /**
+     * Retrieve basic information about the given API by the APIIdentifier quering only from AM_API
+     *
+     * @param apiIdentifier APIIdentifier of the API
+     * @return basic information about the API
+     * @throws APIManagementException error while getting the API information from AM_API
+     */
+    public API getLightWeightAPIInfoByAPIIdentifier(APIIdentifier apiIdentifier)
+            throws APIManagementException {
+
+        try (Connection connection = APIMgtDBUtil.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                    connection.prepareStatement(SQLConstants.GET_LIGHT_WEIGHT_API_INFO_BY_API_IDENTIFIER)) {
+                preparedStatement.setString(1, APIUtil.replaceEmailDomainBack(apiIdentifier.getProviderName()));
+                preparedStatement.setString(2, apiIdentifier.getName());
+                preparedStatement.setString(3, apiIdentifier.getVersion());
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        apiIdentifier.setId(resultSet.getInt("API_ID"));
+                        API api = new API(apiIdentifier);
+                        api.setUUID(resultSet.getString("API_ID"));
+                        api.setContext(resultSet.getString("CONTEXT"));
+                        api.setType(resultSet.getString("API_TYPE"));
+                        return api;
+                    }
+                }
+
+            }
+        } catch (SQLException e) {
+            throw new APIManagementException("Error while retrieving apimgt connection", e,
+                    ExceptionCodes.INTERNAL_ERROR);
+        }
+        return null;
+    }
 }

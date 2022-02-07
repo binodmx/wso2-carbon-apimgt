@@ -1305,6 +1305,15 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
 
     }
 
+    private void sendUpdateEventToPreviousDefaultVersion(APIIdentifier apiIdentifier) throws APIManagementException {
+        API api = apiMgtDAO.getLightWeightAPIInfoByAPIIdentifier(apiIdentifier);
+        APIEvent apiEvent = new APIEvent(UUID.randomUUID().toString(), System.currentTimeMillis(),
+                APIConstants.EventType.API_UPDATE.name(), tenantId, tenantDomain, apiIdentifier.getApiName(),
+                api.getId().getId(), api.getUUID(), api.getId().getVersion(), api.getType(), api.getContext(),
+                APIUtil.replaceEmailDomainBack(api.getId().getProviderName()),
+                api.getStatus());
+        APIUtil.sendNotification(apiEvent, APIConstants.NotifierType.API.name());
+    }
 
     /**
      * Updates an existing API
@@ -1323,6 +1332,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         validateKeyManagers(api);
         Map<String, Map<String, String>> failedGateways = new ConcurrentHashMap<>();
         API oldApi = getAPI(api.getId());
+        String publishedDefaultVersion = getPublishedDefaultVersion(api.getId());
         Gson gson = new Gson();
         Map<String, String> oldMonetizationProperties = gson.fromJson(oldApi.getMonetizationProperties().toString(),
                 HashMap.class);
@@ -1349,7 +1359,6 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         if (oldApi.getStatus().equals(api.getStatus())) {
 
             String previousDefaultVersion = getDefaultVersion(api.getId());
-            String publishedDefaultVersion = getPublishedDefaultVersion(api.getId());
 
             if (previousDefaultVersion != null) {
 
@@ -1587,6 +1596,13 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         registerOrUpdateResourceInKeyManager(api, tenantDomain);
 
         int apiId = apiMgtDAO.getAPIID(api.getId(), null);
+        if (publishedDefaultVersion != null) {
+            if (api.isDefaultVersion() && !api.getId().getVersion().equals(publishedDefaultVersion)) {
+                APIIdentifier previousDefaultVersionIdentifier = new APIIdentifier(api.getId().getProviderName(),
+                        api.getId().getApiName(), publishedDefaultVersion);
+                sendUpdateEventToPreviousDefaultVersion(previousDefaultVersionIdentifier);
+            }
+        }
 
         APIEvent apiEvent = new APIEvent(UUID.randomUUID().toString(), System.currentTimeMillis(),
                 APIConstants.EventType.API_UPDATE.name(), tenantId, tenantDomain, api.getId().getApiName(), apiId,
