@@ -1760,6 +1760,10 @@ public class SQLConstants {
     public static final String GET_API_ID_SQL =
             "SELECT API.API_ID FROM AM_API API WHERE API.API_PROVIDER = ? AND API.API_NAME = ? AND API.API_VERSION = ? ";
 
+    public static final String GET_LIGHT_WEIGHT_API_INFO_BY_API_IDENTIFIER = "SELECT API_ID,API_PROVIDER," +
+            "API_NAME,API_VERSION,CONTEXT,API_TYPE FROM AM_API WHERE API_PROVIDER = ? AND API_NAME = ? AND " +
+            "API_VERSION = ?";
+
     public static final String GET_API_PRODUCT_ID_SQL =
             "SELECT API_ID FROM AM_API WHERE API_PROVIDER = ? AND API_NAME = ? "
                     + "AND API_VERSION = ? AND API_TYPE = '" + APIConstants.API_PRODUCT + "'";
