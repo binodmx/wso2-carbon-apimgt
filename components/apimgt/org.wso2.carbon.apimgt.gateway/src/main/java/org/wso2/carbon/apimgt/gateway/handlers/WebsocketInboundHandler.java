@@ -302,6 +302,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     log.error("No Authorization Header or access_token query parameter present");
                     responseDTO.setError(true);
+                    return responseDTO;
                 }
             }
             String authorizationHeader = req.headers().get(HttpHeaders.AUTHORIZATION);
