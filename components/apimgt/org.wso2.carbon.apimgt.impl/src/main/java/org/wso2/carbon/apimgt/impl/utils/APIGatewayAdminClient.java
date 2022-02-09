@@ -292,6 +292,7 @@ public class APIGatewayAdminClient extends AbstractAPIGatewayAdminClient {
                 gatewayAPIDTOStub.addGraphQLWSSequencesToBeRemove(alias);
             }
         }
+        gatewayAPIDTOStub.setGraphQLSchema(gatewayAPIDTO.getGraphQLSchema());
         if (gatewayAPIDTO.getLocalEntriesToBeAdd() != null) {
             for (GatewayContentDTO localEntry : gatewayAPIDTO.getLocalEntriesToBeAdd()) {
                 org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO localEntryDto =
