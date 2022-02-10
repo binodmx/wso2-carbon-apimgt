@@ -276,20 +276,20 @@ public class JWTValidator {
 
         String tokenSignature = signedJWTInfo.getSignedJWT().getSignature().toString();
 
-        JWTValidationInfo jwtValidationInfo;
+        JWTValidationInfo jwtValidationInfo = null;
+        String jwtTokenIdentifier = getJWTTokenIdentifier(signedJWTInfo);
         String jwtHeader = signedJWTInfo.getSignedJWT().getHeader().toString();
-        String jti;
-        JWTClaimsSet jwtClaimsSet = signedJWTInfo.getJwtClaimsSet();
-        jti = jwtClaimsSet.getJWTID();
 
-        jwtValidationInfo = getJwtValidationInfo(signedJWTInfo, jti);
-        if (RevokedJWTDataHolder.isJWTTokenSignatureExistsInRevokedMap(tokenSignature)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Token retrieved from the revoked jwt token map. Token: " + GatewayUtils.getMaskedToken(
-                        jwtHeader));
+        if (StringUtils.isNotEmpty(jwtTokenIdentifier)) {
+            jwtValidationInfo = getJwtValidationInfo(signedJWTInfo, jwtTokenIdentifier);
+            if (RevokedJWTDataHolder.isJWTTokenSignatureExistsInRevokedMap(jwtTokenIdentifier)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Token retrieved from the revoked jwt token map. Token: " + GatewayUtils.getMaskedToken(
+                            jwtHeader));
+                }
+                log.error("Invalid JWT token. " + GatewayUtils.getMaskedToken(jwtHeader));
+                throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS, "Invalid JWT token");
             }
-            log.error("Invalid JWT token. " + GatewayUtils.getMaskedToken(jwtHeader));
-            throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS, "Invalid JWT token");
         }
 
         if (jwtValidationInfo != null && jwtValidationInfo.isValid()) {
@@ -312,8 +312,8 @@ public class JWTValidator {
                             apiVersion);
                     endUserToken = generateAndRetrieveJWTToken(tokenSignature, jwtInfoDto);
                 }
-                AuthenticationContext context = GatewayUtils.generateAuthenticationContext(jti, jwtValidationInfo,
-                        apiKeyValidationInfoDTO, endUserToken, true);
+                AuthenticationContext context = GatewayUtils.generateAuthenticationContext(jwtTokenIdentifier,
+                        jwtValidationInfo, apiKeyValidationInfoDTO, endUserToken, true);
                 context.setApiVersion(apiVersion);
                 return context;
             } else {
