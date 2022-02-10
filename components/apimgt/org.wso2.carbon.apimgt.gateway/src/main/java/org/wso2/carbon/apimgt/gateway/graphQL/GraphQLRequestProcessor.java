@@ -71,6 +71,8 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
     public InboundProcessorResponseDTO handleRequest(WebSocketFrame msg, ChannelHandlerContext ctx,
             InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher)
             throws APISecurityException, AxisFault {
+
+        String subscriptionOperation = null;
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         GraphQLProcessorUtil.setGraphQLSchemaToDataHolder(inboundMessageContext);
 
@@ -101,7 +103,7 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
                             responseDTO = validateQueryPayload(inboundMessageContext, document, operationId);
                             if (!responseDTO.isError()) {
                                 // subscription operation name
-                                String subscriptionOperation = GraphQLProcessorUtil.getOperationList(operation,
+                                subscriptionOperation = GraphQLProcessorUtil.getOperationList(operation,
                                         DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                                                         inboundMessageContext.getElectedAPI().getUuid())
                                                 .getTypeDefinitionRegistry(), null);
@@ -139,6 +141,13 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
                     }
                 } else {
                     responseDTO = getBadRequestGraphQLFrameErrorDTO("Invalid operation payload", operationId);
+                }
+                if (!responseDTO.isError()) {
+                    // publish analytics events if analytics is enabled
+                    if (APIUtil.isAnalyticsEnabled()) {
+                        WebsocketUtil.publishGraphQLSubscriptionEvent(inboundMessageContext.getUserIP(), true,
+                                inboundMessageContext, usageDataPublisher, subscriptionOperation);
+                    }
                 }
             }
             return responseDTO;

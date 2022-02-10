@@ -485,7 +485,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelRead(msg);
         // publish analytics events if analytics is enabled
         if (APIUtil.isAnalyticsEnabled()) {
-            WebsocketUtil.publishRequestEvent(inboundMessageContext.getUserIP(), true, inboundMessageContext,
+            WebsocketUtil.publishWSRequestEvent(inboundMessageContext.getUserIP(), true, inboundMessageContext,
                     usageDataPublisher);
         }
     }

@@ -26,6 +26,7 @@ import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
@@ -48,8 +49,9 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
     public InboundProcessorResponseDTO handleResponse(WebSocketFrame msg, ChannelHandlerContext ctx,
             InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher)
             throws APISecurityException {
-        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
 
+        String subscriptionOperation = null;
+        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
@@ -68,16 +70,24 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
                             GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID);
                     GraphQLOperationDTO graphQLOperationDTO = inboundMessageContext.getVerbInfoForGraphQLMsgId(
                             graphQLMsg.getString(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID));
+                    subscriptionOperation = graphQLOperationDTO.getOperation();
                     // validate scopes based on subscription payload
-                    responseDTO =validateScopes(inboundMessageContext,
-                            graphQLOperationDTO.getOperation(), operationId);
+                    responseDTO = validateScopes(inboundMessageContext, graphQLOperationDTO.getOperation(),
+                            operationId);
                     if (!responseDTO.isError()) {
                         // throttle for matching resource
-                        return doThrottleForGraphQL(msg, ctx, graphQLOperationDTO.getVerbInfoDTO(),
+                        responseDTO = doThrottleForGraphQL(msg, ctx, graphQLOperationDTO.getVerbInfoDTO(),
                                 inboundMessageContext, operationId, usageDataPublisher);
                     }
                 } else {
                     responseDTO = getBadRequestGraphQLFrameErrorDTO("Missing mandatory id field in the message", null);
+                }
+                if (!responseDTO.isError()) {
+                    // publish analytics events if analytics is enabled
+                    if (APIUtil.isAnalyticsEnabled()) {
+                        WebsocketUtil.publishGraphQLSubscriptionEvent(inboundMessageContext.getUserIP(), true,
+                                inboundMessageContext, usageDataPublisher, subscriptionOperation);
+                    }
                 }
             }
             return responseDTO;

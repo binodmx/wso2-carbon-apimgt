@@ -448,15 +448,18 @@ public class WebsocketUtil {
 	}
 
 	/**
-	 * Publish request event to analytics server
+	 * Publish request event to analytics server.
 	 *
+	 * @param requestPublisherDTO   Resource detail populated Request Publish Stream DTO
 	 * @param clientIp              client's IP Address
 	 * @param isThrottledOut        request is throttled out or not
 	 * @param inboundMessageContext InboundMessageContext
 	 * @param usageDataPublisher    APIMgtUsageDataPublisher
 	 */
-	public static void publishRequestEvent(String clientIp, boolean isThrottledOut,
-			InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
+	public static void publishRequestEvent(RequestResponseStreamDTO requestPublisherDTO, String clientIp,
+										   boolean isThrottledOut, InboundMessageContext inboundMessageContext,
+										   APIMgtUsageDataPublisher usageDataPublisher) {
+
 		long requestTime = System.currentTimeMillis();
 		String useragent = inboundMessageContext.getHeaders().get(HttpHeaders.USER_AGENT);
 
@@ -466,7 +469,6 @@ public class WebsocketUtil {
 			String keyType = infoDTO.getType();
 			String correlationID = UUID.randomUUID().toString();
 
-			RequestResponseStreamDTO requestPublisherDTO = new RequestResponseStreamDTO();
 			requestPublisherDTO.setApiName(infoDTO.getApiName());
 			requestPublisherDTO.setApiCreator(infoDTO.getApiPublisher());
 			requestPublisherDTO.setApiCreatorTenantDomain(MultitenantUtils.getTenantDomain(infoDTO.getApiPublisher()));
@@ -480,10 +482,7 @@ public class WebsocketUtil {
 			requestPublisherDTO.setApiContext(inboundMessageContext.getApiContextUri());
 			requestPublisherDTO.setThrottledOut(isThrottledOut);
 			requestPublisherDTO.setApiHostname(DataPublisherUtil.getHostAddress());
-			requestPublisherDTO.setApiMethod("-");
 			requestPublisherDTO.setRequestTimestamp(requestTime);
-			requestPublisherDTO.setApiResourcePath("-");
-			requestPublisherDTO.setApiResourceTemplate("-");
 			requestPublisherDTO.setUserAgent(useragent);
 			requestPublisherDTO.setUsername(infoDTO.getEndUserName());
 			requestPublisherDTO.setUserTenantDomain(inboundMessageContext.getTenantDomain());
@@ -516,6 +515,45 @@ public class WebsocketUtil {
 			// flow should not break if event publishing failed
 			log.error("Cannot publish event. " + e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Publish WS request event to analytics server.
+	 *
+	 * @param clientIp              client's IP Address
+	 * @param isThrottledOut        request is throttled out or not
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 */
+	public static void publishWSRequestEvent(String clientIp, boolean isThrottledOut,
+											 InboundMessageContext inboundMessageContext,
+											 APIMgtUsageDataPublisher usageDataPublisher) {
+
+		RequestResponseStreamDTO requestPublisherDTO = new RequestResponseStreamDTO();
+		requestPublisherDTO.setApiMethod("-");
+		requestPublisherDTO.setApiResourcePath("-");
+		requestPublisherDTO.setApiResourceTemplate("-");
+		publishRequestEvent(requestPublisherDTO, clientIp, isThrottledOut, inboundMessageContext, usageDataPublisher);
+	}
+
+	/**
+	 * Publish GraphQL request event to analytics server.
+	 *
+	 * @param clientIp              client's IP Address
+	 * @param isThrottledOut        request is throttled out or not
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 */
+	public static void publishGraphQLSubscriptionEvent(String clientIp, boolean isThrottledOut,
+													   InboundMessageContext inboundMessageContext,
+													   APIMgtUsageDataPublisher usageDataPublisher,
+													   String subscriptionOperation) {
+
+		RequestResponseStreamDTO requestPublisherDTO = new RequestResponseStreamDTO();
+		requestPublisherDTO.setApiMethod(GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME);
+		requestPublisherDTO.setApiResourcePath("/");
+		requestPublisherDTO.setApiResourceTemplate(subscriptionOperation);
+		publishRequestEvent(requestPublisherDTO, clientIp, isThrottledOut, inboundMessageContext, usageDataPublisher);
 	}
 
 	/**

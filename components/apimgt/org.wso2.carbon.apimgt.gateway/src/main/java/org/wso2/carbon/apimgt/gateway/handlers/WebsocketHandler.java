@@ -96,7 +96,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
                     }
-                    handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
+                    outboundHandler().write(ctx, msg, promise);
                 }
             } else {
                 // If not a GraphQL API (Only a WebSocket API)
@@ -128,7 +128,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         // publish analytics events if analytics is enabled
         if (APIUtil.isAnalyticsEnabled()) {
             String clientIp = getClientIp(ctx);
-            WebsocketUtil.publishRequestEvent(clientIp, true, inboundMessageContext,
+            WebsocketUtil.publishWSRequestEvent(clientIp, true, inboundMessageContext,
                     inboundHandler().getUsageDataPublisher());
         }
     }
