@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLResponseProcessor;
 import org.wso2.carbon.apimgt.impl.APIConstants;
@@ -134,8 +135,17 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
     }
 
     protected boolean isAllowed(ChannelHandlerContext ctx, WebSocketFrame msg,
-            InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
-        return WebsocketUtil.doThrottle(ctx, msg, null, inboundMessageContext, usageDataPublisher);
+                                InboundMessageContext inboundMessageContext,
+                                APIMgtUsageDataPublisher usageDataPublisher) {
+        WebSocketThrottleResponseDTO webSocketThrottleResponseDTO =
+                WebsocketUtil.doThrottle(ctx, msg, null, inboundMessageContext);
+        if (webSocketThrottleResponseDTO.isThrottled()) {
+            if (APIUtil.isAnalyticsEnabled()) {
+                WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,
+                        webSocketThrottleResponseDTO.getThrottledOutReason());
+            }
+        }
+        return !webSocketThrottleResponseDTO.isThrottled();
     }
 
     protected String getClientIp(ChannelHandlerContext ctx) {

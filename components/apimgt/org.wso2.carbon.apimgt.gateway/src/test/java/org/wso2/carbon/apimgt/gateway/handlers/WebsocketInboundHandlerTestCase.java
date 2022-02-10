@@ -42,6 +42,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessor;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessorUtil;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLRequestProcessor;
@@ -239,15 +240,18 @@ public class WebsocketInboundHandlerTestCase {
         DataPublisher dataPublisher = Mockito.mock(DataPublisher.class);
         Mockito.when(ThrottleDataPublisher.getDataPublisher()).thenReturn(dataPublisher);
         Mockito.when(dataPublisher.tryPublish(Mockito.anyObject())).thenReturn(true);
-        Mockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext,
-                        usageDataPublisher)).thenReturn(true);
+        WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
+        webSocketThrottleResponseDTO.setThrottled(false);
+        Mockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext))
+                .thenReturn(webSocketThrottleResponseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, msg);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString)));// No error has occurred context exists in data-holder map.
 
+        webSocketThrottleResponseDTO.setThrottled(true);
         // error response (the connection will not be closed for Web socket APIs)
-        Mockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext,
-                        usageDataPublisher)).thenReturn(false);
+        Mockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext))
+                .thenReturn(webSocketThrottleResponseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, msg);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString)));

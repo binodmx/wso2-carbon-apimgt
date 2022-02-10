@@ -23,7 +23,9 @@ import org.apache.axis2.AxisFault;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APIKeyValidator;
@@ -32,6 +34,7 @@ import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
 import org.wso2.carbon.apimgt.gateway.handlers.security.AuthenticationContext;
 import org.wso2.carbon.apimgt.gateway.handlers.security.jwt.JWTValidator;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 
 public abstract class GraphQLProcessor {
@@ -199,16 +202,26 @@ public abstract class GraphQLProcessor {
             VerbInfoDTO verbInfoDTO, InboundMessageContext inboundMessageContext, String operationId,
             APIMgtUsageDataPublisher usageDataPublisher) {
 
+        String operationName = null;
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         responseDTO.setId(operationId);
-        boolean isAllowed = WebsocketUtil.doThrottle(ctx, msg, verbInfoDTO, inboundMessageContext, usageDataPublisher);
+        WebSocketThrottleResponseDTO throttleResponseDTO =
+                WebsocketUtil.doThrottle(ctx, msg, verbInfoDTO, inboundMessageContext);
 
-        if (isAllowed) {
-            return responseDTO;
-        } else {
+        if (throttleResponseDTO.isThrottled()) {
+            GraphQLOperationDTO graphQLOperationDTO = inboundMessageContext.getVerbInfoForGraphQLMsgId(operationId);
+            if (graphQLOperationDTO != null) {
+                operationName = graphQLOperationDTO.getOperation();
+            }
+            if (APIUtil.isAnalyticsEnabled()) {
+                WebsocketUtil.publishGraphQLSubThrottleEvent(inboundMessageContext, usageDataPublisher, operationName,
+                        throttleResponseDTO.getThrottledOutReason());
+            }
             responseDTO.setError(true);
             responseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
             responseDTO.setErrorMessage(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
+        } else {
+            return responseDTO;
         }
         return responseDTO;
     }

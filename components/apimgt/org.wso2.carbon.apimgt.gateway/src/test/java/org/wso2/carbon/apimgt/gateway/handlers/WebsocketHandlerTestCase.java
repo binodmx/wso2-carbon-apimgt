@@ -37,6 +37,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessor;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
@@ -141,8 +142,10 @@ public class WebsocketHandlerTestCase {
             }
         };
         WebsocketInboundHandler websocketInboundHandler = Mockito.mock(WebsocketInboundHandler.class);
-        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext,
-                websocketInboundHandler.getUsageDataPublisher())).thenReturn(true);
+        WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
+        webSocketThrottleResponseDTO.setThrottled(false);
+        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext))
+                .thenReturn(webSocketThrottleResponseDTO);
         websocketHandler.write(channelHandlerContext, msg, channelPromise);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString))); // No error has occurred context exists in data-holder map.

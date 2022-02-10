@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APIKeyValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
@@ -203,6 +204,42 @@ public class WebsocketUtil {
 		return (isApiLevelThrottled || isApplicationLevelThrottled || isSubscriptionLevelThrottled);
 	}
 
+	/**
+	 * Check if request is throttled out from API level or resource level tier.
+	 *
+	 * @param resourceLevelThrottleKey API/Resource level throttle key
+	 * @return throttled out or not
+	 */
+	public static boolean isApiResourceLevelThrottled(String resourceLevelThrottleKey) {
+
+		return ServiceReferenceHolder.getInstance().getThrottleDataHolder()
+				.isAPIThrottled(resourceLevelThrottleKey);
+	}
+
+	/**
+	 * Check if request is throttled out from Subscription level.
+	 *
+	 * @param subscriptionLevelThrottleKey Subscription level throttle key
+	 * @return throttled out or not
+	 */
+	public static boolean isSubscriptionLevelThrottled(String subscriptionLevelThrottleKey) {
+
+		return ServiceReferenceHolder.getInstance().getThrottleDataHolder()
+				.isThrottled(subscriptionLevelThrottleKey);
+	}
+
+	/**
+	 * Check if request is throttled out from Application level.
+	 *
+	 * @param applicationLevelThrottleKey Application level throttle key
+	 * @return throttled out or not
+	 */
+	public static boolean isApplicationLevelThrottled(String applicationLevelThrottleKey) {
+
+		return ServiceReferenceHolder.getInstance().getThrottleDataHolder()
+				.isThrottled(applicationLevelThrottleKey);
+	}
+
 	public static String getAccessTokenCacheKey(String accessToken, String apiContext) {
 		return accessToken + ':' + apiContext;
 	}
@@ -343,19 +380,20 @@ public class WebsocketUtil {
 	}
 
 	/**
-	 * Checks if the request is throttled
+	 * Checks if the request is throttled.
 	 *
 	 * @param ctx                   ChannelHandlerContext
 	 * @param msg                   WebSocketFrame
 	 * @param verbInfoDTO           VerbInfoDTO
 	 * @param inboundMessageContext InboundMessageContext
-	 * @param usageDataPublisher    APIMgtUsageDataPublisher
-	 * @return false if throttled
+	 * @return WebSocketThrottleResponseDTO
 	 * @throws APIManagementException
 	 */
-	public static boolean doThrottle(ChannelHandlerContext ctx, WebSocketFrame msg, VerbInfoDTO verbInfoDTO,
-			InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
+	public static WebSocketThrottleResponseDTO doThrottle(ChannelHandlerContext ctx, WebSocketFrame msg,
+														  VerbInfoDTO verbInfoDTO,
+														  InboundMessageContext inboundMessageContext) {
 
+		WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
 		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
 		String apiName = infoDTO.getApiName();
 		String apiContext = inboundMessageContext.getApiContextUri();
@@ -417,30 +455,44 @@ public class WebsocketUtil {
 			PrivilegedCarbonContext.startTenantFlow();
 			PrivilegedCarbonContext.getThreadLocalCarbonContext()
 					.setTenantDomain(inboundMessageContext.getTenantDomain(), true);
-			boolean isThrottled = WebsocketUtil.isThrottled(resourceLevelThrottleKey, subscriptionLevelThrottleKey,
-					applicationLevelThrottleKey);
-			if (isThrottled) {
-				if (APIUtil.isAnalyticsEnabled()) {
-					publishThrottleEvent(inboundMessageContext, usageDataPublisher);
+			boolean isApiLevelThrottled = isApiResourceLevelThrottled(resourceLevelThrottleKey);
+			boolean isSubscriptionLevelThrottled = isSubscriptionLevelThrottled(subscriptionLevelThrottleKey);
+			boolean isApplicationLevelThrottled = isApplicationLevelThrottled(applicationLevelThrottleKey);
+			if (isApiLevelThrottled || isApplicationLevelThrottled || isSubscriptionLevelThrottled) {
+				webSocketThrottleResponseDTO.setThrottled(true);
+				String throttledOutReason = APIConstants.THROTTLE_OUT_REASON_SOFT_LIMIT_EXCEEDED;
+				if (isApplicationLevelThrottled) {
+					throttledOutReason = APIThrottleConstants.APPLICATION_LIMIT_EXCEEDED;
 				}
-				return false;
+				if (isSubscriptionLevelThrottled) {
+					throttledOutReason = APIThrottleConstants.SUBSCRIPTION_LIMIT_EXCEEDED;
+				}
+				if (isApiLevelThrottled) {
+					if (StringUtils.isNotEmpty(apiLevelTier)) {
+						throttledOutReason = APIThrottleConstants.API_LIMIT_EXCEEDED;
+					} else {
+						throttledOutReason = APIThrottleConstants.RESOURCE_LIMIT_EXCEEDED;
+					}
+				}
+				webSocketThrottleResponseDTO.setThrottledOutReason(throttledOutReason);
+				return webSocketThrottleResponseDTO;
 			}
 		} finally {
 			PrivilegedCarbonContext.endTenantFlow();
 		}
-		Object[] objects = new Object[] { messageId, applicationLevelThrottleKey, applicationLevelTier,
+		Object[] objects = new Object[]{messageId, applicationLevelThrottleKey, applicationLevelTier,
 				apiLevelThrottleKey, apiLevelTier, subscriptionLevelThrottleKey, subscriptionLevelTier,
 				resourceLevelThrottleKey, resourceLevelTier, authorizedUser, apiContext, apiVersion, appTenant,
-				apiTenant, appId, apiName, jsonObMap.toString() };
+				apiTenant, appId, apiName, jsonObMap.toString()};
 		org.wso2.carbon.databridge.commons.Event event = new org.wso2.carbon.databridge.commons.Event(
 				"org.wso2.throttle.request.stream:1.0.0", System.currentTimeMillis(), null, null, objects);
 		if (ServiceReferenceHolder.getInstance().getThrottleDataPublisher() == null) {
 			log.error("Cannot publish events to traffic manager because ThrottleDataPublisher "
 					+ "has not been initialised");
-			return true;
 		}
 		ServiceReferenceHolder.getInstance().getThrottleDataPublisher().getDataPublisher().tryPublish(event);
-		return true;
+		webSocketThrottleResponseDTO.setThrottled(false);
+		return webSocketThrottleResponseDTO;
 	}
 
 	public static String getRemoteIP(ChannelHandlerContext ctx) {
@@ -557,23 +609,58 @@ public class WebsocketUtil {
 	}
 
 	/**
+	 * Publish Websocket throttle events.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 * @param throttleOutReason 	Throttle Out Reason
+	 */
+	public static void publishWSThrottleEvent(InboundMessageContext inboundMessageContext,
+											  APIMgtUsageDataPublisher usageDataPublisher,
+											  String throttleOutReason) {
+
+		ThrottlePublisherDTO throttlePublisherDTO = new ThrottlePublisherDTO();
+		throttlePublisherDTO.setApiResourceTemplate("-");
+		throttlePublisherDTO.setApiMethod("-");
+		publishThrottleEvent(inboundMessageContext, usageDataPublisher, throttlePublisherDTO, throttleOutReason);
+	}
+
+	/**
+	 * Publish GraphQL subscription throttle events.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 * @param subscriptionOperation Subscription operation name
+	 * @param throttleOutReason 	Throttle Out Reason
+	 */
+	public static void publishGraphQLSubThrottleEvent(InboundMessageContext inboundMessageContext,
+													  APIMgtUsageDataPublisher usageDataPublisher,
+													  String subscriptionOperation, String throttleOutReason) {
+
+		ThrottlePublisherDTO throttlePublisherDTO = new ThrottlePublisherDTO();
+		throttlePublisherDTO.setApiResourceTemplate(subscriptionOperation);
+		throttlePublisherDTO.setApiMethod(GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME);
+		publishThrottleEvent(inboundMessageContext, usageDataPublisher, throttlePublisherDTO, throttleOutReason);
+	}
+
+	/**
 	 * Publish throttle events.
 	 *
 	 * @param inboundMessageContext InboundMessageContext
 	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 * @param throttlePublisherDTO  ThrottlePublisherDTO which already populated with operation data
 	 */
-	private static void publishThrottleEvent(InboundMessageContext inboundMessageContext,
-			APIMgtUsageDataPublisher usageDataPublisher) {
+	public static void publishThrottleEvent(InboundMessageContext inboundMessageContext,
+			APIMgtUsageDataPublisher usageDataPublisher, ThrottlePublisherDTO throttlePublisherDTO,
+											String throttleOutReason) {
 		long requestTime = System.currentTimeMillis();
 		String correlationID = UUID.randomUUID().toString();
 		try {
 			APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
-			ThrottlePublisherDTO throttlePublisherDTO = new ThrottlePublisherDTO();
 			throttlePublisherDTO.setKeyType(infoDTO.getType());
 			throttlePublisherDTO.setTenantDomain(inboundMessageContext.getTenantDomain());
-			//throttlePublisherDTO.setApplicationConsumerKey(infoDTO.getConsumerKey());
 			throttlePublisherDTO.setApiname(infoDTO.getApiName());
-			throttlePublisherDTO.setVersion(infoDTO.getApiName() + ':' + inboundMessageContext.getVersion());
+			throttlePublisherDTO.setVersion(inboundMessageContext.getVersion());
 			throttlePublisherDTO.setContext(inboundMessageContext.getApiContextUri());
 			throttlePublisherDTO.setApiCreator(infoDTO.getApiPublisher());
 			throttlePublisherDTO.setApiCreatorTenantDomain(MultitenantUtils.getTenantDomain(infoDTO.getApiPublisher()));
@@ -582,7 +669,7 @@ public class WebsocketUtil {
 			throttlePublisherDTO.setSubscriber(infoDTO.getSubscriber());
 			throttlePublisherDTO.setThrottledTime(requestTime);
 			throttlePublisherDTO.setGatewayType(APIMgtGatewayConstants.GATEWAY_TYPE);
-			throttlePublisherDTO.setThrottledOutReason("-");
+			throttlePublisherDTO.setThrottledOutReason(throttleOutReason);
 			throttlePublisherDTO.setUsername(infoDTO.getEndUserName());
 			throttlePublisherDTO.setCorrelationID(correlationID);
 			throttlePublisherDTO.setHostName(DataPublisherUtil.getHostAddress());

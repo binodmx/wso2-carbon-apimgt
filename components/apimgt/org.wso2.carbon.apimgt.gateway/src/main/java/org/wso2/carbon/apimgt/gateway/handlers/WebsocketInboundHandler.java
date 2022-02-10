@@ -40,6 +40,7 @@ import org.wso2.carbon.apimgt.api.model.subscription.URLMapping;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLRequestProcessor;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APIKeyValidator;
@@ -256,20 +257,23 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 if (responseDTO.isError()) {
                     handleGraphQLRequestError(responseDTO, channelId, ctx);
                 } else {
-                    handleWSRequestSuccess(ctx, msg, inboundMessageContext, usageDataPublisher);
+                    ctx.fireChannelRead(msg);
                 }
             } else {
                 // If not a GraphQL API (Only a WebSocket API)
-                boolean isAllowed = WebsocketUtil.doThrottle(ctx, (WebSocketFrame) msg, null, inboundMessageContext,
-                        usageDataPublisher);
-
-                if (isAllowed) {
-                    handleWSRequestSuccess(ctx, msg, inboundMessageContext, usageDataPublisher);
-                } else {
+                WebSocketThrottleResponseDTO throttleResponseDTO =
+                        WebsocketUtil.doThrottle(ctx, (WebSocketFrame) msg, null, inboundMessageContext);
+                if (throttleResponseDTO.isThrottled()) {
+                    if (APIUtil.isAnalyticsEnabled()) {
+                        WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,
+                                throttleResponseDTO.getThrottledOutReason());
+                    }
                     ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
                     if (log.isDebugEnabled()) {
                         log.debug("Inbound Websocket frame is throttled. " + ctx.channel().toString());
                     }
+                } else {
+                    handleWSRequestSuccess(ctx, msg, inboundMessageContext, usageDataPublisher);
                 }
             }
         }

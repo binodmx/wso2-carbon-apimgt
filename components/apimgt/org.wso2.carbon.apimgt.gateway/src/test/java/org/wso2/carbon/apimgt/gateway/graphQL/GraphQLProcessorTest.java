@@ -31,6 +31,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
+import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
@@ -77,8 +78,10 @@ public class GraphQLProcessorTest {
     public void testDoThrottleForGraphQLSuccess() {
 
         InboundMessageContext inboundMessageContext = new InboundMessageContext();
-        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, verbInfoDTO, inboundMessageContext,
-                usageDataPublisher)).thenReturn(true);
+        WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
+        webSocketThrottleResponseDTO.setThrottled(false);
+        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, verbInfoDTO, inboundMessageContext))
+                .thenReturn(webSocketThrottleResponseDTO);
         InboundProcessorResponseDTO inboundProcessorResponseDTO = GraphQLProcessor.doThrottleForGraphQL(msg,
                 channelHandlerContext, verbInfoDTO, inboundMessageContext, operationId, usageDataPublisher);
         Assert.assertFalse(inboundProcessorResponseDTO.isError());
@@ -89,8 +92,10 @@ public class GraphQLProcessorTest {
     @Test
     public void testDoThrottleFail() throws ParseException {
         InboundMessageContext inboundMessageContext = new InboundMessageContext();
-        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, verbInfoDTO, inboundMessageContext,
-                usageDataPublisher)).thenReturn(false);
+        WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
+        webSocketThrottleResponseDTO.setThrottled(true);
+        PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, verbInfoDTO, inboundMessageContext))
+                .thenReturn(webSocketThrottleResponseDTO);
         InboundProcessorResponseDTO inboundProcessorResponseDTO = GraphQLProcessor.doThrottleForGraphQL(msg,
                 channelHandlerContext, verbInfoDTO, inboundMessageContext, operationId, usageDataPublisher);
         Assert.assertTrue(inboundProcessorResponseDTO.isError());
