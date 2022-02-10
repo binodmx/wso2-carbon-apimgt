@@ -362,14 +362,15 @@ public class WebsocketUtil {
 		String apiVersion = inboundMessageContext.getVersion();
 		String applicationLevelTier = infoDTO.getApplicationTier();
 
-		String apiLevelTier = infoDTO.getApiTier();
+		String apiLevelTier = infoDTO.getApiTier() == null && verbInfoDTO == null ? APIConstants.UNLIMITED_TIER
+				: infoDTO.getApiTier();
 		String apiLevelThrottleKey = apiContext + ":" + apiVersion;
 		String subscriptionLevelTier = infoDTO.getTier();
 		String resourceLevelTier;
 		String resourceLevelThrottleKey;
 
 		// If API level throttle policy is present then it will apply and no resource level policy will apply for it
-		if (StringUtils.isNotEmpty(apiLevelTier) && verbInfoDTO == null) {
+		if (StringUtils.isNotEmpty(apiLevelTier) || verbInfoDTO == null) {
 			resourceLevelThrottleKey = apiLevelThrottleKey;
 			resourceLevelTier = apiLevelTier;
 		} else {
