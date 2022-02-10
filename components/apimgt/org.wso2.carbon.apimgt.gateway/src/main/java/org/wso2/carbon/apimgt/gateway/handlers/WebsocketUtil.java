@@ -387,7 +387,7 @@ public class WebsocketUtil {
 		String apiTenant = inboundMessageContext.getTenantDomain();
 		String appId = infoDTO.getApplicationId();
 		String applicationLevelThrottleKey = appId + ":" + authorizedUser;
-		String subscriptionLevelThrottleKey = appId + ":" + apiContext + ":" + apiVersion;
+		String subscriptionLevelThrottleKey = appId + ":" + apiContext + ":" + apiVersion + ":" + subscriptionLevelTier;
 		String messageId = UIDGenerator.generateURNString();
 		String remoteIP = getRemoteIP(ctx);
 		if (log.isDebugEnabled()) {
