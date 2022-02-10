@@ -32,6 +32,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.axis2.description.InOutAxisOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.MessageContextCreatorForAxis2;
@@ -368,7 +369,7 @@ public class WebsocketUtil {
 		String resourceLevelThrottleKey;
 
 		// If API level throttle policy is present then it will apply and no resource level policy will apply for it
-		if (verbInfoDTO == null) {
+		if (StringUtils.isNotEmpty(apiLevelTier) && verbInfoDTO == null) {
 			resourceLevelThrottleKey = apiLevelThrottleKey;
 			resourceLevelTier = apiLevelTier;
 		} else {
