@@ -125,7 +125,8 @@ public class GraphQLProcessorUtil {
     public static synchronized void setGraphQLSchemaToDataHolder(InboundMessageContext inboundMessageContext)
             throws AxisFault {
         String apiUuid = inboundMessageContext.getElectedAPI().getUuid();
-        if (DataHolder.getInstance().getGraphQLSchemaDTOForAPI(apiUuid) == null) {
+        GraphQLSchemaDTO graphQLSchemaDTO = DataHolder.getInstance().getGraphQLSchemaDTOForAPI(apiUuid);
+        if (graphQLSchemaDTO == null || graphQLSchemaDTO.getGraphQLSchema() == null) {
             // Retrieve the schema from the local entry
             MessageContext messageContext = WebsocketUtil.getSynapseMessageContext(
                     inboundMessageContext.getTenantDomain());
