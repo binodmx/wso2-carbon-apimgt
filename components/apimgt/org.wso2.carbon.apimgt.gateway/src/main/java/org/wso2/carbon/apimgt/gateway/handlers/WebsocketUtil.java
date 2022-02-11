@@ -489,6 +489,8 @@ public class WebsocketUtil {
 		if (ServiceReferenceHolder.getInstance().getThrottleDataPublisher() == null) {
 			log.error("Cannot publish events to traffic manager because ThrottleDataPublisher "
 					+ "has not been initialised");
+			webSocketThrottleResponseDTO.setThrottled(false);
+			return webSocketThrottleResponseDTO;
 		}
 		ServiceReferenceHolder.getInstance().getThrottleDataPublisher().getDataPublisher().tryPublish(event);
 		webSocketThrottleResponseDTO.setThrottled(false);
