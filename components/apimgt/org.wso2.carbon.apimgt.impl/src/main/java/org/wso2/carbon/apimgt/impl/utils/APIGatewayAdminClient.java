@@ -230,6 +230,7 @@ public class APIGatewayAdminClient extends AbstractAPIGatewayAdminClient {
         org.wso2.carbon.apimgt.api.gateway.xsd.GatewayAPIDTO gatewayAPIDTOStub =
                 new org.wso2.carbon.apimgt.api.gateway.xsd.GatewayAPIDTO();
         gatewayAPIDTOStub.setName(gatewayAPIDTO.getName());
+        gatewayAPIDTOStub.setApiId(gatewayAPIDTO.getApiId());
         gatewayAPIDTOStub.setVersion(gatewayAPIDTO.getVersion());
         gatewayAPIDTOStub.setProvider(gatewayAPIDTO.getProvider());
         gatewayAPIDTOStub.setTenantDomain(gatewayAPIDTO.getTenantDomain());
