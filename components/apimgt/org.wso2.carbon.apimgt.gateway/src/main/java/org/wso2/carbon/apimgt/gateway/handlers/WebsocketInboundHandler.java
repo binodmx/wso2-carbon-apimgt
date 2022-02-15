@@ -201,7 +201,12 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 }
 
                 if (StringUtils.isNotEmpty(token)) {
-                    ((FullHttpRequest) msg).headers().set(APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER, token);
+                    String backendJwtHeader = ServiceReferenceHolder.getInstance().getAPIManagerConfiguration()
+                            .getJwtConfigurationDto().getJwtHeader();
+                    if (StringUtils.isEmpty(backendJwtHeader)) {
+                        backendJwtHeader = APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER;
+                    }
+                    ((FullHttpRequest) msg).headers().set(backendJwtHeader, token);
                 }
                 ctx.fireChannelRead(msg);
 
@@ -346,6 +351,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     info.setConsumerKey(authenticationContext.getConsumerKey());
                     info.setEndUserName(authenticationContext.getUsername());
                     info.setApiTier(authenticationContext.getApiTier());
+                    info.setEndUserToken(authenticationContext.getCallerToken());
 
                     //This prefix is added for synapse to dispatch this request to the specific sequence
                     if (APIConstants.API_KEY_TYPE_PRODUCTION.equals(info.getType())) {
@@ -364,7 +370,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     if (isDefaultVersion) {
                         version = authenticationContext.getApiVersion();
                     }
-
+                    token = info.getEndUserToken();
                     infoDTO = info;
                     return authenticationContext.isAuthenticated();
                 } else {
@@ -381,7 +387,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                             } else if (APIConstants.API_KEY_TYPE_SANDBOX.equals(info.getType())) {
                                 uri = "/_SANDBOX_" + uri;
                             }
-
+                            token = info.getEndUserToken();
                             infoDTO = info;
                             return info.isAuthorized();
                         }
