@@ -587,7 +587,7 @@ public class Utils {
                     tenantSubscriptionStore.getAllAPIsByContextList();
             if (contextAPIMap != null) {
                 contextAPIMap.forEach((context, api) -> {
-                    if (RESTUtils.matchApiPath(path, context)) {
+                    if (path != null && context != null && RESTUtils.matchApiPath(path, context)) {
                         selectedAPIMap.put(context, api);
                     }
                 });
