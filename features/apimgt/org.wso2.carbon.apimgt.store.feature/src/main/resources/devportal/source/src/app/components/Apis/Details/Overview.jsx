@@ -191,7 +191,7 @@ function Overview(props) {
     const {
         custom: {
             apiDetailPages: {
-                showCredentials, showComments, showTryout, showDocuments, showSdks,
+                showCredentials, showComments, showDocuments, showSdks,
             },
         },
     } = theme;
@@ -400,7 +400,7 @@ function Overview(props) {
                     </ExpansionPanel>
                 </Grid>
             )}
-            {api.type !== 'WS' && showTryout && (
+            {api.type !== 'WS' && (
                 <Grid item xs={12} lg={6}>
                     <ExpansionPanel defaultExpanded>
                         <ExpansionPanelSummary
