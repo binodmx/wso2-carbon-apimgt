@@ -293,6 +293,7 @@ public class WebsocketUtil {
 		info.setConsumerKey(authenticationContext.getConsumerKey());
 		info.setEndUserName(authenticationContext.getUsername());
 		info.setApiTier(authenticationContext.getApiTier());
+		info.setEndUserToken(authenticationContext.getCallerToken());
 		info.setGraphQLMaxDepth(authenticationContext.getGraphQLMaxDepth());
 		info.setGraphQLMaxComplexity(authenticationContext.getGraphQLMaxComplexity());
 
