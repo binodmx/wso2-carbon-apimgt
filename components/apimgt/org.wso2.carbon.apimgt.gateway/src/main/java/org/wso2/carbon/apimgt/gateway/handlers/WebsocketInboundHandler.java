@@ -55,6 +55,7 @@ import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerAnalyticsConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
+import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
 import org.wso2.carbon.apimgt.impl.jwt.SignedJWTInfo;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
@@ -201,8 +202,12 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 }
 
                 if (StringUtils.isNotEmpty(token)) {
-                    String backendJwtHeader = ServiceReferenceHolder.getInstance().getAPIManagerConfiguration()
-                            .getJwtConfigurationDto().getJwtHeader();
+                    String backendJwtHeader = null;
+                    JWTConfigurationDto jwtConfigurationDto = ServiceReferenceHolder.getInstance()
+                            .getAPIManagerConfiguration().getJwtConfigurationDto();
+                    if (jwtConfigurationDto != null) {
+                        backendJwtHeader = jwtConfigurationDto.getJwtHeader();
+                    }
                     if (StringUtils.isEmpty(backendJwtHeader)) {
                         backendJwtHeader = APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER;
                     }
