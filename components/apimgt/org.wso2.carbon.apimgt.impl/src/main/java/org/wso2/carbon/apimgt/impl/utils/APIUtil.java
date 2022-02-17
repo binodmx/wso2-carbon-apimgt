@@ -527,7 +527,7 @@ public final class APIUtil {
             }
             api.addTags(tags);
             api.setLastUpdated(registry.get(artifactPath).getLastModified());
-            if (registry.get(artifactPath).getCreatedTime() !=null) {
+            if (registry.get(artifactPath).getCreatedTime() != null) {
                 api.setCreatedTime(String.valueOf(registry.get(artifactPath).getCreatedTime().getTime()));
             }
             api.setImplementation(artifact.getAttribute(APIConstants.PROTOTYPE_OVERVIEW_IMPLEMENTATION));
