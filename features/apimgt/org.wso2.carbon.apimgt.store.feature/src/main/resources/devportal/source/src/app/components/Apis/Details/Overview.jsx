@@ -400,7 +400,7 @@ function Overview(props) {
                     </ExpansionPanel>
                 </Grid>
             )}
-            {api.type !== 'WS' && showTryout && (
+            {api.type !== 'WS' && (
                 <Grid item xs={12} lg={6}>
                     <ExpansionPanel defaultExpanded>
                         <ExpansionPanelSummary
@@ -421,7 +421,7 @@ function Overview(props) {
                         <ExpansionPanelDetails className={classes.resourceWrapper}>
                             {getResourcesForAPIs(api.type, api)}
                         </ExpansionPanelDetails>
-                        {!api.advertiseInfo.advertised && (
+                        {!api.advertiseInfo.advertised && showTryout && (
                             <>
                                 <Divider />
                                 <ExpansionPanelActions className={classes.actionPanel}>
