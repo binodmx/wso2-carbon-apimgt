@@ -1333,6 +1333,8 @@ public class APIUtilTest {
         API api = APIUtil.getAPI(artifact, registry);
 
         Assert.assertNotNull(api);
+        Assert.assertNotNull(api.getCreatedTime(), "Created time cannot be null");
+        Assert.assertNotNull(String.valueOf(api.getLastUpdated()), "Last updated time cannot be null");
     }
 
     @Test
