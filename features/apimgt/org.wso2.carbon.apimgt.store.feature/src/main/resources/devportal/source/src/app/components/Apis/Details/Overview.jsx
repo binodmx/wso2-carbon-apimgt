@@ -191,7 +191,7 @@ function Overview(props) {
     const {
         custom: {
             apiDetailPages: {
-                showCredentials, showComments, showDocuments, showSdks,
+                showCredentials, showComments, showTryout, showDocuments, showSdks,
             },
         },
     } = theme;
@@ -421,7 +421,7 @@ function Overview(props) {
                         <ExpansionPanelDetails className={classes.resourceWrapper}>
                             {getResourcesForAPIs(api.type, api)}
                         </ExpansionPanelDetails>
-                        {!api.advertiseInfo.advertised && (
+                        {!api.advertiseInfo.advertised && showTryout && (
                             <>
                                 <Divider />
                                 <ExpansionPanelActions className={classes.actionPanel}>
