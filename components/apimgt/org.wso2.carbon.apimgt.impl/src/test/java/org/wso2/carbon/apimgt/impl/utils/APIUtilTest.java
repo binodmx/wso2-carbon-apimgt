@@ -1308,6 +1308,7 @@ public class APIUtilTest {
         Mockito.when(GovernanceUtils.getArtifactPath(registry, "")).thenReturn(artifactPath);
         Mockito.when(registry.get(artifactPath)).thenReturn(resource);
         Mockito.when(resource.getLastModified()).thenReturn(expectedAPI.getLastUpdated());
+        Mockito.when(resource.getCreatedTime()).thenReturn(expectedAPI.getLastUpdated());
         Mockito.when(serviceReferenceHolder.getAPIManagerConfigurationService()).thenReturn(apiManagerConfigurationService);
         Mockito.when(apiManagerConfigurationService.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
         Mockito.when(apiManagerConfiguration.getThrottleProperties()).thenReturn(throttleProperties);
