@@ -10,42 +10,30 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpStatus;
-import org.apache.synapse.Mediator;
-import org.apache.synapse.MessageContext;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.wso2.carbon.apimgt.gateway.handlers.Utils;
+import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
-import org.wso2.carbon.apimgt.impl.APIConstants;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This Class can be used to calculate fields complexity values of GraphQL Query.
  */
 public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator {
     private static final Log log = LogFactory.getLog(FieldComplexityCalculatorImpl.class);
-    JSONParser jsonParser = new JSONParser();
-    JSONObject policyDefinition;
+    protected JSONParser jsonParser = new JSONParser();
+    protected JSONObject policyDefinition;
 
-    public FieldComplexityCalculatorImpl(MessageContext messageContext) {
-        try {
-            String graphQLAccessControlPolicy = (String) messageContext
-                    .getProperty(APIConstants.GRAPHQL_ACCESS_CONTROL_POLICY);
-            if (graphQLAccessControlPolicy == null) {
-                policyDefinition = new JSONObject();
-            } else {
-                JSONObject jsonObject = (JSONObject) jsonParser.parse(graphQLAccessControlPolicy);
-                 policyDefinition = (JSONObject) jsonObject.get(APIConstants.QUERY_ANALYSIS_COMPLEXITY);
-            }
-
-        } catch (ParseException e) {
-            String errorMessage = "Policy definition parsing failed. ";
-            handleFailure(APISecurityConstants.GRAPHQL_INVALID_QUERY, messageContext, errorMessage, errorMessage);
+    public FieldComplexityCalculatorImpl(String accessControlPolicy) throws ParseException {
+        if (accessControlPolicy == null) {
+            policyDefinition = new JSONObject();
+        } else {
+            JSONObject jsonObject = (JSONObject) jsonParser.parse(accessControlPolicy);
+            policyDefinition = (JSONObject) jsonObject.get(GraphQLConstants.QUERY_ANALYSIS_COMPLEXITY);
         }
     }
 
@@ -53,9 +41,9 @@ public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator 
     public int calculate(FieldComplexityEnvironment fieldComplexityEnvironment, int childComplexity) {
         String fieldName = fieldComplexityEnvironment.getField().getName();
         String parentType = fieldComplexityEnvironment.getParentType().getName();
-        List<Argument> ArgumentList = fieldComplexityEnvironment.getField().getArguments();
+        List<Argument> argumentList = fieldComplexityEnvironment.getField().getArguments();
 
-        int argumentsValue = getArgumentsValue(ArgumentList);
+        int argumentsValue = getArgumentsValue(argumentList);
         int customFieldComplexity = getCustomComplexity(fieldName, parentType, policyDefinition);
         return (argumentsValue * (customFieldComplexity + childComplexity));
     }
@@ -80,8 +68,8 @@ public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator 
                 String argumentName = object.getName();
                 // The below list of slicing arguments (keywords) effect query complexity to multiply by the factor
                 // given as the value of the argument.
-                List<String> slicingArguments = Arrays.asList("first", "last", "limit");
-                if (slicingArguments.contains(argumentName.toLowerCase())) {
+                List<String> slicingArguments = GraphQLConstants.QUERY_COMPLEXITY_SLICING_ARGS;
+                if (slicingArguments.contains(argumentName.toLowerCase(Locale.ROOT))) {
                     BigInteger value = null;
                     if (object.getValue() instanceof IntValue) {
                         value = ((IntValue) object.getValue()).getValue();
@@ -101,26 +89,6 @@ public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator 
         return argumentValue;
     }
 
-    /**
-     * This method handle the failure
-     *
-     * @param errorCodeValue   error code of the failure
-     * @param messageContext   message context of the request
-     * @param errorMessage     error message of the failure
-     * @param errorDescription error description of the failure
-     */
-    private void handleFailure(int errorCodeValue, MessageContext messageContext,
-                               String errorMessage, String errorDescription) {
-        OMElement payload = getFaultPayload(errorCodeValue, errorMessage, errorDescription);
-        Utils.setFaultPayload(messageContext, payload);
-        Mediator sequence = messageContext.getSequence(APISecurityConstants.GRAPHQL_API_FAILURE_HANDLER);
-        if (sequence != null && !sequence.mediate(messageContext)) {
-            return;
-        }
-        Utils.sendFault(messageContext, HttpStatus.SC_BAD_REQUEST);
-    }
-
-
     private OMElement getFaultPayload(int errorCodeValue, String message, String description) {
         OMFactory fac = OMAbstractFactory.getOMFactory();
         OMNamespace ns = fac.createOMNamespace(APISecurityConstants.API_SECURITY_NS,
@@ -139,5 +107,4 @@ public class FieldComplexityCalculatorImpl implements FieldComplexityCalculator 
         payload.addChild(errorDetail);
         return payload;
     }
-
 }

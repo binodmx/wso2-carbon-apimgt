@@ -49,6 +49,17 @@ public class AuthenticationContext {
     private String apiPublisher;
     private String apiVersion;
     private String issuer;
+    private List<String> requestTokenScopes;
+    private int graphQLMaxDepth;
+    private int graphQLMaxComplexity;
+
+    public List<String> getRequestTokenScopes() {
+        return requestTokenScopes;
+    }
+
+    public void setRequestTokenScopes(List<String> requestTokenScopes) {
+        this.requestTokenScopes = requestTokenScopes;
+    }
 
     public List<String> getThrottlingDataList() {
         return throttlingDataList;
@@ -245,4 +256,19 @@ public class AuthenticationContext {
         this.issuer = issuer;
     }
 
+    public int getGraphQLMaxDepth() {
+        return graphQLMaxDepth;
+    }
+
+    public void setGraphQLMaxDepth(int graphQLMaxDepth) {
+        this.graphQLMaxDepth = graphQLMaxDepth;
+    }
+
+    public int getGraphQLMaxComplexity() {
+        return graphQLMaxComplexity;
+    }
+
+    public void setGraphQLMaxComplexity(int graphQLMaxComplexity) {
+        this.graphQLMaxComplexity = graphQLMaxComplexity;
+    }
 }

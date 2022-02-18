@@ -19,6 +19,7 @@
 package org.wso2.carbon.apimgt.rest.api.store.v1.mappings;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -39,6 +40,7 @@ import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIType;
 import org.wso2.carbon.apimgt.impl.containermgt.ContainerBasedConstants;
+import org.wso2.carbon.apimgt.impl.definitions.GraphQLSchemaDefinition;
 import org.wso2.carbon.apimgt.impl.dto.Environment;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
@@ -776,6 +778,12 @@ public class APIMappingUtil {
                 String[] gwEndpoints = null;
                 if ("WS".equalsIgnoreCase(api.getType())) {
                     gwEndpoints = environment.getWebsocketGatewayEndpoint().split(",");
+                } else if (APIConstants.GRAPHQL_API.equalsIgnoreCase(api.getType())) {
+                    gwEndpoints = environment.getApiGatewayEndpoint().split(",");
+                    if (isGraphQLSubscriptionsAvailable(api)) {
+                        String[] gwWSEndpoints = environment.getWebsocketGatewayEndpoint().split(",");
+                        gwEndpoints = ArrayUtils.addAll(gwEndpoints, gwWSEndpoints);
+                    }
                 } else {
                     gwEndpoints = environment.getApiGatewayEndpoint().split(",");
                 }
@@ -1065,4 +1073,16 @@ public class APIMappingUtil {
         return subscriptionAllowed;
     }
 
+    /**
+     * Check if GraphQL API has at least one of SUBSCRIPTION type operations.
+     *
+     * @param api GraphQL API
+     * @return true if subscriptions exists
+     */
+    private static boolean isGraphQLSubscriptionsAvailable(API api) {
+
+        return api.getUriTemplates().stream()
+                .filter(uriTemplate -> APIConstants.GRAPHQL_SUBSCRIPTION.equalsIgnoreCase(uriTemplate.getHTTPVerb()))
+                .findAny().orElse(null) != null;
+    }
 }

@@ -37,6 +37,8 @@ import AuthManager from 'AppData/AuthManager';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import WarningIcon from '@material-ui/icons/Warning';
 import Progress from '../../../Shared/Progress';
 import Api from '../../../../data/api';
@@ -99,6 +101,16 @@ const styles = makeStyles((theme) => ({
         fontSize: 25,
         marginRight: 10,
     },
+    loadMoreLink: {
+        textDecoration: 'none',
+        margin: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    link: {
+        color: theme.palette.getContrastText(theme.palette.background.default),
+        cursor: 'pointer',
+    },
 }));
 
 /**
@@ -114,7 +126,7 @@ function TryOutController(props) {
         setSelectedKeyManager,
         setSelectedEnvironment, setProductionAccessToken, setSandboxAccessToken, scopes,
         setSecurityScheme, setUsername, setPassword, username, password, updateSwagger,
-        setProductionApiKey, setSandboxApiKey, productionApiKey, sandboxApiKey, environmentObject, setURLs, api,
+        setProductionApiKey, setSandboxApiKey, productionApiKey, sandboxApiKey, environmentObject, setURLs, api, URLs,
     } = props;
     let { selectedKeyManager } = props;
     selectedKeyManager = selectedKeyManager || 'Resident Key Manager';
@@ -128,6 +140,7 @@ function TryOutController(props) {
     const [keyManagers, setKeyManagers] = useState([]);
     const [selectedKMObject, setSelectedKMObject] = useState(null);
     const [ksGenerated, setKSGenerated] = useState(false);
+    const [showMoreGWUrls, setShowMoreGWUrls] = useState(false);
     const apiID = api.id;
     const restApi = new Api();
 
@@ -506,7 +519,7 @@ function TryOutController(props) {
                                                     <FormattedMessage
                                                         id='Apis.Details.ApiConsole.TryOutController.default.km.msg.two'
                                                         defaultMessage={'Try it console is only accessible via the default key manager.'
-                                        + 'But the default key manager is disabled at the moment.'}
+                                                            + 'But the default key manager is disabled at the moment.'}
                                                     />
                                                 </div>
                                             </>
@@ -515,7 +528,7 @@ function TryOutController(props) {
                                             <FormattedMessage
                                                 id='Apis.Details.ApiConsole.TryOutController.default.km.msg.three'
                                                 defaultMessage={'Try it console is only accessible via the default key manager.'
-                                        + 'Something went wrong while selecting the default Key manager.'}
+                                                    + 'Something went wrong while selecting the default Key manager.'}
                                             />
                                         )}
                                     </Box>
@@ -618,7 +631,7 @@ function TryOutController(props) {
                                                         <FormattedMessage
                                                             id='Apis.Details.ApiConsole.ApiConsole.keys.not.generated'
                                                             defaultMessage={'Consumer key and secret not generated for the selected'
-                                                            + ' application on the {what} environment. '}
+                                                                + ' application on the {what} environment. '}
                                                             values={{ what: selectedKeyType }}
                                                         />
                                                     </div>
@@ -843,6 +856,75 @@ function TryOutController(props) {
                                                         ))
                                                     )}
                                                 </TextField>
+                                                {api && api.type === 'GRAPHQL' && (
+                                                    <>
+                                                        <Typography className={classes.verticalSpace} variant='body1'>
+                                                            <a
+                                                                className={classes.link + ' ' + classes.loadMoreLink}
+                                                                onClick={() => setShowMoreGWUrls(!showMoreGWUrls)}
+                                                                onKeyDown={() => setShowMoreGWUrls(!showMoreGWUrls)}
+                                                            >
+                                                                {!showMoreGWUrls ? (
+                                                                    <>
+                                                                        <FormattedMessage
+                                                                            id={'Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                                                + '.show.more'}
+                                                                            defaultMessage='Show More'
+                                                                        />
+                                                                        <ExpandMoreIcon />
+
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <FormattedMessage
+                                                                            id={'Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                                                + '.show.less'}
+                                                                            defaultMessage='Show Less'
+                                                                        />
+                                                                        <ExpandLessIcon />
+                                                                    </>
+                                                                )}
+                                                            </a>
+                                                        </Typography>
+                                                        {showMoreGWUrls && (
+                                                            <>
+                                                                <TextField
+                                                                    label={(
+                                                                        <FormattedMessage
+                                                                            defaultMessage='Gateway URLs'
+                                                                            id={'Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                                                + '.show.more.http.URLs'}
+                                                                        />
+                                                                    )}
+                                                                    value={URLs && URLs.https}
+                                                                    name='selectedHTTPURL'
+                                                                    fullWidth
+                                                                    margin='normal'
+                                                                    variant='outlined'
+                                                                    InputProps={URLs && URLs.https}
+                                                                />
+                                                                {URLs && (URLs.wss || URLs.ws)
+                                                                    && (
+                                                                        <TextField
+                                                                            label={(
+                                                                                <FormattedMessage
+                                                                                    defaultMessage='Subscription Gateway URLs'
+                                                                                    id={'Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                                                        + '.show.more.subscription.URLs'}
+                                                                                />
+                                                                            )}
+                                                                            value={URLs && (URLs.wss || URLs.ws)}
+                                                                            name='selectedWSURL'
+                                                                            fullWidth
+                                                                            margin='normal'
+                                                                            variant='outlined'
+                                                                            InputProps={URLs && (URLs.wss || URLs.ws)}
+                                                                        />
+                                                                    )}
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
                                             </>
                                         )}
                                 </Grid>
@@ -851,94 +933,94 @@ function TryOutController(props) {
                     </Grid>
                 )}
             {(isPrototypedAPI && !api.enableStore)
-                    && (
-                        <Box display='flex' justifyContent='center' className={classes.gatewayEnvironment}>
-                            <Grid xs={12} md={6} item>
-                                {((environments && environments.length > 0) || (containerMngEnvMenuItems.length > 0)
-                                        || (labels && labels.length > 0))
-                                        && (
-                                            <>
-                                                <Typography
-                                                    variant='h5'
-                                                    component='h3'
-                                                    color='textPrimary'
-                                                    className={classes.categoryHeading}
-                                                >
-                                                    <FormattedMessage
-                                                        id='api.console.gateway.heading'
-                                                        defaultMessage='Gateway'
-                                                    />
-                                                </Typography>
-                                                <TextField
-                                                    fullWidth
-                                                    select
-                                                    label={(
+                && (
+                    <Box display='flex' justifyContent='center' className={classes.gatewayEnvironment}>
+                        <Grid xs={12} md={6} item>
+                            {((environments && environments.length > 0) || (containerMngEnvMenuItems.length > 0)
+                                || (labels && labels.length > 0))
+                                && (
+                                    <>
+                                        <Typography
+                                            variant='h5'
+                                            component='h3'
+                                            color='textPrimary'
+                                            className={classes.categoryHeading}
+                                        >
+                                            <FormattedMessage
+                                                id='api.console.gateway.heading'
+                                                defaultMessage='Gateway'
+                                            />
+                                        </Typography>
+                                        <TextField
+                                            fullWidth
+                                            select
+                                            label={(
+                                                <FormattedMessage
+                                                    defaultMessage='Environment'
+                                                    id='Apis.Details.ApiConsole.environment'
+                                                />
+                                            )}
+                                            value={selectedEnvironment || (environments && environments[0])}
+                                            name='selectedEnvironment'
+                                            onChange={handleChanges}
+                                            helperText={(
+                                                <FormattedMessage
+                                                    defaultMessage='Please select an environment'
+                                                    id='Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                />
+                                            )}
+                                            margin='normal'
+                                            variant='outlined'
+                                        >
+                                            {environments && environments.length > 0 && (
+                                                <MenuItem value='' disabled className={classes.menuItem}>
+                                                    <em>
                                                         <FormattedMessage
-                                                            defaultMessage='Environment'
-                                                            id='Apis.Details.ApiConsole.environment'
+                                                            id='api.gateways'
+                                                            defaultMessage='API Gateways'
                                                         />
-                                                    )}
-                                                    value={selectedEnvironment || (environments && environments[0])}
-                                                    name='selectedEnvironment'
-                                                    onChange={handleChanges}
-                                                    helperText={(
+                                                    </em>
+                                                </MenuItem>
+                                            )}
+                                            {environments && (
+                                                environments.map((env) => (
+                                                    <MenuItem
+                                                        value={env}
+                                                        key={env}
+                                                        className={classes.menuItem}
+                                                    >
+                                                        {env}
+                                                    </MenuItem>
+                                                )))}
+                                            {containerMngEnvMenuItems}
+                                            {labels && labels.length > 0 && (
+                                                <MenuItem value='' disabled>
+                                                    <em>
                                                         <FormattedMessage
-                                                            defaultMessage='Please select an environment'
-                                                            id='Apis.Details.ApiConsole.SelectAppPanel.environment'
+                                                            id='gateways'
+                                                            defaultMessage='Gateways'
+                                                            className={classes.menuItem}
                                                         />
-                                                    )}
-                                                    margin='normal'
-                                                    variant='outlined'
-                                                >
-                                                    {environments && environments.length > 0 && (
-                                                        <MenuItem value='' disabled className={classes.menuItem}>
-                                                            <em>
-                                                                <FormattedMessage
-                                                                    id='api.gateways'
-                                                                    defaultMessage='API Gateways'
-                                                                />
-                                                            </em>
-                                                        </MenuItem>
-                                                    )}
-                                                    {environments && (
-                                                        environments.map((env) => (
-                                                            <MenuItem
-                                                                value={env}
-                                                                key={env}
-                                                                className={classes.menuItem}
-                                                            >
-                                                                {env}
-                                                            </MenuItem>
-                                                        )))}
-                                                    {containerMngEnvMenuItems}
-                                                    {labels && labels.length > 0 && (
-                                                        <MenuItem value='' disabled>
-                                                            <em>
-                                                                <FormattedMessage
-                                                                    id='gateways'
-                                                                    defaultMessage='Gateways'
-                                                                    className={classes.menuItem}
-                                                                />
-                                                            </em>
-                                                        </MenuItem>
-                                                    )}
-                                                    {labels && (
-                                                        labels.map((label) => (
-                                                            <MenuItem
-                                                                value={label}
-                                                                key={label}
-                                                                className={classes.menuItem}
-                                                            >
-                                                                {label}
-                                                            </MenuItem>
-                                                        ))
-                                                    )}
-                                                </TextField>
-                                            </>
-                                        )}
-                            </Grid>
-                        </Box>
-                    )}
+                                                    </em>
+                                                </MenuItem>
+                                            )}
+                                            {labels && (
+                                                labels.map((label) => (
+                                                    <MenuItem
+                                                        value={label}
+                                                        key={label}
+                                                        className={classes.menuItem}
+                                                    >
+                                                        {label}
+                                                    </MenuItem>
+                                                ))
+                                            )}
+                                        </TextField>
+                                    </>
+                                )}
+                        </Grid>
+                    </Box>
+                )}
         </>
     );
 }

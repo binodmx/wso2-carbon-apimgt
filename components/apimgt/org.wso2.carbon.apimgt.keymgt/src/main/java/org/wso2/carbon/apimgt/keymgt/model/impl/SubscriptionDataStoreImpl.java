@@ -747,6 +747,7 @@ public class SubscriptionDataStoreImpl implements SubscriptionDataStore {
 
     @Override
     public Map<String, API> getAllAPIsByContextList() {
+
         Map<String, API> apiContextAPIMap = new HashMap<>();
         for (API api : apiMap.values()) {
             apiContextAPIMap.put(api.getContext(), api);

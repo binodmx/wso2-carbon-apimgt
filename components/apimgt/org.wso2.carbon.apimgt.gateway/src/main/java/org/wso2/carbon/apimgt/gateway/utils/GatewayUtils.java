@@ -121,6 +121,9 @@ public class GatewayUtils {
 
         org.apache.axis2.context.MessageContext axis2MsgContext =
                 ((Axis2MessageContext) synCtx).getAxis2MessageContext();
+        if ((axis2MsgContext).getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS) == null) {
+            return null;
+        }
         Map headers =
                 (Map) (axis2MsgContext).getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
         String xForwardForHeader = (String) headers.get(HEADER_X_FORWARDED_FOR);
@@ -596,6 +599,7 @@ public class GatewayUtils {
         authContext.setAuthenticated(true);
         authContext.setApiKey(jti);
         authContext.setUsername(getEndUserFromJWTValidationInfo(jwtValidationInfo, apiKeyValidationInfoDTO));
+        authContext.setRequestTokenScopes(jwtValidationInfo.getScopes());
 
         if (apiKeyValidationInfoDTO != null) {
             authContext.setApiTier(apiKeyValidationInfoDTO.getApiTier());
@@ -613,6 +617,8 @@ public class GatewayUtils {
             authContext.setSpikeArrestUnit(apiKeyValidationInfoDTO.getSpikeArrestUnit());
             authContext.setConsumerKey(apiKeyValidationInfoDTO.getConsumerKey());
             authContext.setIsContentAware(apiKeyValidationInfoDTO.isContentAware());
+            authContext.setGraphQLMaxDepth(apiKeyValidationInfoDTO.getGraphQLMaxDepth());
+            authContext.setGraphQLMaxComplexity(apiKeyValidationInfoDTO.getGraphQLMaxComplexity());
         }
         if (isOauth) {
             authContext.setConsumerKey(jwtValidationInfo.getConsumerKey());

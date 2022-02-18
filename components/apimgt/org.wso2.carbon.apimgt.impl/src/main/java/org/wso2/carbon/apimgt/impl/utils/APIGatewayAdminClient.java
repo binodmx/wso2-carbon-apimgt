@@ -230,6 +230,7 @@ public class APIGatewayAdminClient extends AbstractAPIGatewayAdminClient {
         org.wso2.carbon.apimgt.api.gateway.xsd.GatewayAPIDTO gatewayAPIDTOStub =
                 new org.wso2.carbon.apimgt.api.gateway.xsd.GatewayAPIDTO();
         gatewayAPIDTOStub.setName(gatewayAPIDTO.getName());
+        gatewayAPIDTOStub.setApiId(gatewayAPIDTO.getApiId());
         gatewayAPIDTOStub.setVersion(gatewayAPIDTO.getVersion());
         gatewayAPIDTOStub.setProvider(gatewayAPIDTO.getProvider());
         gatewayAPIDTOStub.setTenantDomain(gatewayAPIDTO.getTenantDomain());
@@ -278,6 +279,21 @@ public class APIGatewayAdminClient extends AbstractAPIGatewayAdminClient {
                 gatewayAPIDTOStub.addSequencesToBeRemove(alias);
             }
         }
+        if (gatewayAPIDTO.getGraphQLWSSequenceToBeAdd() != null) {
+            for (GatewayContentDTO sequence : gatewayAPIDTO.getGraphQLWSSequenceToBeAdd()) {
+                org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO sequenceDto =
+                        new org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO();
+                sequenceDto.setName(sequence.getName());
+                sequenceDto.setContent(sequence.getContent());
+                gatewayAPIDTOStub.addGraphQLWSSequenceToBeAdd(sequenceDto);
+            }
+        }
+        if (gatewayAPIDTO.getGraphQLWSSequencesToBeRemove() != null) {
+            for (String alias : gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()) {
+                gatewayAPIDTOStub.addGraphQLWSSequencesToBeRemove(alias);
+            }
+        }
+        gatewayAPIDTOStub.setGraphQLSchema(gatewayAPIDTO.getGraphQLSchema());
         if (gatewayAPIDTO.getLocalEntriesToBeAdd() != null) {
             for (GatewayContentDTO localEntry : gatewayAPIDTO.getLocalEntriesToBeAdd()) {
                 org.wso2.carbon.apimgt.api.gateway.xsd.GatewayContentDTO localEntryDto =

@@ -225,25 +225,47 @@ class Environments extends React.Component {
                                             )}
                                         {endpoint.URLs.http !== null && (
                                             <Grid item xs={12}>
-                                                <TextField
-                                                    defaultValue={endpoint.URLs.http}
-                                                    id='bootstrap-input'
-                                                    InputProps={{
-                                                        disableUnderline: true,
-                                                        readOnly: true,
-                                                        classes: {
-                                                            root: classes.bootstrapRoot,
-                                                            input: classes.bootstrapInput,
-                                                        },
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                        className: classes.bootstrapFormLabel,
-                                                    }}
-                                                    inputProps={{
-                                                        'aria-labelledby':'urls',
-                                                    }}
-                                                />
+                                                <Tooltip
+                                                    placement='right'
+                                                    title={
+                                                        (api.type === 'GRAPHQL')
+                                                            ? (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.GraphQL.Http'}
+                                                                    defaultMessage={'Gateway HTTP URL for GraphQL'
+                                                                        + ' Queries and Mutations'}
+                                                                />
+                                                            )
+                                                            : (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.Http'}
+                                                                    defaultMessage='Gateway HTTP URL'
+                                                                />
+                                                            )
+                                                    }
+                                                >
+                                                    <TextField
+                                                        defaultValue={endpoint.URLs.http}
+                                                        id='bootstrap-input'
+                                                        InputProps={{
+                                                            disableUnderline: true,
+                                                            readOnly: true,
+                                                            classes: {
+                                                                root: classes.bootstrapRoot,
+                                                                input: classes.bootstrapInput,
+                                                            },
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                            className: classes.bootstrapFormLabel,
+                                                        }}
+                                                        inputProps={{
+                                                            'aria-labelledby': 'urls',
+                                                        }}
+                                                    />
+                                                </Tooltip>
                                                 <Tooltip
                                                     title={
                                                         urlCopied
@@ -272,25 +294,47 @@ class Environments extends React.Component {
                                         )}
                                         {endpoint.URLs.https !== null && (
                                             <Grid item xs={12}>
-                                                <TextField
-                                                    defaultValue={endpoint.URLs.https}
-                                                    id='environments-input'
-                                                    InputProps={{
-                                                        disableUnderline: true,
-                                                        readOnly: true,
-                                                        classes: {
-                                                            root: classes.bootstrapRoot,
-                                                            input: classes.bootstrapInput,
-                                                        },
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                        className: classes.bootstrapFormLabel,
-                                                    }}
-                                                    inputProps={{
-                                                        'aria-labelledby':'urls',
-                                                    }}
-                                                />
+                                                <Tooltip
+                                                    placement='right'
+                                                    title={
+                                                        (api.type === 'GRAPHQL')
+                                                            ? (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.GraphQL.Https'}
+                                                                    defaultMessage={'Gateway HTTPs URL for GraphQL'
+                                                                        + ' Queries and Mutations'}
+                                                                />
+                                                            )
+                                                            : (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.Https'}
+                                                                    defaultMessage='Gateway HTTPs URL'
+                                                                />
+                                                            )
+                                                    }
+                                                >
+                                                    <TextField
+                                                        defaultValue={endpoint.URLs.https}
+                                                        id='environments-input'
+                                                        InputProps={{
+                                                            disableUnderline: true,
+                                                            readOnly: true,
+                                                            classes: {
+                                                                root: classes.bootstrapRoot,
+                                                                input: classes.bootstrapInput,
+                                                            },
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                            className: classes.bootstrapFormLabel,
+                                                        }}
+                                                        inputProps={{
+                                                            'aria-labelledby': 'urls',
+                                                        }}
+                                                    />
+                                                </Tooltip>
                                                 <Tooltip
                                                     title={
                                                         urlCopied
@@ -319,22 +363,44 @@ class Environments extends React.Component {
                                         )}
                                         {endpoint.URLs.ws !== null && (
                                             <Grid item xs={12}>
-                                                <TextField
-                                                    defaultValue={endpoint.URLs.ws}
-                                                    id='bootstrap-input'
-                                                    InputProps={{
-                                                        disableUnderline: true,
-                                                        readOnly: true,
-                                                        classes: {
-                                                            root: classes.bootstrapRoot,
-                                                            input: classes.bootstrapInput,
-                                                        },
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                        className: classes.bootstrapFormLabel,
-                                                    }}
-                                                />
+                                                <Tooltip
+                                                    placement='right'
+                                                    title={
+                                                        (api.type === 'GRAPHQL')
+                                                            ? (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.GraphQL.Ws'}
+                                                                    defaultMessage={'Gateway WebSocket'
+                                                                        + ' URL for GraphQL Subscriptions'}
+                                                                />
+                                                            )
+                                                            : (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.Ws'}
+                                                                    defaultMessage='Gateway WebSocket URL'
+                                                                />
+                                                            )
+                                                    }
+                                                >
+                                                    <TextField
+                                                        defaultValue={endpoint.URLs.ws}
+                                                        id='bootstrap-input'
+                                                        InputProps={{
+                                                            disableUnderline: true,
+                                                            readOnly: true,
+                                                            classes: {
+                                                                root: classes.bootstrapRoot,
+                                                                input: classes.bootstrapInput,
+                                                            },
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                            className: classes.bootstrapFormLabel,
+                                                        }}
+                                                    />
+                                                </Tooltip>
                                                 <Tooltip
                                                     title={
                                                         urlCopied
@@ -363,22 +429,44 @@ class Environments extends React.Component {
                                         )}
                                         {endpoint.URLs.wss !== null && (
                                             <Grid item xs={12}>
-                                                <TextField
-                                                    defaultValue={endpoint.URLs.wss}
-                                                    id='bootstrap-input'
-                                                    InputProps={{
-                                                        disableUnderline: true,
-                                                        readOnly: true,
-                                                        classes: {
-                                                            root: classes.bootstrapRoot,
-                                                            input: classes.bootstrapInput,
-                                                        },
-                                                    }}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                        className: classes.bootstrapFormLabel,
-                                                    }}
-                                                />
+                                                <Tooltip
+                                                    placement='right'
+                                                    title={
+                                                        (api.type === 'GRAPHQL')
+                                                            ? (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.GraphQL.Wss'}
+                                                                    defaultMessage={'Gateway WebSocket Secure'
+                                                                        + ' URL for GraphQL Subscriptions'}
+                                                                />
+                                                            )
+                                                            : (
+                                                                <FormattedMessage
+                                                                    id={'Apis.Details.Environments.Environments.'
+                                                                        + 'APIGateways.EndpointUrls.Wss'}
+                                                                    defaultMessage='Gateway WebSocket Secure URL'
+                                                                />
+                                                            )
+                                                    }
+                                                >
+                                                    <TextField
+                                                        defaultValue={endpoint.URLs.wss}
+                                                        id='bootstrap-input'
+                                                        InputProps={{
+                                                            disableUnderline: true,
+                                                            readOnly: true,
+                                                            classes: {
+                                                                root: classes.bootstrapRoot,
+                                                                input: classes.bootstrapInput,
+                                                            },
+                                                        }}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                            className: classes.bootstrapFormLabel,
+                                                        }}
+                                                    />
+                                                </Tooltip>
                                                 <Tooltip
                                                     title={
                                                         urlCopied
@@ -420,22 +508,44 @@ class Environments extends React.Component {
                                         {endpoint.defaultVersionURLs !== null &&
                                             endpoint.defaultVersionURLs.http !== null && (
                                                 <Grid item xs={12}>
-                                                    <TextField
-                                                        defaultValue={endpoint.defaultVersionURLs.http}
-                                                        id='defaultGateway'
-                                                        InputProps={{
-                                                            disableUnderline: true,
-                                                            readOnly: true,
-                                                            classes: {
-                                                                root: classes.bootstrapRoot,
-                                                                input: classes.bootstrapInput,
-                                                            },
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                            className: classes.bootstrapFormLabel,
-                                                        }}
-                                                    />
+                                                    <Tooltip
+                                                        placement='right'
+                                                        title={
+                                                            (api.type === 'GRAPHQL')
+                                                                ? (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.GraphQL.Http'}
+                                                                        defaultMessage={'Gateway HTTP URL for GraphQL'
+                                                                            + ' Queries and Mutations'}
+                                                                    />
+                                                                )
+                                                                : (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.Http'}
+                                                                        defaultMessage='Gateway HTTP URL'
+                                                                    />
+                                                                )
+                                                        }
+                                                    >
+                                                        <TextField
+                                                            defaultValue={endpoint.defaultVersionURLs.http}
+                                                            id='defaultGateway'
+                                                            InputProps={{
+                                                                disableUnderline: true,
+                                                                readOnly: true,
+                                                                classes: {
+                                                                    root: classes.bootstrapRoot,
+                                                                    input: classes.bootstrapInput,
+                                                                },
+                                                            }}
+                                                            InputLabelProps={{
+                                                                shrink: true,
+                                                                className: classes.bootstrapFormLabel,
+                                                            }}
+                                                        />
+                                                    </Tooltip>
                                                     <Tooltip
                                                         title={
                                                             urlCopied
@@ -465,22 +575,44 @@ class Environments extends React.Component {
                                         {endpoint.defaultVersionURLs !== null &&
                                             endpoint.defaultVersionURLs.https !== null && (
                                                 <Grid item xs={12}>
-                                                    <TextField
-                                                        defaultValue={endpoint.defaultVersionURLs.https}
-                                                        id='bootstrap-input'
-                                                        InputProps={{
-                                                            disableUnderline: true,
-                                                            readOnly: true,
-                                                            classes: {
-                                                                root: classes.bootstrapRoot,
-                                                                input: classes.bootstrapInput,
-                                                            },
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                            className: classes.bootstrapFormLabel,
-                                                        }}
-                                                    />
+                                                    <Tooltip
+                                                        placement='right'
+                                                        title={
+                                                            (api.type === 'GRAPHQL')
+                                                                ? (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.GraphQL.Https'}
+                                                                        defaultMessage={'Gateway HTTPs URL for GraphQL'
+                                                                            + ' Queries and Mutations'}
+                                                                    />
+                                                                )
+                                                                : (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.Https'}
+                                                                        defaultMessage='Gateway HTTPs URL'
+                                                                    />
+                                                                )
+                                                        }
+                                                    >
+                                                        <TextField
+                                                            defaultValue={endpoint.defaultVersionURLs.https}
+                                                            id='bootstrap-input'
+                                                            InputProps={{
+                                                                disableUnderline: true,
+                                                                readOnly: true,
+                                                                classes: {
+                                                                    root: classes.bootstrapRoot,
+                                                                    input: classes.bootstrapInput,
+                                                                },
+                                                            }}
+                                                            InputLabelProps={{
+                                                                shrink: true,
+                                                                className: classes.bootstrapFormLabel,
+                                                            }}
+                                                        />
+                                                    </Tooltip>
                                                     <Tooltip
                                                         title={
                                                             urlCopied
@@ -510,22 +642,44 @@ class Environments extends React.Component {
                                         {endpoint.defaultVersionURLs !== null &&
                                             endpoint.defaultVersionURLs.ws !== null && (
                                                 <Grid item xs={12}>
-                                                    <TextField
-                                                        defaultValue={endpoint.defaultVersionURLs.ws}
-                                                        id='bootstrap-input'
-                                                        InputProps={{
-                                                            disableUnderline: true,
-                                                            readOnly: true,
-                                                            classes: {
-                                                                root: classes.bootstrapRoot,
-                                                                input: classes.bootstrapInput,
-                                                            },
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                            className: classes.bootstrapFormLabel,
-                                                        }}
-                                                    />
+                                                    <Tooltip
+                                                        placement='right'
+                                                        title={
+                                                            (api.type === 'GRAPHQL')
+                                                                ? (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.GraphQL.Ws'}
+                                                                        defaultMessage={'Gateway WebSocket'
+                                                                            + ' URL for GraphQL Subscriptions'}
+                                                                    />
+                                                                )
+                                                                : (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.Ws'}
+                                                                        defaultMessage='Gateway WebSocket URL'
+                                                                    />
+                                                                )
+                                                        }
+                                                    >
+                                                        <TextField
+                                                            defaultValue={endpoint.defaultVersionURLs.ws}
+                                                            id='bootstrap-input'
+                                                            InputProps={{
+                                                                disableUnderline: true,
+                                                                readOnly: true,
+                                                                classes: {
+                                                                    root: classes.bootstrapRoot,
+                                                                    input: classes.bootstrapInput,
+                                                                },
+                                                            }}
+                                                            InputLabelProps={{
+                                                                shrink: true,
+                                                                className: classes.bootstrapFormLabel,
+                                                            }}
+                                                        />
+                                                    </Tooltip>
                                                     <Tooltip
                                                         title={
                                                             urlCopied
@@ -555,22 +709,44 @@ class Environments extends React.Component {
                                         {endpoint.defaultVersionURLs !== null &&
                                             endpoint.defaultVersionURLs.wss !== null && (
                                                 <Grid item xs={12}>
-                                                    <TextField
-                                                        defaultValue={endpoint.defaultVersionURLs.wss}
-                                                        id='bootstrap-input'
-                                                        InputProps={{
-                                                            disableUnderline: true,
-                                                            readOnly: true,
-                                                            classes: {
-                                                                root: classes.bootstrapRoot,
-                                                                input: classes.bootstrapInput,
-                                                            },
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                            className: classes.bootstrapFormLabel,
-                                                        }}
-                                                    />
+                                                    <Tooltip
+                                                        placement='right'
+                                                        title={
+                                                            (api.type === 'GRAPHQL')
+                                                                ? (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.GraphQL.Wss'}
+                                                                        defaultMessage={'Gateway WebSocket Secure'
+                                                                            + ' URL for GraphQL Subscriptions'}
+                                                                    />
+                                                                )
+                                                                : (
+                                                                    <FormattedMessage
+                                                                        id={'Apis.Details.Environments.Environments.'
+                                                                            + 'APIGateways.EndpointUrls.Wss'}
+                                                                        defaultMessage='Gateway WebSocket Secure URL'
+                                                                    />
+                                                                )
+                                                        }
+                                                    >
+                                                        <TextField
+                                                            defaultValue={endpoint.defaultVersionURLs.wss}
+                                                            id='bootstrap-input'
+                                                            InputProps={{
+                                                                disableUnderline: true,
+                                                                readOnly: true,
+                                                                classes: {
+                                                                    root: classes.bootstrapRoot,
+                                                                    input: classes.bootstrapInput,
+                                                                },
+                                                            }}
+                                                            InputLabelProps={{
+                                                                shrink: true,
+                                                                className: classes.bootstrapFormLabel,
+                                                            }}
+                                                        />
+                                                    </Tooltip>
                                                     <Tooltip
                                                         title={
                                                             urlCopied
@@ -641,10 +817,10 @@ class Environments extends React.Component {
                                         <div className={classes.iconAligner}>
                                             <Icon className={classes.iconEven}>cloud</Icon>
                                             <span className={classes.iconTextWrapper}>
-                                            <Typography className={classes.heading}>
-                                                {cluster.clusterDisplayName}
-                                            </Typography>
-                                        </span>
+                                                <Typography className={classes.heading}>
+                                                    {cluster.clusterDisplayName}
+                                                </Typography>
+                                            </span>
                                         </div>
                                     </ExpansionPanelSummary>
                                     <ExpansionPanelDetails>

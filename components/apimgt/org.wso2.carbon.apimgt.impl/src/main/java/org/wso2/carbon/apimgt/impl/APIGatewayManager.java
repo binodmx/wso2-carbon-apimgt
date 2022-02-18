@@ -27,6 +27,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.dto.ClientCertificateDTO;
 import org.wso2.carbon.apimgt.api.gateway.CredentialDto;
@@ -212,6 +214,15 @@ public class APIGatewayManager {
             startTime = System.currentTimeMillis();
             if (!APIConstants.APITransportType.WS.toString().equals(api.getType())) {
                 gatewayAPIDTO = createAPIGatewayDTOtoPublishAPI(environment, api, builder, tenantDomain);
+
+                if (StringUtils.equalsIgnoreCase(APIConstants.GRAPHQL_API, api.getType())) {
+                    String endpointConfig = api.getEndpointConfig();
+                    // This is for the GraphQL subscriptions to work
+                    setWsSpecificInfo(api, gatewayAPIDTO);
+                    // Restore the original endpoint config after the Web Socket information have been processed
+                    api.setEndpointConfig(endpointConfig);
+                }
+
                 if (gatewayAPIDTO == null) {
                     return failedGatewaysMap;
                 } else {
@@ -305,6 +316,7 @@ public class APIGatewayManager {
                     definition + "]]>" + "</localEntry>");
             gatewayAPIDTO.setLocalEntriesToBeAdd(addGatewayContentToList(graphqlLocalEntry,
                     gatewayAPIDTO.getLocalEntriesToBeAdd()));
+            gatewayAPIDTO.setGraphQLSchema(definition);
             Set<URITemplate> uriTemplates = new HashSet<>();
             URITemplate template = new URITemplate();
             template.setAuthType("Any");
@@ -873,15 +885,11 @@ public class APIGatewayManager {
             }
             setCustomSequencesToBeRemoved(api, gatewayAPIDTO);
             setCustomSequencesToBeRemoved(api, gatewayAPIDTO);
+            if (StringUtils.equalsIgnoreCase(APIConstants.GRAPHQL_API, api.getType())) {
+                setWsSequencesToRemove(api, gatewayAPIDTO);
+            }
         } else {
-            String fileName = api.getContext().replace('/', '-');
-            String[] fileNames = new String[2];
-            fileNames[0] = ENDPOINT_PRODUCTION + fileName;
-            fileNames[1] = ENDPOINT_SANDBOX + fileName;
-            gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileNames[0],
-                    gatewayAPIDTO.getSequencesToBeRemove()));
-            gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileNames[1],
-                    gatewayAPIDTO.getSequencesToBeRemove()));
+            setWsSequencesToRemove(api, gatewayAPIDTO);
         }
 
         String localEntryUUId = api.getUUID();
@@ -893,6 +901,29 @@ public class APIGatewayManager {
                     gatewayAPIDTO.getLocalEntriesToBeRemove()));
         }
         return gatewayAPIDTO;
+    }
+
+    /**
+     * Set Web Socket sequences to be removed to Gateway API DTO
+     *
+     * @param api           The API to be removed
+     * @param gatewayAPIDTO The Gateway API DTO to be modified
+     */
+    private void setWsSequencesToRemove(API api, GatewayAPIDTO gatewayAPIDTO) {
+        String fileName = api.getContext().replace('/', '-');
+        String[] fileNames = new String[2];
+        fileNames[0] = ENDPOINT_PRODUCTION + fileName;
+        fileNames[1] = ENDPOINT_SANDBOX + fileName;
+
+        if (APIConstants.APITransportType.WS.toString().equals(api.getType())) {
+            gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileNames[0], gatewayAPIDTO.getSequencesToBeRemove()));
+            gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileNames[1], gatewayAPIDTO.getSequencesToBeRemove()));
+        } else {
+            gatewayAPIDTO.setGraphQLWSSequencesToBeRemove(
+                    addStringToList(fileNames[0], gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()));
+            gatewayAPIDTO.setGraphQLWSSequencesToBeRemove(
+                    addStringToList(fileNames[1], gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()));
+        }
     }
 
     /**
@@ -987,58 +1018,90 @@ public class APIGatewayManager {
         gatewayAPIDTO.setProvider(api.getId().getProviderName());
         gatewayAPIDTO.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
         gatewayAPIDTO.setOverride(true);
+        setWsSpecificInfo(api, gatewayAPIDTO);
         try {
-            String production_endpoint = null;
-            String sandbox_endpoint = null;
-            JSONObject obj = new JSONObject(api.getEndpointConfig());
-            if (obj.has(APIConstants.API_DATA_PRODUCTION_ENDPOINTS)) {
-                production_endpoint = obj.getJSONObject(APIConstants.API_DATA_PRODUCTION_ENDPOINTS).getString("url");
+            if (gatewayArtifactSynchronizerProperties.isPublishDirectlyToGatewayEnabled()) {
+                if (!isGatewayDefinedAsALabel) {
+                    client.deployAPI(gatewayAPIDTO);
+                }
             }
-            if (obj.has(APIConstants.API_DATA_SANDBOX_ENDPOINTS)) {
-                sandbox_endpoint = obj.getJSONObject(APIConstants.API_DATA_SANDBOX_ENDPOINTS).getString("url");
+
+            if (saveArtifactsToStorage) {
+                artifactSaver.saveArtifact(new Gson().toJson(gatewayAPIDTO), environment.getName(),
+                        APIConstants.GatewayArtifactSynchronizer.GATEWAY_INSTRUCTION_PUBLISH);
+                publishedGateways.add(environment.getName());
             }
-            OMElement element;
-            try {
-                if (production_endpoint != null) {
-                    String content = createSeqString(api, production_endpoint, ENDPOINT_PRODUCTION);
-                    element = AXIOMUtil.stringToOM(content);
-                    String fileName = element.getAttributeValue(new QName("name"));
-                    gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileName,
-                            gatewayAPIDTO.getSequencesToBeRemove()));
-                    GatewayContentDTO productionSequence = new GatewayContentDTO();
-                    productionSequence.setContent(APIUtil.convertOMtoString(element));
-                    productionSequence.setName(fileName);
-                    gatewayAPIDTO.setSequenceToBeAdd(addGatewayContentToList(productionSequence,
-                            gatewayAPIDTO.getSequenceToBeAdd()));
-                }
-                if (sandbox_endpoint != null) {
-                    String content = createSeqString(api, sandbox_endpoint, ENDPOINT_SANDBOX);
-                    element = AXIOMUtil.stringToOM(content);
-                    String fileName = element.getAttributeValue(new QName("name"));
-                    gatewayAPIDTO.setSequencesToBeRemove(addStringToList(fileName,
-                            gatewayAPIDTO.getSequencesToBeRemove()));
-                    GatewayContentDTO sandboxEndpointSequence = new GatewayContentDTO();
-                    sandboxEndpointSequence.setContent(APIUtil.convertOMtoString(element));
-                    sandboxEndpointSequence.setName(fileName);
-                    gatewayAPIDTO.setSequenceToBeAdd(addGatewayContentToList(sandboxEndpointSequence,
-                            gatewayAPIDTO.getSequenceToBeAdd()));
-                }
-                if (gatewayArtifactSynchronizerProperties.isPublishDirectlyToGatewayEnabled()) {
-                    if (!isGatewayDefinedAsALabel) {
-                        client.deployAPI(gatewayAPIDTO);
-                    }
-                }
 
-                if (saveArtifactsToStorage) {
-                    artifactSaver.saveArtifact(new Gson().toJson(gatewayAPIDTO), environment.getName(),
-                            APIConstants.GatewayArtifactSynchronizer.GATEWAY_INSTRUCTION_PUBLISH);
-                    publishedGateways.add(environment.getName());
-                }
+        } catch (AxisFault | ArtifactSynchronizerException e) {
+            String msg = "Error while deploying WebsocketSequence";
+            log.error(msg, e);
+            throw new APIManagementException(msg);
+        }
+    }
 
-            } catch (AxisFault | ArtifactSynchronizerException e) {
-                String msg = "Error while deploying WebsocketSequence";
-                log.error(msg, e);
-                throw new APIManagementException(msg);
+    /**
+     * Set Web Socket specific information to Gateway API DTO
+     *
+     * @param api           The API to be added
+     * @param gatewayAPIDTO The Gateway API DTO to be deployed
+     * @throws APIManagementException If an error occurs while setting the Web Socket information
+     */
+    private void setWsSpecificInfo(API api, GatewayAPIDTO gatewayAPIDTO) throws APIManagementException {
+        convertLoadBalancedEndpointConfigs(api);
+        String production_endpoint = null;
+        String sandbox_endpoint = null;
+        JSONObject obj = new JSONObject(api.getEndpointConfig());
+        if (obj.has(APIConstants.API_DATA_PRODUCTION_ENDPOINTS)) {
+            production_endpoint = retrieveWSEndpoint(obj, api, APIConstants.API_DATA_PRODUCTION_ENDPOINTS);
+        }
+        if (obj.has(APIConstants.API_DATA_SANDBOX_ENDPOINTS)) {
+            sandbox_endpoint = retrieveWSEndpoint(obj, api, APIConstants.API_DATA_SANDBOX_ENDPOINTS);
+        }
+        OMElement element;
+        try {
+            if (production_endpoint != null) {
+                String content = createSeqString(api, production_endpoint, ENDPOINT_PRODUCTION);
+                element = AXIOMUtil.stringToOM(content);
+                String fileName = element.getAttributeValue(new QName("name"));
+                if (APIConstants.APITransportType.WS.toString().equals(api.getType())) {
+                    gatewayAPIDTO.setSequencesToBeRemove(
+                            addStringToList(fileName, gatewayAPIDTO.getSequencesToBeRemove()));
+                } else {
+                    gatewayAPIDTO.setGraphQLWSSequencesToBeRemove(
+                            addStringToList(fileName, gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()));
+                }
+                GatewayContentDTO productionSequence = new GatewayContentDTO();
+                productionSequence.setContent(APIUtil.convertOMtoString(element));
+                productionSequence.setName(fileName);
+                if (APIConstants.APITransportType.WS.toString().equals(api.getType())) {
+                    gatewayAPIDTO.setSequenceToBeAdd(
+                            addGatewayContentToList(productionSequence, gatewayAPIDTO.getSequenceToBeAdd()));
+                } else {
+                    gatewayAPIDTO.setGraphQLWSSequenceToBeAdd(
+                            addGatewayContentToList(productionSequence, gatewayAPIDTO.getGraphQLWSSequenceToBeAdd()));
+                }
+            }
+            if (sandbox_endpoint != null) {
+                String content = createSeqString(api, sandbox_endpoint, ENDPOINT_SANDBOX);
+                element = AXIOMUtil.stringToOM(content);
+                String fileName = element.getAttributeValue(new QName("name"));
+                if (APIConstants.APITransportType.WS.toString().equals(api.getType())) {
+                    gatewayAPIDTO.setSequencesToBeRemove(
+                            addStringToList(fileName, gatewayAPIDTO.getSequencesToBeRemove()));
+                } else {
+                    gatewayAPIDTO.setGraphQLWSSequencesToBeRemove(
+                            addStringToList(fileName, gatewayAPIDTO.getGraphQLWSSequencesToBeRemove()));
+                }
+                GatewayContentDTO sandboxEndpointSequence = new GatewayContentDTO();
+                sandboxEndpointSequence.setContent(APIUtil.convertOMtoString(element));
+                sandboxEndpointSequence.setName(fileName);
+                if (APIConstants.APITransportType.WS.toString().equals(api.getType())) {
+                    gatewayAPIDTO.setSequenceToBeAdd(
+                            addGatewayContentToList(sandboxEndpointSequence, gatewayAPIDTO.getSequenceToBeAdd()));
+                } else {
+                    gatewayAPIDTO.setGraphQLWSSequenceToBeAdd(addGatewayContentToList(sandboxEndpointSequence,
+                            gatewayAPIDTO.getGraphQLWSSequenceToBeAdd()));
+                }
             }
         } catch (XMLStreamException e) {
             String msg = "Error while parsing the Sequence";
@@ -1719,4 +1782,65 @@ public class APIGatewayManager {
                 , gatewayAPIDTO.getEndpointEntriesToBeRemove()));
     }
 
+    /**
+     * Convert the endpoint configs if load balanced type provided
+     *
+     * @param api API to be added
+     * @throws APIManagementException If an error occurs while parsing the endpoint config
+     */
+    private void convertLoadBalancedEndpointConfigs(API api) throws APIManagementException {
+        String endpointConfigString = api.getEndpointConfig();
+        org.json.simple.JSONObject endpointConfig = null;
+
+        try {
+            endpointConfig = (org.json.simple.JSONObject) new JSONParser().parse(endpointConfigString);
+        } catch (ParseException e) {
+            throw new APIManagementException(
+                    "Error while deriving web socket endpoint from GraphQL API load balanced endpoint config: "
+                            + endpointConfig, e);
+        }
+
+        // If load_balanced endpoints get the first prod endpoint url from the list
+        if (APIConstants.ENDPOINT_TYPE_LOADBALANCE.equals(
+                endpointConfig.get(APIConstants.API_ENDPOINT_CONFIG_PROTOCOL_TYPE))) {
+            // Get the first load balanced endpoint
+            if (endpointConfig.get(APIConstants.ENDPOINT_PRODUCTION_ENDPOINTS) != null) {
+                String productionEndpoint =
+                        (String) ((org.json.simple.JSONObject) ((org.json.simple.JSONArray) endpointConfig.get(
+                        APIConstants.ENDPOINT_PRODUCTION_ENDPOINTS)).get(0)).get(APIConstants.ENDPOINT_URL);
+                org.json.simple.JSONObject jsonObject = new org.json.simple.JSONObject();
+                jsonObject.put(APIConstants.ENDPOINT_URL, productionEndpoint);
+                endpointConfig.put(APIConstants.API_DATA_PRODUCTION_ENDPOINTS, jsonObject);
+            }
+            if (endpointConfig.get(APIConstants.ENDPOINT_SANDBOX_ENDPOINTS) != null) {
+                String sandboxEndpoint =
+                        (String) ((org.json.simple.JSONObject) ((org.json.simple.JSONArray) endpointConfig.get(
+                        APIConstants.ENDPOINT_SANDBOX_ENDPOINTS)).get(0)).get(APIConstants.ENDPOINT_URL);
+                org.json.simple.JSONObject jsonObject = new org.json.simple.JSONObject();
+                jsonObject.put(APIConstants.ENDPOINT_URL, sandboxEndpoint);
+                endpointConfig.put(APIConstants.API_DATA_SANDBOX_ENDPOINTS, jsonObject);
+            }
+            api.setEndpointConfig(endpointConfig.toJSONString());
+        }
+    }
+
+    /**
+     * Retrieve the correct Web Socket endpoint
+     *
+     * @param endpointConfig Endpoint config
+     * @param api            API to be added
+     * @param type           Production or Sandbox endpoint type
+     */
+    private String retrieveWSEndpoint(JSONObject endpointConfig, API api, String type) {
+        String endpoint = endpointConfig.getJSONObject(type).getString(APIConstants.ENDPOINT_URL);
+        if (StringUtils.equalsIgnoreCase(APIConstants.GRAPHQL_API, api.getType())) {
+            if (endpoint.indexOf(APIConstants.HTTP_PROTOCOL_URL_PREFIX) == 0) {
+                endpoint = endpoint.replace(APIConstants.HTTP_PROTOCOL_URL_PREFIX, APIConstants.WS_PROTOCOL_URL_PREFIX);
+            } else if (endpoint.indexOf(APIConstants.HTTPS_PROTOCOL_URL_PREFIX) == 0) {
+                endpoint = endpoint.replace(APIConstants.HTTPS_PROTOCOL_URL_PREFIX,
+                        APIConstants.WSS_PROTOCOL_URL_PREFIX);
+            }
+        }
+        return endpoint;
+    }
 }

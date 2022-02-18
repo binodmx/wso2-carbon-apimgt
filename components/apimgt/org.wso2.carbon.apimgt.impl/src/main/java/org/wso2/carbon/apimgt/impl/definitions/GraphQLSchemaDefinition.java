@@ -63,13 +63,12 @@ public class GraphQLSchemaDefinition {
     /**
      * Extract GraphQL Operations from given schema
      *
-     * @param schema graphQL Schema
+     * @param typeRegistry TypeDefinitionRegistry
+     * @param type         operation type
      * @return the arrayList of APIOperationsDTOextractGraphQLOperationList
      */
-    public List<URITemplate> extractGraphQLOperationList(String schema, String type) {
+    public List<URITemplate> extractGraphQLOperationList(TypeDefinitionRegistry typeRegistry, String type) {
         List<URITemplate> operationArray = new ArrayList<>();
-        SchemaParser schemaParser = new SchemaParser();
-        TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
         Map<java.lang.String, TypeDefinition> operationList = typeRegistry.types();
         for (Map.Entry<String, TypeDefinition> entry : operationList.entrySet()) {
             Optional<SchemaDefinition> schemaDefinition = typeRegistry.schemaDefinition();
@@ -97,6 +96,26 @@ public class GraphQLSchemaDefinition {
             }
         }
         return operationArray;
+    }
+
+    /**
+     * Check subscription operation availability from given graphql schema.
+     *
+     * @param schema graphQL Schema
+     * @return the boolean value of subscription operation availability
+     */
+    public boolean isSubscriptionAvailable(String schema) {
+        boolean isSubscriptionAvailable = false;
+        SchemaParser schemaParser = new SchemaParser();
+        TypeDefinitionRegistry typeRegistry = schemaParser.parse(schema);
+        Map<java.lang.String, TypeDefinition> operationList = typeRegistry.types();
+        for (Map.Entry<String, TypeDefinition> entry : operationList.entrySet()) {
+            if (entry.getValue().getName().equals(APIConstants.GRAPHQL_SUBSCRIPTION)) {
+                isSubscriptionAvailable = true;
+                break;
+            }
+        }
+        return isSubscriptionAvailable;
     }
 
     /**
