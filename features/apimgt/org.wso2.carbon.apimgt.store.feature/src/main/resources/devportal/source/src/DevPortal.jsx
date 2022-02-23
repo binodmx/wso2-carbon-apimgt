@@ -255,7 +255,7 @@ class DevPortal extends React.Component {
         if (cssUrlWithTenant) {
             let url = cssUrlWithTenant;
             
-            if(Settings.app.context === ''){
+            if (Settings.app.context === ''){
                 if(/^\//.test(cssUrlWithTenant)){
                     url = cssUrlWithTenant.substr(1);
                 } else {
