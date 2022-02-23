@@ -45,6 +45,11 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         super(new WebsocketInboundHandler(), new WebsocketOutboundHandler());
     }
 
+    public WebsocketHandler(WebsocketInboundHandler websocketInboundHandler,
+                            WebsocketOutboundHandler websocketOutboundHandler) {
+        super(websocketInboundHandler, websocketOutboundHandler);
+    }
+
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 
