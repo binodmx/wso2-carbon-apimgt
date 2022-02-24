@@ -321,6 +321,19 @@ public class GraphQLRequestProcessorTest {
         PowerMockito.when(DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                 inboundMessageContext.getElectedAPI().getUuid())).thenReturn(schemaDTO);
 
+        VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
+        verbInfoDTO.setHttpVerb("SUBSCRIPTION");
+        verbInfoDTO.setThrottling("Unlimited");
+        verbInfoDTO.setAuthType("Application & Application User");
+        Set<VerbInfoDTO> verbInfoDTOS = new HashSet<>();
+        verbInfoDTOS.add(verbInfoDTO);
+        ResourceInfoDTO resourceInfoDTO = new ResourceInfoDTO();
+        resourceInfoDTO.setHttpVerbs(verbInfoDTOS);
+        resourceInfoDTO.setUrlPattern("liftStatusChange");
+        Map<String, ResourceInfoDTO> resourcesMap = new HashMap<>();
+        resourcesMap.put("liftStatusChange", resourceInfoDTO);
+        inboundMessageContext.setResourcesMap(resourcesMap);
+
         InboundProcessorResponseDTO graphQLProcessorResponseDTO = new InboundProcessorResponseDTO();
         graphQLProcessorResponseDTO.setError(true);
         graphQLProcessorResponseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.RESOURCE_FORBIDDEN_ERROR);
@@ -351,6 +364,66 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.RESOURCE_FORBIDDEN_ERROR));
         Assert.assertFalse(processorResponseDTO.isCloseConnection());
+    }
+
+    @Test
+    public void testHandleRequestScopeValidationSkipWhenSecurityDisabled() throws Exception  {
+
+        InboundMessageContext inboundMessageContext = createApiMessageContext(graphQLAPI);
+        String msgText = "{\"id\":\"1\",\"type\":\"start\",\"payload\":{\"variables\":{},\"extensions\":{},"
+                + "\"operationName\":null,\"query\":\"subscription {\\n  "
+                + "liftStatusChange {\\n    id\\n    name\\n }\\n}\\n\"}}";
+        TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
+        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+
+        // Get schema and parse
+        String graphqlDirPath = "graphQL" + File.separator;
+        String relativePath = graphqlDirPath + "schema_with_additional_props.graphql";
+        String schemaString = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(relativePath));
+        SchemaParser schemaParser = new SchemaParser();
+        TypeDefinitionRegistry registry = schemaParser.parse(schemaString);
+        GraphQLSchema schema = UnExecutableSchemaGenerator.makeUnExecutableSchema(registry);
+        GraphQLSchemaDTO schemaDTO = new GraphQLSchemaDTO(schema, registry);
+        PowerMockito.when(DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
+                inboundMessageContext.getElectedAPI().getUuid())).thenReturn(schemaDTO);
+        PowerMockito.when(GraphQLProcessorUtil.getOperationList(Mockito.anyObject(), Mockito.anyObject(),
+                Mockito.anyString())).thenReturn("liftStatusChange");
+
+        VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
+        verbInfoDTO.setHttpVerb("SUBSCRIPTION");
+        verbInfoDTO.setThrottling("Unlimited");
+        verbInfoDTO.setAuthType("None");
+        Set<VerbInfoDTO> verbInfoDTOS = new HashSet<>();
+        verbInfoDTOS.add(verbInfoDTO);
+        ResourceInfoDTO resourceInfoDTO = new ResourceInfoDTO();
+        resourceInfoDTO.setHttpVerbs(verbInfoDTOS);
+        resourceInfoDTO.setUrlPattern("liftStatusChange");
+        Map<String, ResourceInfoDTO> resourcesMap = new HashMap<>();
+        resourcesMap.put("liftStatusChange", resourceInfoDTO);
+        inboundMessageContext.setResourcesMap(resourcesMap);
+
+        APIKeyValidationInfoDTO infoDTO = new APIKeyValidationInfoDTO();
+        infoDTO.setGraphQLMaxComplexity(4);
+        infoDTO.setGraphQLMaxDepth(3);
+        inboundMessageContext.setInfoDTO(infoDTO);
+        PowerMockito.when(APIUtil.getResourceInfoDTOCacheKey(inboundMessageContext.getElectedAPI().getContext(),
+                inboundMessageContext.getElectedAPI().getApiVersion(), "liftStatusChange",
+                GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME)).thenReturn("");
+
+        PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
+                inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
+        InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
+                channelHandlerContext, inboundMessageContext, usageDataPublisher);
+        Assert.assertFalse(processorResponseDTO.isError());
+        Assert.assertNull(processorResponseDTO.getErrorMessage());
+        Assert.assertEquals(inboundMessageContext.getVerbInfoForGraphQLMsgId("1").getOperation(), "liftStatusChange");
+        Assert.assertEquals(inboundMessageContext.getVerbInfoForGraphQLMsgId("1").getVerbInfoDTO().getHttpVerb(),
+                "SUBSCRIPTION");
+        Assert.assertEquals(inboundMessageContext.getVerbInfoForGraphQLMsgId("1").getVerbInfoDTO().getThrottling(),
+                "Unlimited");
+        Assert.assertEquals(inboundMessageContext.getVerbInfoForGraphQLMsgId("1").getVerbInfoDTO().getAuthType(),
+                "None");
     }
 
     @Test

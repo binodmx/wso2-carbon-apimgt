@@ -178,6 +178,7 @@ public class GraphQLResponseProcessorTest {
         VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
         verbInfoDTO.setHttpVerb("SUBSCRIPTION");
         verbInfoDTO.setThrottling("Unlimited");
+        verbInfoDTO.setAuthType("Application & Application User");
         GraphQLOperationDTO graphQLOperationDTO = new GraphQLOperationDTO(verbInfoDTO, "liftStatusChange");
         inboundMessageContext.addVerbInfoForGraphQLMsgId("1", graphQLOperationDTO);
         InboundProcessorResponseDTO graphQLProcessorResponseDTO = new InboundProcessorResponseDTO();
@@ -197,6 +198,32 @@ public class GraphQLResponseProcessorTest {
                 graphQLProcessorResponseDTO.getErrorResponseString());
         Assert.assertEquals(processorResponseDTO.getErrorMessage(), graphQLProcessorResponseDTO.getErrorMessage());
         Assert.assertEquals(processorResponseDTO.getErrorCode(), graphQLProcessorResponseDTO.getErrorCode());
+    }
+
+    @Test
+    public void testHandleResponseScopeValidationSkipWhenSecurityDisabled() throws APISecurityException {
+
+        InboundMessageContext inboundMessageContext = createApiMessageContext(graphQLAPI);
+        String msgText = "{\"type\":\"data\",\"id\":\"1\",\"payload\":{\"data\":"
+                + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
+        TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
+        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+
+        VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
+        verbInfoDTO.setHttpVerb("SUBSCRIPTION");
+        verbInfoDTO.setThrottling("Unlimited");
+        verbInfoDTO.setAuthType("None");
+        GraphQLOperationDTO graphQLOperationDTO = new GraphQLOperationDTO(verbInfoDTO, "liftStatusChange");
+        inboundMessageContext.addVerbInfoForGraphQLMsgId("1", graphQLOperationDTO);
+
+        PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
+                inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
+        InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
+                channelHandlerContext, inboundMessageContext, usageDataPublisher);
+        Assert.assertFalse(processorResponseDTO.isError());
+        Assert.assertNull(processorResponseDTO.getErrorMessage());
     }
 
     private InboundMessageContext createApiMessageContext(API api) {
