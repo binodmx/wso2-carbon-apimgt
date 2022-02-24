@@ -20,12 +20,14 @@ package org.wso2.carbon.apimgt.gateway.graphQL;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
 import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
+import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -71,9 +73,12 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
                     GraphQLOperationDTO graphQLOperationDTO = inboundMessageContext.getVerbInfoForGraphQLMsgId(
                             graphQLMsg.getString(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID));
                     subscriptionOperation = graphQLOperationDTO.getOperation();
-                    // validate scopes based on subscription payload
-                    responseDTO = validateScopes(inboundMessageContext, graphQLOperationDTO.getOperation(),
-                            operationId);
+                    // validate scopes based on subscription payload when security is enabled
+                    String authType = graphQLOperationDTO.getVerbInfoDTO().getAuthType();
+                    if (!StringUtils.capitalize(APIConstants.AUTH_TYPE_NONE.toLowerCase()).equals(authType)) {
+                        responseDTO = validateScopes(inboundMessageContext, graphQLOperationDTO.getOperation(),
+                                operationId);
+                    }
                     if (!responseDTO.isError()) {
                         // throttle for matching resource
                         responseDTO = doThrottleForGraphQL(msg, ctx, graphQLOperationDTO.getVerbInfoDTO(),
