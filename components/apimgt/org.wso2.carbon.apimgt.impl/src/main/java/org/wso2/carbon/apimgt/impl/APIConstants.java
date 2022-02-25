@@ -2536,4 +2536,7 @@ public final class APIConstants {
         public static final String SERVER_APIKEYSIGN_PRIVATE_KEY_PASSWORD = "Security.KeyStoreName.KeyPassword";
         public static final String KEY_STORE_EXTENSION_JKS = ".jks";
     }
+
+    // Constants related to basic health check APIs
+    public static final String WEB_SOCKET_HEALTH_CHECK_PATH = "/health";
 }
