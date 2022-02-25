@@ -26,6 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.apache.axis2.AxisFault;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -107,12 +108,17 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
                                         DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                                                         inboundMessageContext.getElectedAPI().getUuid())
                                                 .getTypeDefinitionRegistry(), null);
-                                // validate scopes based on subscription payload
-                                responseDTO = validateScopes(inboundMessageContext, subscriptionOperation, operationId);
+                                // extract verb info dto with throttle policy for matching verb
+                                VerbInfoDTO verbInfoDTO = findMatchingVerb(inboundMessageContext,
+                                        subscriptionOperation);
+                                String authType = verbInfoDTO.getAuthType();
+                                // validate scopes based on subscription payload when security is enabled
+                                if (!StringUtils.capitalize(APIConstants.AUTH_TYPE_NONE.toLowerCase())
+                                        .equals(authType)) {
+                                    responseDTO = validateScopes(inboundMessageContext, subscriptionOperation,
+                                            operationId);
+                                }
                                 if (!responseDTO.isError()) {
-                                    // extract verb info dto with throttle policy for matching verb
-                                    VerbInfoDTO verbInfoDTO = findMatchingVerb(inboundMessageContext,
-                                            subscriptionOperation);
                                     SubscriptionAnalyzer subscriptionAnalyzer = new SubscriptionAnalyzer(
                                             DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                                                             inboundMessageContext.getElectedAPI().getUuid())
