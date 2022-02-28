@@ -28,6 +28,8 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.apache.axis2.description.TransportOutDescription;
+import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,13 +65,12 @@ import org.wso2.carbon.ganalytics.publisher.GoogleAnalyticsData;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import javax.cache.Cache;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.cache.Cache;
 
 /**
  * This is a handler which is actually embedded to the netty pipeline which does operations such as
@@ -215,22 +216,18 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     }
                     boolean isSSLEnabled = ctx.channel().pipeline().get("ssl") != null;
                     String prefix = null;
+                    AxisConfiguration axisConfiguration = ServiceReferenceHolder.getInstance()
+                            .getServerConfigurationContext().getAxisConfiguration();
+                    TransportOutDescription transportOut;
                     if (isSSLEnabled) {
-                        if (ServiceReferenceHolder.getInstance().getServerConfigurationContext().getAxisConfiguration()
-                                .getTransportOut(APIMgtGatewayConstants.WS_SECURED)
-                                .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
-                            prefix = String.valueOf(ServiceReferenceHolder.getInstance().getServerConfigurationContext()
-                                    .getAxisConfiguration().getTransportOut(APIMgtGatewayConstants.WS_SECURED)
-                                    .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER).getValue());
-                        }
+                        transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_SECURED);
                     } else {
-                        if (ServiceReferenceHolder.getInstance().getServerConfigurationContext().getAxisConfiguration()
-                                .getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED)
-                                .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
-                            prefix = String.valueOf(ServiceReferenceHolder.getInstance().getServerConfigurationContext()
-                                    .getAxisConfiguration().getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED)
-                                    .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER).getValue());
-                        }
+                        transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED);
+                    }
+                    if (transportOut != null
+                            && transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
+                        prefix = String.valueOf(transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER)
+                                .getValue());
                     }
                     if (StringUtils.isNotEmpty(prefix)) {
                         backendJwtHeader = prefix + backendJwtHeader;
