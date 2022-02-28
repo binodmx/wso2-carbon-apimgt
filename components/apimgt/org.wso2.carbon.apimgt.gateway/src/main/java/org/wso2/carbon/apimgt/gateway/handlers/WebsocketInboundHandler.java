@@ -65,12 +65,13 @@ import org.wso2.carbon.ganalytics.publisher.GoogleAnalyticsData;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.cache.Cache;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import javax.cache.Cache;
 
 /**
  * This is a handler which is actually embedded to the netty pipeline which does operations such as
