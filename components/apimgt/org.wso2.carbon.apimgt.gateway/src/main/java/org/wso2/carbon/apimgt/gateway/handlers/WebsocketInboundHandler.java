@@ -213,6 +213,28 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     if (StringUtils.isEmpty(backendJwtHeader)) {
                         backendJwtHeader = APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER;
                     }
+                    boolean isSSLEnabled = ctx.channel().pipeline().get("ssl") != null;
+                    String prefix = null;
+                    if (isSSLEnabled) {
+                        if (ServiceReferenceHolder.getInstance().getServerConfigurationContext().getAxisConfiguration()
+                                .getTransportOut(APIMgtGatewayConstants.WS_SECURED)
+                                .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
+                            prefix = String.valueOf(ServiceReferenceHolder.getInstance().getServerConfigurationContext()
+                                    .getAxisConfiguration().getTransportOut(APIMgtGatewayConstants.WS_SECURED)
+                                    .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER).getValue());
+                        }
+                    } else {
+                        if (ServiceReferenceHolder.getInstance().getServerConfigurationContext().getAxisConfiguration()
+                                .getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED)
+                                .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
+                            prefix = String.valueOf(ServiceReferenceHolder.getInstance().getServerConfigurationContext()
+                                    .getAxisConfiguration().getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED)
+                                    .getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER).getValue());
+                        }
+                    }
+                    if (StringUtils.isNotEmpty(prefix)) {
+                        backendJwtHeader = prefix + backendJwtHeader;
+                    }
                     ((FullHttpRequest) msg).headers().set(backendJwtHeader, inboundMessageContext.getToken());
                 }
                 ctx.fireChannelRead(msg);
