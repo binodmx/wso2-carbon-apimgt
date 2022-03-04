@@ -544,17 +544,20 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
 
         Map<String, Object> apiPropertiesMap = new HashMap<>();
         AuthenticationContext authenticationContext = inboundMessageContext.getAuthContext();
+        String apiName = authenticationContext.getApiName();
+        String apiVersion = authenticationContext.getApiVersion();
         apiPropertiesMap.put(APIMgtGatewayConstants.CONSUMER_KEY, authenticationContext.getConsumerKey());
         apiPropertiesMap.put(APIMgtGatewayConstants.USER_ID, authenticationContext.getUsername());
         apiPropertiesMap.put(APIMgtGatewayConstants.CONTEXT, inboundMessageContext.getApiContextUri());
-        apiPropertiesMap.put(APIMgtGatewayConstants.API, authenticationContext.getApiName());
-        apiPropertiesMap.put(APIMgtGatewayConstants.VERSION, authenticationContext.getApiVersion());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API, apiName);
+        apiPropertiesMap.put(APIMgtGatewayConstants.VERSION, apiVersion);
         apiPropertiesMap.put(APIMgtGatewayConstants.API_TYPE, String.valueOf(APIConstants.ApiTypes.API));
         apiPropertiesMap.put(APIMgtGatewayConstants.HOST_NAME, APIUtil.getHostAddress());
         apiPropertiesMap.put(APIMgtGatewayConstants.API_PUBLISHER, authenticationContext.getApiPublisher());
         apiPropertiesMap.put(APIMgtGatewayConstants.END_USER_NAME, authenticationContext.getUsername());
         apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_NAME, authenticationContext.getApplicationName());
         apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_ID, authenticationContext.getApplicationId());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API_VERSION, apiName + ":v" + apiVersion);
         return apiPropertiesMap;
     }
 
