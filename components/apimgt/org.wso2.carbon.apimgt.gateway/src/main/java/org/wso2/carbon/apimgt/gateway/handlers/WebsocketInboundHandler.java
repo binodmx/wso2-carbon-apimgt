@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.AttributeKey;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +68,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     private static final Log log = LogFactory.getLog(WebsocketInboundHandler.class);
     private static APIMgtUsageDataPublisher usageDataPublisher;
     private GraphQLRequestProcessor graphQLRequestProcessor = new GraphQLRequestProcessor();
+    private final String API_PROPERTIES = "API_PROPERTIES";
 
     public WebsocketInboundHandler() {
         initializeDataPublisher();
@@ -204,6 +207,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 } else {
                     req.setUri(inboundMessageContext.getUri()); // Setting endpoint appended uri
                 }
+                setApiPropertiesMapToChannel(ctx, inboundMessageContext);
 
                 if (StringUtils.isNotEmpty(inboundMessageContext.getToken())) {
                     String backendJwtHeader = null;
@@ -529,6 +533,29 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             responseDTO.setError(true);
         }
         return responseDTO;
+    }
+
+    private void setApiPropertiesMapToChannel(ChannelHandlerContext ctx, InboundMessageContext inboundMessageContext) {
+
+        ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES)).set(createApiPropertiesMap(inboundMessageContext));
+    }
+
+    private Map<String, Object> createApiPropertiesMap(InboundMessageContext inboundMessageContext) {
+
+        Map<String, Object> apiPropertiesMap = new HashMap<>();
+        AuthenticationContext authenticationContext = inboundMessageContext.getAuthContext();
+        apiPropertiesMap.put(APIMgtGatewayConstants.CONSUMER_KEY, authenticationContext.getConsumerKey());
+        apiPropertiesMap.put(APIMgtGatewayConstants.USER_ID, authenticationContext.getUsername());
+        apiPropertiesMap.put(APIMgtGatewayConstants.CONTEXT, inboundMessageContext.getApiContextUri());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API, authenticationContext.getApiName());
+        apiPropertiesMap.put(APIMgtGatewayConstants.VERSION, authenticationContext.getApiVersion());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API_TYPE, String.valueOf(APIConstants.ApiTypes.API));
+        apiPropertiesMap.put(APIMgtGatewayConstants.HOST_NAME, APIUtil.getHostAddress());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API_PUBLISHER, authenticationContext.getApiPublisher());
+        apiPropertiesMap.put(APIMgtGatewayConstants.END_USER_NAME, authenticationContext.getUsername());
+        apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_NAME, authenticationContext.getApplicationName());
+        apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_ID, authenticationContext.getApplicationId());
+        return apiPropertiesMap;
     }
 
     public APIMgtUsageDataPublisher getUsageDataPublisher() {
