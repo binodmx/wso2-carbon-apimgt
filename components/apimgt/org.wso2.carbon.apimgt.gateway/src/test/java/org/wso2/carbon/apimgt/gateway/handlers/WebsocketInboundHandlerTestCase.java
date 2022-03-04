@@ -30,6 +30,8 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,7 +123,9 @@ public class WebsocketInboundHandlerTestCase {
 
         channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
         Channel channel = Mockito.mock(Channel.class);
+        Attribute attribute = Mockito.mock(Attribute.class);
         ChannelId channelId = Mockito.mock(ChannelId.class);
+        Mockito.when(channel.attr(AttributeKey.valueOf("API_PROPERTIES"))).thenReturn(attribute);
         Mockito.when(channelHandlerContext.channel()).thenReturn(channel);
         Mockito.when(channel.id()).thenReturn(channelId);
         Mockito.when(channelId.asLongText()).thenReturn(channelIdString);
