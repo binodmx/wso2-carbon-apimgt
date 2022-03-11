@@ -10124,6 +10124,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MonetizationAttribute'
+      subscriberContactAttributes:
+        type: object
+        items:
+          $ref: '#/definitions/SubscriberContactAttribute'
       securityAuditProperties:
         type: object
         items:
@@ -10214,6 +10218,21 @@ definitions:
         description: |
           Link to the previous subset of resources qualified.
           Empty if current subset is the first subset returned.
+
+  #-----------------------------------------------------
+  # The Subscriber Contact resource
+  #-----------------------------------------------------
+  SubscriberContactAttribute:
+    title: Subscriber Contact attribute object
+    properties:
+      recipent:
+        type: string
+        description: |
+          recipient type of the email
+      delimiter:
+        type: string
+        description: |
+          delimiter to seperate the email address
   MonetizationAttribute:
     title: Monetization attribute object
     properties:

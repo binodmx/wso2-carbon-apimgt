@@ -95,6 +95,7 @@ public class APIManagerConfiguration {
     private Map<String, Map<String, String>> loginConfiguration = new ConcurrentHashMap<String, Map<String, String>>();
     private JSONArray applicationAttributes = new JSONArray();
     private JSONArray monetizationAttributes = new JSONArray();
+    private JSONObject subscriberAttributes = new JSONObject();
     private CacheInvalidationConfiguration cacheInvalidationConfiguration;
     private JSONArray containerMgtAttributes = new JSONArray();
 
@@ -469,6 +470,8 @@ public class APIManagerConfiguration {
                 setThrottleProperties(serverConfig);
             } else if (APIConstants.WorkflowConfigConstants.WORKFLOW.equals(localName)) {
                 setWorkflowProperties(serverConfig);
+            } else if (APIConstants.SUBSCRIBER_CONFIGURATION.equals(localName)) {
+                setSubscriberAttributeConfigs(serverConfig);
             } else if (APIConstants.ApplicationAttributes.APPLICATION_ATTRIBUTES.equals(localName)) {
                 Iterator iterator = element.getChildrenWithLocalName(APIConstants.ApplicationAttributes.ATTRIBUTE);
                 while (iterator.hasNext()) {
@@ -610,6 +613,12 @@ public class APIManagerConfiguration {
 
         return monetizationAttributes;
     }
+
+    public JSONObject getSubscriberAttributes() {
+
+        return subscriberAttributes;
+    }
+
 
     public JSONArray getContainerMgtAttributes() {
         return containerMgtAttributes;
@@ -804,6 +813,35 @@ public class APIManagerConfiguration {
                 workflowProperties.setListTasks(JavaUtils.isTrueExplicitly(listTasksElement.getText()));
             }
 
+        }
+    }
+
+    /**
+     * set the Subscriber contact into Configuration
+     *
+     * @param element
+     */
+    private void setSubscriberAttributeConfigs(OMElement element) {
+        OMElement subscriberContactConfigurationElement = element.getFirstChildWithName(new QName(APIConstants.
+                SUBSCRIBER_CONFIGURATION));
+        if (subscriberContactConfigurationElement != null) {
+            OMElement emailRecipientElement = subscriberContactConfigurationElement
+                    .getFirstChildWithName(new QName(APIConstants.SUBSCRIBER_CONFIGURATION_RECIPIENT));
+            if (emailRecipientElement != null) {
+                subscriberAttributes.put(APIConstants.SUBSCRIBER_CONFIGURATION_RECIPIENT,
+                        emailRecipientElement.getText());
+            } else {
+                log.debug("Subscriber recipient field is set to default (cc).");
+            }
+
+            OMElement emailDelimiterElement = subscriberContactConfigurationElement
+                    .getFirstChildWithName(new QName(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMITER));
+            if (emailRecipientElement != null) {
+                subscriberAttributes.put(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMITER,
+                        emailDelimiterElement.getText());
+            } else {
+                log.debug("Subscriber email delimiter field is set to default (,).");
+            }
         }
     }
 
