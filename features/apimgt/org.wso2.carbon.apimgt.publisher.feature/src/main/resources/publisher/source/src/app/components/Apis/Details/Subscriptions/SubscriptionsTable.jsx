@@ -957,7 +957,6 @@ class SubscriptionsTable extends Component {
         }
         const Tip = names ? React.Fragment : Tooltip;
         const recipientField = subscriberContactAttributes.recipient;
-        console.log(recipientField);
         return (
             <>
                 <div className={classes.heading}>
