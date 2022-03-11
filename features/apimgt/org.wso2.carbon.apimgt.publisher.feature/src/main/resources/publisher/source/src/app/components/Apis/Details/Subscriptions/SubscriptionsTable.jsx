@@ -45,6 +45,7 @@ import API from 'AppData/api';
 import { ScopeValidation, resourceMethod, resourcePath } from 'AppData/ScopeValidation';
 import AuthManager from 'AppData/AuthManager';
 import Invoice from './Invoice';
+import APIProduct from "AppData/APIProduct";
 
 const styles = (theme) => ({
     heading: {
@@ -264,6 +265,7 @@ class SubscriptionsTable extends Component {
             emptyColumnHeight: 60,
             policies: [],
             subscriberClaims: null,
+            subscriberContactAttributes: [],
         };
         this.formatSubscriptionStateString = this.formatSubscriptionStateString.bind(this);
         this.blockSubscription = this.blockSubscription.bind(this);
@@ -279,7 +281,22 @@ class SubscriptionsTable extends Component {
     }
 
     componentDidMount() {
+        const { api } = this.props;
         this.fetchSubscriptionData();
+        if (api.apiType === 'APIProduct') {
+            const apiProduct = new APIProduct(api.name, api.context, api.policies);
+            apiProduct.getSettings().then((settings) => {
+                if (settings.subscriberContactAttributes != null) {
+                    this.setState({ subscriberContactAttributes: settings.subscriberContactAttributes});
+                }
+            });
+        } else {
+            api.getSettings().then((settings) => {
+                if (settings.subscriberContactAttributes != null) {
+                    this.setState({ subscriberContactAttributes: settings.subscriberContactAttributes });
+                }
+            });
+        }
     }
 
     /**
@@ -698,7 +715,7 @@ class SubscriptionsTable extends Component {
     render() {
         const {
             subscriptions, page, rowsPerPage, totalSubscription, rowsPerPageOptions, emptyColumnHeight,
-            subscriberClaims,
+            subscriberClaims, subscriberContactAttributes,
         } = this.state;
         const { classes, api } = this.props;
         if (!subscriptions) {
@@ -912,6 +929,9 @@ class SubscriptionsTable extends Component {
             },
         };
         const subMails = {};
+        const delimiter = subscriberContactAttributes.delimiter;
+        console.log("delimiter");
+        console.log(delimiter);
         const emails = subscriberClaims && Object.entries(subscriberClaims).map(([, v]) => {
             let email = null;
             if (!subMails[v.name] && v.claims.length > 0) {
@@ -920,7 +940,7 @@ class SubscriptionsTable extends Component {
             }
             return email;
         }).reduce((a, b) => {
-            return b !== null ? `${a || ''},${b}` : a;
+            return b !== null ? `${a || ''}${delimiter}${b}` : a;
         });
         let names = null;
         if (subMails) {
@@ -936,6 +956,8 @@ class SubscriptionsTable extends Component {
             });
         }
         const Tip = names ? React.Fragment : Tooltip;
+        const recipientField = subscriberContactAttributes.recipient;
+        console.log(recipientField);
         return (
             <>
                 <div className={classes.heading}>
@@ -951,7 +973,7 @@ class SubscriptionsTable extends Component {
                                     <Button
                                         target='_blank'
                                         rel='noopener'
-                                        href={`mailto:?subject=Message from the API Publisher&cc=${emails}`
+                                        href={`mailto:?subject=Message from API Publisher&${recipientField}=${emails}`
                                             + `&body=Hi ${names},`}
                                         size='small'
                                         disabled={!names}

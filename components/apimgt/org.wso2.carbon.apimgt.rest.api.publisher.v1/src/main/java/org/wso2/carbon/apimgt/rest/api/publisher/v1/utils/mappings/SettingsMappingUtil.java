@@ -157,7 +157,7 @@ public class SettingsMappingUtil {
         if (subscriberContactAttribute.size() > 0) {
             subscriberContactAttributeDTO.setDelimiter((String) subscriberContactAttribute
                     .get(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMITER));
-            subscriberContactAttributeDTO.setRecipent((String) subscriberContactAttribute
+            subscriberContactAttributeDTO.setRecipient((String) subscriberContactAttribute
                     .get(APIConstants.SUBSCRIBER_CONFIGURATION_RECIPIENT));
         }
         return subscriberContactAttributeDTO;

@@ -10225,7 +10225,7 @@ definitions:
   SubscriberContactAttribute:
     title: Subscriber Contact attribute object
     properties:
-      recipent:
+      recipient:
         type: string
         description: |
           recipient type of the email

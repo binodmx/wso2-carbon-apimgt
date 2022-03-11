@@ -15,25 +15,25 @@ import org.wso2.carbon.apimgt.rest.api.util.annotations.Scope;
 
 public class SubscriberContactAttributeDTO   {
   
-    private String recipent = null;
+    private String recipient = null;
     private String delimiter = null;
 
   /**
    * recipient type of the email 
    **/
-  public SubscriberContactAttributeDTO recipent(String recipent) {
-    this.recipent = recipent;
+  public SubscriberContactAttributeDTO recipient(String recipient) {
+    this.recipient = recipient;
     return this;
   }
 
   
   @ApiModelProperty(value = "recipient type of the email ")
-  @JsonProperty("recipent")
-  public String getRecipent() {
-    return recipent;
+  @JsonProperty("recipient")
+  public String getRecipient() {
+    return recipient;
   }
-  public void setRecipent(String recipent) {
-    this.recipent = recipent;
+  public void setRecipient(String recipient) {
+    this.recipient = recipient;
   }
 
   /**
@@ -64,13 +64,13 @@ public class SubscriberContactAttributeDTO   {
       return false;
     }
     SubscriberContactAttributeDTO subscriberContactAttribute = (SubscriberContactAttributeDTO) o;
-    return Objects.equals(recipent, subscriberContactAttribute.recipent) &&
+    return Objects.equals(recipient, subscriberContactAttribute.recipient) &&
         Objects.equals(delimiter, subscriberContactAttribute.delimiter);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(recipent, delimiter);
+    return Objects.hash(recipient, delimiter);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class SubscriberContactAttributeDTO   {
     StringBuilder sb = new StringBuilder();
     sb.append("class SubscriberContactAttributeDTO {\n");
     
-    sb.append("    recipent: ").append(toIndentedString(recipent)).append("\n");
+    sb.append("    recipient: ").append(toIndentedString(recipient)).append("\n");
     sb.append("    delimiter: ").append(toIndentedString(delimiter)).append("\n");
     sb.append("}");
     return sb.toString();

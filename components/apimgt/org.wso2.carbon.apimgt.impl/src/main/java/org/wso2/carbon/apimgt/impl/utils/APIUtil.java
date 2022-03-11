@@ -8042,7 +8042,7 @@ public final class APIUtil {
 
     public static String getSubscriberDelimeter() {
         return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration().
-                getFirstProperty(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMETER);
+                getFirstProperty(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMITER);
     }
 
     /**
