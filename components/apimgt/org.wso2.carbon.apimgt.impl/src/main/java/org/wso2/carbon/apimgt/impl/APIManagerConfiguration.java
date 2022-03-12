@@ -615,10 +615,8 @@ public class APIManagerConfiguration {
     }
 
     public JSONObject getSubscriberAttributes() {
-
         return subscriberAttributes;
     }
-
 
     public JSONArray getContainerMgtAttributes() {
         return containerMgtAttributes;
@@ -817,8 +815,7 @@ public class APIManagerConfiguration {
     }
 
     /**
-     * set the Subscriber contact into Configuration
-     *
+     * Set the Subscriber Contact into Configuration.
      * @param element
      */
     private void setSubscriberAttributeConfigs(OMElement element) {

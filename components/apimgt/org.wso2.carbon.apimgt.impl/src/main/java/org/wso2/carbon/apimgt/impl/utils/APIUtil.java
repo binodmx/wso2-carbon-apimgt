@@ -10270,7 +10270,6 @@ public final class APIUtil {
     }
 
     public static JSONObject getSubscriberAttributes() {
-
         return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
                 .getSubscriberAttributes();
     }

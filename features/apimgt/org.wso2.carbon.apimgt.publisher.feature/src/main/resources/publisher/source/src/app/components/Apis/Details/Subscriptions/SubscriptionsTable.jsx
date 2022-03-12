@@ -930,8 +930,6 @@ class SubscriptionsTable extends Component {
         };
         const subMails = {};
         const delimiter = subscriberContactAttributes.delimiter;
-        console.log("delimiter");
-        console.log(delimiter);
         const emails = subscriberClaims && Object.entries(subscriberClaims).map(([, v]) => {
             let email = null;
             if (!subMails[v.name] && v.claims.length > 0) {
