@@ -283,20 +283,11 @@ class SubscriptionsTable extends Component {
     componentDidMount() {
         const { api } = this.props;
         this.fetchSubscriptionData();
-        if (api.apiType === 'APIProduct') {
-            const apiProduct = new APIProduct(api.name, api.context, api.policies);
-            apiProduct.getSettings().then((settings) => {
-                if (settings.subscriberContactAttributes != null) {
-                    this.setState({ subscriberContactAttributes: settings.subscriberContactAttributes});
-                }
-            });
-        } else {
-            api.getSettings().then((settings) => {
-                if (settings.subscriberContactAttributes != null) {
-                    this.setState({ subscriberContactAttributes: settings.subscriberContactAttributes });
-                }
-            });
-        }
+        api.getSettings().then((settings) => {
+            if (settings.subscriberContactAttributes !== null) {
+                this.setState({ subscriberContactAttributes: settings.subscriberContactAttributes });
+            }
+        });
     }
 
     /**
