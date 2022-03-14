@@ -36,7 +36,9 @@ import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.dto.Environment;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.impl.wsdl.model.WSDLValidationResponse;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.wsdl.Definition;
@@ -77,6 +79,17 @@ public class APIMWSDLReaderTest {
                 element.toString().contains("location=\"http://www.webservicex.net/stockquote.asmx\""));
         Assert.assertTrue("Endpoints does not include GW endpoint",
                 element.toString().contains("https://localhost:8243/abc"));
+    }
+
+    @Test
+    public void endpointReferenceElementWSDL11Test() throws Exception {
+        doMockStatics();
+        WSDLValidationResponse validationResponse = APIMWSDLReader.validateWSDLUrl(
+                new URL(Thread.currentThread().getContextClassLoader().getResource("wsdls/Service.svc.wsdl")
+                        .toExternalForm()));
+        Map<String, String> endpointsMap = validationResponse.getWsdlInfo().getEndpoints();
+        Assert.assertNotNull("Endpoint reference are not read properly", validationResponse.getWsdlInfo());
+        Assert.assertTrue("Endpoint address not read", endpointsMap.containsValue("http://example.com/fabrikam/acct"));
     }
 
     @Test
