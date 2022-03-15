@@ -45,7 +45,6 @@ import API from 'AppData/api';
 import { ScopeValidation, resourceMethod, resourcePath } from 'AppData/ScopeValidation';
 import AuthManager from 'AppData/AuthManager';
 import Invoice from './Invoice';
-import APIProduct from "AppData/APIProduct";
 
 const styles = (theme) => ({
     heading: {
