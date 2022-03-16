@@ -75,6 +75,9 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -82,6 +85,7 @@ public class WebsocketUtil {
 	private static Logger log = LoggerFactory.getLogger(WebsocketUtil.class);
 	private static boolean removeOAuthHeadersFromOutMessage = true;
 	private static boolean gatewayTokenCacheEnabled = false;
+	public static Set<String> allowedOriginsConfigured;
 
 	static {
 		initParams();
@@ -757,5 +761,15 @@ public class WebsocketUtil {
 			String apiVersion) throws APISecurityException {
 
 		return new WebsocketWSClient().getAPIKeyData(apiContextUri, apiVersion, key, domain);
+	}
+
+	public static void initializeCorsConfigs() {
+
+		if (APIUtil.isCORSEnabled() && allowedOriginsConfigured == null) {
+			String allowedOriginsConfigured = APIUtil.getAllowedOrigins();
+			if (!allowedOriginsConfigured.isEmpty()) {
+				WebsocketUtil.allowedOriginsConfigured = new HashSet<>(Arrays.asList(allowedOriginsConfigured.split(",")));
+			}
+		}
 	}
 }
