@@ -8035,6 +8035,16 @@ public final class APIUtil {
 
     }
 
+    public static String getSubscriberRecipient() {
+        return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration().
+                getFirstProperty(APIConstants.SUBSCRIBER_CONFIGURATION_RECIPIENT);
+    }
+
+    public static String getSubscriberDelimeter() {
+        return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration().
+                getFirstProperty(APIConstants.SUBSCRIBER_CONFIGURATION_DELIMITER);
+    }
+
     /**
      * Used to get CORSConfiguration according to the API artifact
      *
@@ -10257,6 +10267,11 @@ public final class APIUtil {
 
         return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
                 .getMonetizationAttributes();
+    }
+
+    public static JSONObject getSubscriberAttributes() {
+        return ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
+                .getSubscriberAttributes();
     }
 
     /**

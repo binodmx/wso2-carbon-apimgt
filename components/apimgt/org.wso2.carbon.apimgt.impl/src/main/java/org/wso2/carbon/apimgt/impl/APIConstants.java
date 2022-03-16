@@ -836,6 +836,10 @@ public final class APIConstants {
     public static final String STATUS_OBSERVERS = "StatusObservers.";
     public static final String OBSERVER = STATUS_OBSERVERS + "Observer";
 
+    public static final String SUBSCRIBER_CONFIGURATION = "SubscriberContactConfiguration";
+    public static final String SUBSCRIBER_CONFIGURATION_RECIPIENT = "EmailRecipientField";
+    public static final String SUBSCRIBER_CONFIGURATION_DELIMITER= "EmailAddressDelimiter";
+
     public static final String CORS_CONFIGURATION = "CORSConfiguration.";
     public static final String CORS_CONFIGURATION_ENABLED = CORS_CONFIGURATION + "Enabled";
     public static final String CORS_CONFIGURATION_ACCESS_CTL_ALLOW_ORIGIN = CORS_CONFIGURATION

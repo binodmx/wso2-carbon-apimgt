@@ -24,6 +24,7 @@ public class SettingsDTO   {
     private List<EnvironmentDTO> environment = new ArrayList<>();
     private List<String> scopes = new ArrayList<>();
     private List<MonetizationAttributeDTO> monetizationAttributes = new ArrayList<>();
+    private Object subscriberContactAttributes = null;
     private Object securityAuditProperties = null;
     private Boolean externalStoresEnabled = null;
     private Boolean docVisibilityEnabled = null;
@@ -100,6 +101,23 @@ public class SettingsDTO   {
   }
   public void setMonetizationAttributes(List<MonetizationAttributeDTO> monetizationAttributes) {
     this.monetizationAttributes = monetizationAttributes;
+  }
+
+  /**
+   **/
+  public SettingsDTO subscriberContactAttributes(Object subscriberContactAttributes) {
+    this.subscriberContactAttributes = subscriberContactAttributes;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "")
+  @JsonProperty("subscriberContactAttributes")
+  public Object getSubscriberContactAttributes() {
+    return subscriberContactAttributes;
+  }
+  public void setSubscriberContactAttributes(Object subscriberContactAttributes) {
+    this.subscriberContactAttributes = subscriberContactAttributes;
   }
 
   /**
@@ -258,6 +276,7 @@ public class SettingsDTO   {
         Objects.equals(environment, settings.environment) &&
         Objects.equals(scopes, settings.scopes) &&
         Objects.equals(monetizationAttributes, settings.monetizationAttributes) &&
+        Objects.equals(subscriberContactAttributes, settings.subscriberContactAttributes) &&
         Objects.equals(securityAuditProperties, settings.securityAuditProperties) &&
         Objects.equals(externalStoresEnabled, settings.externalStoresEnabled) &&
         Objects.equals(docVisibilityEnabled, settings.docVisibilityEnabled) &&
@@ -270,7 +289,7 @@ public class SettingsDTO   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(storeUrl, environment, scopes, monetizationAttributes, securityAuditProperties, externalStoresEnabled, docVisibilityEnabled, crossTenantSubscriptionEnabled, defaultAdvancePolicy, defaultSubscriptionPolicy, deployments, authorizationHeader);
+    return Objects.hash(storeUrl, environment, scopes, monetizationAttributes, subscriberContactAttributes, securityAuditProperties, externalStoresEnabled, docVisibilityEnabled, crossTenantSubscriptionEnabled, defaultAdvancePolicy, defaultSubscriptionPolicy, deployments, authorizationHeader);
   }
 
   @Override
@@ -282,6 +301,7 @@ public class SettingsDTO   {
     sb.append("    environment: ").append(toIndentedString(environment)).append("\n");
     sb.append("    scopes: ").append(toIndentedString(scopes)).append("\n");
     sb.append("    monetizationAttributes: ").append(toIndentedString(monetizationAttributes)).append("\n");
+    sb.append("    subscriberContactAttributes: ").append(toIndentedString(subscriberContactAttributes)).append("\n");
     sb.append("    securityAuditProperties: ").append(toIndentedString(securityAuditProperties)).append("\n");
     sb.append("    externalStoresEnabled: ").append(toIndentedString(externalStoresEnabled)).append("\n");
     sb.append("    docVisibilityEnabled: ").append(toIndentedString(docVisibilityEnabled)).append("\n");
