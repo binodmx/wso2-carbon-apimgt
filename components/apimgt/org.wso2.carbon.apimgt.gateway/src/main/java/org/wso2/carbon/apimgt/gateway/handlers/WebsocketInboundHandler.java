@@ -356,11 +356,11 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(inboundMessageContext.getTenantDomain(), true);
             inboundMessageContext.setVersion(getVersionFromUrl(inboundMessageContext.getUri()));
-            if (!req.headers().contains(HttpHeaders.AUTHORIZATION)) {
+            if (!req.headers().contains(WebsocketUtil.authorizationHeader)) {
                 QueryStringDecoder decoder = new QueryStringDecoder(req.getUri());
                 Map<String, List<String>> requestMap = decoder.parameters();
                 if (requestMap.containsKey(APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT)) {
-                    req.headers().add(HttpHeaders.AUTHORIZATION,
+                    req.headers().add(WebsocketUtil.authorizationHeader,
                             APIConstants.CONSUMER_KEY_SEGMENT + ' ' + requestMap.get(
                                     APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT).get(0));
                     removeTokenFromQuery(requestMap, inboundMessageContext);
@@ -374,7 +374,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     return responseDTO;
                 }
             }
-            String authorizationHeader = req.headers().get(HttpHeaders.AUTHORIZATION);
+            String authorizationHeader = req.headers().get(WebsocketUtil.authorizationHeader);
             inboundMessageContext.setHeaders(
                     inboundMessageContext.getHeaders().add(HttpHeaders.AUTHORIZATION, authorizationHeader));
             String[] auth = authorizationHeader.split(" ");
@@ -384,7 +384,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 String apiKey = auth[1];
                 inboundMessageContext.setApiKey(apiKey);
                 if (WebsocketUtil.isRemoveOAuthHeadersFromOutMessage()) {
-                    req.headers().remove(HttpHeaders.AUTHORIZATION);
+                    req.headers().remove(WebsocketUtil.authorizationHeader);
                 }
 
                 //Initial guess of a JWT token using the presence of a DOT.

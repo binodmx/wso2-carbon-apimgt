@@ -86,6 +86,7 @@ public class WebsocketUtil {
 	private static boolean removeOAuthHeadersFromOutMessage = true;
 	private static boolean gatewayTokenCacheEnabled = false;
 	public static Set<String> allowedOriginsConfigured;
+	public static String authorizationHeader = null;
 
 	static {
 		initParams();
@@ -104,6 +105,18 @@ public class WebsocketUtil {
 		String value = config.getFirstProperty(APIConstants.REMOVE_OAUTH_HEADERS_FROM_MESSAGE);
 		if (value != null) {
 			removeOAuthHeadersFromOutMessage = Boolean.parseBoolean(value);
+		}
+
+		if (authorizationHeader == null) {
+			try {
+				authorizationHeader = APIUtil
+						.getOAuthConfigurationFromAPIMConfig(APIConstants.AUTHORIZATION_HEADER);
+				if (authorizationHeader == null) {
+					authorizationHeader = HttpHeaders.AUTHORIZATION;
+				}
+			} catch (APIManagementException e) {
+				log.error("Error while reading authorization header from APIM configurations", e);
+			}
 		}
 	}
 
