@@ -891,6 +891,11 @@ public class ApisApiServiceImpl implements ApisApiService {
                 }
             }
 
+            // Validate web socket API endpoints
+            if (isWSAPI && !RestApiPublisherUtils.isValidWSAPI(body)) {
+                RestApiUtil.handleBadRequest("Endpoint URLs should be valid web socket URLs", log);
+            }
+
             apiProvider.manageAPI(apiToUpdate);
 
             API updatedApi = apiProvider.getAPI(apiIdentifier);
