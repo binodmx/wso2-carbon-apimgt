@@ -171,9 +171,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            if (WebsocketUtil.allowedOriginsConfigured == null) {
-                WebsocketUtil.initializeCorsConfigs();
-            }
             validateCorsHeaders(ctx, req);
 
             inboundMessageContext.setUri(req.getUri());
