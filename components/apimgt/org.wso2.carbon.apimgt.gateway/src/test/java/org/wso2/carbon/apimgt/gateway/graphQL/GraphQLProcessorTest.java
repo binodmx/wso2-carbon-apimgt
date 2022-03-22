@@ -37,11 +37,12 @@ import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ PrivilegedCarbonContext.class, WebsocketUtil.class, ServiceReferenceHolder.class })
+@PrepareForTest({ PrivilegedCarbonContext.class, WebsocketUtil.class, ServiceReferenceHolder.class, APIUtil.class })
 public class GraphQLProcessorTest {
 
     private ChannelHandlerContext channelHandlerContext;
@@ -54,7 +55,7 @@ public class GraphQLProcessorTest {
     private String operationId;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         System.setProperty("carbon.home", "test");
         channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
         usageDataPublisher = Mockito.mock(APIMgtUsageDataPublisher.class);
@@ -66,6 +67,7 @@ public class GraphQLProcessorTest {
         apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
         PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.mockStatic(APIUtil.class);
         PowerMockito.mockStatic(WebsocketUtil.class);
         verbInfoDTO = Mockito.mock(VerbInfoDTO.class);
         msgText = "{\"type\":\"data\",\"id\":\"1\",\"payload\":{\"data\":"

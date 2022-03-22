@@ -45,6 +45,7 @@ import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerAnalyticsConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.apimgt.usage.publisher.DataPublisherUtil;
@@ -57,7 +58,7 @@ import java.util.UUID;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ PrivilegedCarbonContext.class, DataPublisherUtil.class, GraphQLProcessor.class,
-        WebsocketUtil.class, ServiceReferenceHolder.class })
+        WebsocketUtil.class, ServiceReferenceHolder.class, APIUtil.class })
 public class WebsocketHandlerTestCase {
 
     private static final String channelIdString = "11111";
@@ -71,7 +72,7 @@ public class WebsocketHandlerTestCase {
     private APIManagerConfiguration apiManagerConfiguration;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
         System.setProperty("carbon.home", "test");
         PowerMockito.mockStatic(GraphQLProcessor.class);
         PowerMockito.mockStatic(ServiceReferenceHolder.class);
@@ -83,6 +84,7 @@ public class WebsocketHandlerTestCase {
         apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
         PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.mockStatic(APIUtil.class);
         PowerMockito.mockStatic(WebsocketUtil.class);
         channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
         Channel channel = Mockito.mock(Channel.class);
