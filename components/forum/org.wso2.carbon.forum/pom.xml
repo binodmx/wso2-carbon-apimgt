@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.wso2.carbon.apimgt</groupId>
         <artifactId>forum</artifactId>
-        <version>6.7.206.272</version>
+        <version>6.7.206.273-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
