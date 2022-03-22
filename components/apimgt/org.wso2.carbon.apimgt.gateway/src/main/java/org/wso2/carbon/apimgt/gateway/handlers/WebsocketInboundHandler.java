@@ -21,12 +21,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -76,8 +72,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.cache.Cache;
 
@@ -170,8 +164,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 ctx.fireChannelRead(msg);
                 return;
             }
-
-            validateCorsHeaders(ctx, req);
 
             inboundMessageContext.setUri(req.getUri());
             URI uriTemp = new URI(inboundMessageContext.getUri());
@@ -304,39 +296,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req) throws APISecurityException {
-        // Current implementation supports validating only the 'origin' header
-        String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
-        String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin);
-        if (allowedOrigin == null) {
-            FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
-            ctx.writeAndFlush(httpResponse);
-            ctx.close();
-            log.warn("Validation of CORS origin header failed for WS request on: " + req.uri());
-            throw new APISecurityException(APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED,
-                    APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED_MESSAGE);
-        }
-    }
-
-    private String assessAndGetAllowedOrigin(String origin) {
-        if (WebsocketUtil.allowedOriginsConfigured.contains("*")) {
-            return "*";
-        } else if (WebsocketUtil.allowedOriginsConfigured.contains(origin)) {
-            return origin;
-        } else if (origin != null) {
-            for (String allowedOrigin : WebsocketUtil.allowedOriginsConfigured) {
-                if (allowedOrigin.contains("*")) {
-                    Pattern pattern = Pattern.compile(allowedOrigin.replace("*", ".*"));
-                    Matcher matcher = pattern.matcher(origin);
-                    if (matcher.find()) {
-                        return origin;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Authenticate request
      *
@@ -353,11 +312,11 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(inboundMessageContext.getTenantDomain(), true);
             inboundMessageContext.setVersion(getVersionFromUrl(inboundMessageContext.getUri()));
-            if (!req.headers().contains(WebsocketUtil.authorizationHeader)) {
+            if (!req.headers().contains(HttpHeaders.AUTHORIZATION)) {
                 QueryStringDecoder decoder = new QueryStringDecoder(req.getUri());
                 Map<String, List<String>> requestMap = decoder.parameters();
                 if (requestMap.containsKey(APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT)) {
-                    req.headers().add(WebsocketUtil.authorizationHeader,
+                    req.headers().add(HttpHeaders.AUTHORIZATION,
                             APIConstants.CONSUMER_KEY_SEGMENT + ' ' + requestMap.get(
                                     APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT).get(0));
                     removeTokenFromQuery(requestMap, inboundMessageContext);
@@ -371,7 +330,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     return responseDTO;
                 }
             }
-            String authorizationHeader = req.headers().get(WebsocketUtil.authorizationHeader);
+            String authorizationHeader = req.headers().get(HttpHeaders.AUTHORIZATION);
             inboundMessageContext.setHeaders(
                     inboundMessageContext.getHeaders().add(HttpHeaders.AUTHORIZATION, authorizationHeader));
             String[] auth = authorizationHeader.split(" ");
@@ -381,7 +340,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 String apiKey = auth[1];
                 inboundMessageContext.setApiKey(apiKey);
                 if (WebsocketUtil.isRemoveOAuthHeadersFromOutMessage()) {
-                    req.headers().remove(WebsocketUtil.authorizationHeader);
+                    req.headers().remove(HttpHeaders.AUTHORIZATION);
                 }
 
                 //Initial guess of a JWT token using the presence of a DOT.

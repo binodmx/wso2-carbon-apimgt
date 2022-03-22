@@ -75,9 +75,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -85,8 +82,6 @@ public class WebsocketUtil {
 	private static Logger log = LoggerFactory.getLogger(WebsocketUtil.class);
 	private static boolean removeOAuthHeadersFromOutMessage = true;
 	private static boolean gatewayTokenCacheEnabled = false;
-	public static Set<String> allowedOriginsConfigured = new HashSet<>();
-	public static String authorizationHeader = null;
 
 	static {
 		initParams();
@@ -105,26 +100,6 @@ public class WebsocketUtil {
 		String value = config.getFirstProperty(APIConstants.REMOVE_OAUTH_HEADERS_FROM_MESSAGE);
 		if (value != null) {
 			removeOAuthHeadersFromOutMessage = Boolean.parseBoolean(value);
-		}
-
-		if (authorizationHeader == null) {
-			try {
-				authorizationHeader = APIUtil
-						.getOAuthConfigurationFromAPIMConfig(APIConstants.AUTHORIZATION_HEADER);
-				if (authorizationHeader == null) {
-					authorizationHeader = HttpHeaders.AUTHORIZATION;
-				}
-			} catch (APIManagementException e) {
-				log.error("Error while reading authorization header from APIM configurations", e);
-			}
-		}
-
-		//initialize CORS Configs
-		if (APIUtil.isCORSEnabledForWS()) {
-			String allowedOriginsConfigured = APIUtil.getAllowedOrigins();
-			if (!allowedOriginsConfigured.isEmpty()) {
-				WebsocketUtil.allowedOriginsConfigured = new HashSet<>(Arrays.asList(allowedOriginsConfigured.split(",")));
-			}
 		}
 	}
 
