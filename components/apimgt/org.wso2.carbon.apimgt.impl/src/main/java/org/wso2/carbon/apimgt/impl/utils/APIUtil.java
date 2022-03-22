@@ -8011,18 +8011,18 @@ public final class APIUtil {
     }
 
     /**
-     * Used to get the configuration which is set to decide whether CORS is enabled for Websocket APIs
+     * Used to get the configuration which is set to decide whether CORS validation is enabled for Websocket APIs,
      * from api-manager.xml
      *
-     * @return true if CORS for WS APIs is enabled in api-manager.xml
+     * @return true if CORS validation for WS APIs is enabled in api-manager.xml
      */
-    public static boolean isCORSEnabledForWS() {
+    public static boolean isCORSValidationEnabledForWS() {
 
-        String corsEnabledForWS =
+        String corsValidationEnabledForWS =
                 ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration().
-                        getFirstProperty(APIConstants.CORS_CONFIGURATION_ENABLED_FOR_WS);
+                        getFirstProperty(APIConstants.CORS_CONFIGURATION_ENABLE_VALIDATION_FOR_WS);
 
-        return Boolean.parseBoolean(corsEnabledForWS);
+        return Boolean.parseBoolean(corsValidationEnabledForWS);
     }
 
     /**

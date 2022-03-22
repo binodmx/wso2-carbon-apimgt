@@ -120,7 +120,7 @@ public class WebsocketUtil {
 		}
 
 		//initialize CORS Configs
-		if (APIUtil.isCORSEnabledForWS()) {
+		if (APIUtil.isCORSValidationEnabledForWS()) {
 			String allowedOriginsConfigured = APIUtil.getAllowedOrigins();
 			if (!allowedOriginsConfigured.isEmpty()) {
 				WebsocketUtil.allowedOriginsConfigured = new HashSet<>(Arrays.asList(allowedOriginsConfigured.split(",")));

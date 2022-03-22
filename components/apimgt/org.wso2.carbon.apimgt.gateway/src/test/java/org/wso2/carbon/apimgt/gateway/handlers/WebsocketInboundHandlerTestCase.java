@@ -150,6 +150,7 @@ public class WebsocketInboundHandlerTestCase {
         apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
         PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.mockStatic(APIUtil.class);
         PowerMockito.mockStatic(WebsocketUtil.class);
         PowerMockito.when(WebsocketUtil.getRemoteIP(channelHandlerContext)).thenReturn(remoteIP);
         JWTValidationService jwtValidationService = Mockito.mock(JWTValidationService.class);

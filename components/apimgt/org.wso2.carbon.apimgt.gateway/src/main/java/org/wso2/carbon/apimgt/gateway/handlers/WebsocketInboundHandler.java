@@ -306,6 +306,10 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
 
     private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req) throws APISecurityException {
         // Current implementation supports validating only the 'origin' header
+
+        if (!APIUtil.isCORSValidationEnabledForWS()) {
+            return;
+        }
         String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
         String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin);
         if (allowedOrigin == null) {
