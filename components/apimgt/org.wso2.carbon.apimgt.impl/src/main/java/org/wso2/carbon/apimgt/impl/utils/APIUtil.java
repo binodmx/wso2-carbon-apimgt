@@ -8011,6 +8011,21 @@ public final class APIUtil {
     }
 
     /**
+     * Used to get the configuration which is set to decide whether CORS is enabled for Websocket APIs
+     * from api-manager.xml
+     *
+     * @return true if CORS for WS APIs is enabled in api-manager.xml
+     */
+    public static boolean isCORSEnabledForWS() {
+
+        String corsEnabledForWS =
+                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration().
+                        getFirstProperty(APIConstants.CORS_CONFIGURATION_ENABLED_FOR_WS);
+
+        return Boolean.parseBoolean(corsEnabledForWS);
+    }
+
+    /**
      * Used to get if it is enabled to pass the request parameters to AWS Lambda function in api-manager.xml
      *
      * @return true if PassRequestParamsToLambdaFunction is set to true in api-manager.xml
