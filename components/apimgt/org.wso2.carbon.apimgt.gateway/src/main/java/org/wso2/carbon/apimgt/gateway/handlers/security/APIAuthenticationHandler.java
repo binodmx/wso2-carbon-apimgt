@@ -786,7 +786,8 @@ public class APIAuthenticationHandler extends AbstractHandler implements Managed
                 }
             } else {
                 // If provider defined, set the provider as the apiPublisher
-                apiPublisher = provider;
+                apiPublisher = provider
+                        .replace(APIConstants.EMAIL_DOMAIN_SEPARATOR_REPLACEMENT, APIConstants.EMAIL_DOMAIN_SEPARATOR);
             }
         }
         int index = apiVersion.indexOf("--");
