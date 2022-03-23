@@ -39,11 +39,10 @@ import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInboundHandler, WebsocketOutboundHandler> {
 
     private static final Log log = LogFactory.getLog(WebsocketInboundHandler.class);
-    private static GraphQLResponseProcessor graphQLResponseProcessor = new GraphQLResponseProcessor();
-
     public WebsocketHandler() {
         super(new WebsocketInboundHandler(), new WebsocketOutboundHandler());
     }
+    private static GraphQLResponseProcessor graphQLResponseProcessor = new GraphQLResponseProcessor();
 
     public WebsocketHandler(WebsocketInboundHandler websocketInboundHandler,
                             WebsocketOutboundHandler websocketOutboundHandler) {
@@ -71,33 +70,14 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             outboundHandler().write(ctx, msg, promise);
 
         } else if (msg instanceof WebSocketFrame) {
-
+            InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
             if (APIConstants.APITransportType.GRAPHQL.toString()
                     .equals(inboundMessageContext.getElectedAPI().getApiType()) && msg instanceof TextWebSocketFrame) {
                 // Authenticate and handle GraphQL subscription responses
-                InboundProcessorResponseDTO responseDTO = graphQLResponseProcessor.handleResponse((WebSocketFrame) msg,
+               responseDTO = graphQLResponseProcessor.handleResponse((WebSocketFrame) msg,
                         ctx, inboundMessageContext, inboundHandler().getUsageDataPublisher());
                 if (responseDTO.isError()) {
-                    if (responseDTO.isCloseConnection()) {
-                        // remove inbound message context from data holder
-                        InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Error while handling Outbound Websocket frame. Closing connection for "
-                                    + ctx.channel().toString());
-                        }
-                        outboundHandler().write(ctx, new CloseWebSocketFrame(responseDTO.getErrorCode(),
-                                responseDTO.getErrorMessage() + StringUtils.SPACE + "Connection closed" + "!"), promise);
-                        outboundHandler().flush(ctx);
-                        outboundHandler().close(ctx, promise);
-                    } else {
-                        String errorMessage = responseDTO.getErrorResponseString();
-                        outboundHandler().write(ctx, new TextWebSocketFrame(errorMessage), promise);
-                        if (responseDTO.getErrorCode() == GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
-                            }
-                        }
-                    }
+                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise);
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
@@ -106,19 +86,57 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                 }
             } else {
                 // If not a GraphQL API (Only a WebSocket API)
-                if (isAllowed(ctx, (WebSocketFrame) msg, inboundMessageContext,
-                        inboundHandler().getUsageDataPublisher())) {
-                    handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
-                } else {
-                    ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
-                    if (log.isDebugEnabled()) {
-                        log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
+                responseDTO = inboundMessageContext.isJWTToken() ?
+                        WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
+                        WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
+                                inboundMessageContext);
+                if (!responseDTO.isError()) {
+                    if (isAllowed(ctx, (WebSocketFrame) msg, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher())) {
+                        handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
+                    } else {
+                        ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
+                        }
                     }
+                } else {
+                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise);
                 }
             }
         } else {
             outboundHandler().write(ctx, msg, promise);
         }
+    }
+
+    /**
+     * @param responseDTO InboundProcessorResponseDTO
+     * @param channelId   Channel Id of the web socket connection
+     * @param ctx         ChannelHandlerContext
+     */
+    private void handleWebsocketFrameRequestError(InboundProcessorResponseDTO responseDTO, String channelId,
+                                                  ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+        if (responseDTO.isCloseConnection()) {
+            // remove inbound message context from data holder
+            InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
+            if (log.isDebugEnabled()) {
+                log.debug("Error while handling Outbound Websocket frame. Closing connection for "
+                        + ctx.channel().toString());
+            }
+            outboundHandler().write(ctx, new CloseWebSocketFrame(responseDTO.getErrorCode(),
+                    responseDTO.getErrorMessage() + StringUtils.SPACE + "Connection closed" + "!"), promise);
+            outboundHandler().flush(ctx);
+            outboundHandler().close(ctx, promise);
+        } else {
+            String errorMessage = responseDTO.getErrorResponseString();
+            outboundHandler().write(ctx, new TextWebSocketFrame(errorMessage), promise);
+            if (responseDTO.getErrorCode() == GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
+                }
+            }
+        }
+
     }
 
     /**

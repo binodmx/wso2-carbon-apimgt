@@ -82,8 +82,9 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(inboundMessageContext.getTenantDomain(), true);
             responseDTO = inboundMessageContext.isJWTToken() ?
-                    authenticateGraphQLJWTToken(inboundMessageContext) :
-                    authenticateGraphQLOAuthToken(responseDTO, inboundMessageContext);
+                    WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
+                    WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
+                            inboundMessageContext);
 
             String msgText = ((TextWebSocketFrame) msg).text();
             JSONObject graphQLMsg = new JSONObject(msgText);

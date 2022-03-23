@@ -42,49 +42,6 @@ public abstract class GraphQLProcessor {
     private static final Log log = LogFactory.getLog(GraphQLProcessor.class);
 
     /**
-     * Authenticates JWT token in incoming GraphQL subscription requests.
-     *
-     * @param inboundMessageContext InboundMessageContext
-     * @return InboundProcessorResponseDTO
-     */
-    public static InboundProcessorResponseDTO authenticateGraphQLJWTToken(InboundMessageContext inboundMessageContext) {
-
-        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        AuthenticationContext authenticationContext;
-        JWTValidator jwtValidator = new JWTValidator(new APIKeyValidator());
-        try {
-            authenticationContext = jwtValidator.authenticateForWSAndGraphQL(inboundMessageContext.getSignedJWTInfo(),
-                    inboundMessageContext.getApiContextUri(), inboundMessageContext.getVersion());
-            inboundMessageContext.setAuthContext(authenticationContext);
-            if (!WebsocketUtil.validateAuthenticationContext(inboundMessageContext,
-                    inboundMessageContext.getElectedAPI().isDefaultVersion())) {
-                responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
-                        APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE, true);
-            }
-        } catch (APISecurityException e) {
-            log.error(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS, e);
-            responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
-                    e.getMessage(), true);
-        }
-        return responseDTO;
-    }
-
-    /**
-     * Authenticates OAuth token in incoming GraphQL subscription requests.
-     *
-     * @param responseDTO           InboundProcessorResponseDTO
-     * @param inboundMessageContext InboundMessageContext
-     * @return InboundProcessorResponseDTO
-     * @throws APISecurityException if an error occurs while retrieving API key data for client
-     */
-    public static InboundProcessorResponseDTO authenticateGraphQLOAuthToken(InboundProcessorResponseDTO responseDTO,
-            InboundMessageContext inboundMessageContext) throws APISecurityException {
-
-        return WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
-                inboundMessageContext);
-    }
-
-    /**
      * Validates scopes for subscription operations.
      *
      * @param inboundMessageContext InboundMessageContext
@@ -129,25 +86,6 @@ public abstract class GraphQLProcessor {
                 inboundMessageContext.getVersion(), matchingResource, inboundMessageContext.getSignedJWTInfo(),
                 inboundMessageContext.getAuthContext());
         return true;
-    }
-
-    /**
-     * Get error frame DTO for error code and message closeConnection parameters.
-     *
-     * @param errorCode       Error code
-     * @param errorMessage    Error message
-     * @param closeConnection Whether to close connection after throwing the error frame
-     * @return InboundProcessorResponseDTO
-     */
-    private static InboundProcessorResponseDTO getFrameErrorDTO(int errorCode, String errorMessage,
-            boolean closeConnection) {
-
-        InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
-        inboundProcessorResponseDTO.setError(true);
-        inboundProcessorResponseDTO.setErrorCode(errorCode);
-        inboundProcessorResponseDTO.setErrorMessage(errorMessage);
-        inboundProcessorResponseDTO.setCloseConnection(closeConnection);
-        return inboundProcessorResponseDTO;
     }
 
     /**

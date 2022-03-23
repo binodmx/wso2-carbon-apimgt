@@ -38,9 +38,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.api.gateway.GraphQLSchemaDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
+import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
 import org.wso2.carbon.apimgt.gateway.internal.DataHolder;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.ResourceInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
@@ -49,6 +52,8 @@ import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
+import javax.cache.Cache;
+import javax.cache.Caching;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +66,7 @@ import java.util.UUID;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ PrivilegedCarbonContext.class, GraphQLProcessorUtil.class, GraphQLProcessor.class
-        , DataHolder.class, APIUtil.class })
+        , DataHolder.class, APIUtil.class, WebsocketUtil.class, ServiceReferenceHolder.class  })
 public class GraphQLRequestProcessorTest {
 
     private ChannelHandlerContext channelHandlerContext;
@@ -69,6 +74,9 @@ public class GraphQLRequestProcessorTest {
     private DataHolder dataHolder;
     private API graphQLAPI;
     private GraphQLRequestProcessor graphQLRequestProcessor;
+    private static final String remoteIP = "192.168.0.100";
+    private APIManagerConfiguration apiManagerConfiguration;
+    ServiceReferenceHolder serviceReferenceHolder;
 
     @Before
     public void setup() {
@@ -87,6 +95,13 @@ public class GraphQLRequestProcessorTest {
         graphQLAPI = new API(UUID.randomUUID().toString(), 2, "admin", "GraphQLAPI", "1.0.0", "/graphql", "Unlimited",
                 APIConstants.GRAPHQL_API, false);
         graphQLRequestProcessor = new GraphQLRequestProcessor();
+        PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
+        apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
+        PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.mockStatic(WebsocketUtil.class);
+        PowerMockito.when(WebsocketUtil.getRemoteIP(channelHandlerContext)).thenReturn(remoteIP);
     }
 
     @Test
@@ -98,7 +113,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n    }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         PowerMockito.when(GraphQLProcessor.validateScopes(inboundMessageContext, "liftStatusChange", "1"))
                 .thenReturn(responseDTO);
 
@@ -154,7 +169,7 @@ public class GraphQLRequestProcessorTest {
         String msgText = "{\"type\":\"connection_init\",\"payload\":{}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -173,7 +188,7 @@ public class GraphQLRequestProcessorTest {
         responseDTO.setError(true);
         responseDTO.setErrorMessage("Invalid authentication");
         responseDTO.setCloseConnection(true);
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -190,7 +205,7 @@ public class GraphQLRequestProcessorTest {
                 + "\"operationName\":null}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
         inboundProcessorResponseDTO.setError(true);
         inboundProcessorResponseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.BAD_REQUEST);
@@ -264,7 +279,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n invalidField\\n }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         // Get schema and parse
         String graphqlDirPath = "graphQL" + File.separator;
@@ -308,7 +323,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         // Get schema and parse
         String graphqlDirPath = "graphQL" + File.separator;
@@ -375,7 +390,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         // Get schema and parse
         String graphqlDirPath = "graphQL" + File.separator;
@@ -435,7 +450,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n    }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         // Get schema and parse
         String graphqlDirPath = "graphQL" + File.separator;
@@ -502,7 +517,7 @@ public class GraphQLRequestProcessorTest {
                 + "liftStatusChange {\\n    id\\n    name\\n    }\\n}\\n\"}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         // Get schema and parse
         String graphqlDirPath = "graphQL" + File.separator;
