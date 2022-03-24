@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.impl.certificatemgt.TrustStoreUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +53,7 @@ public class CertificateReLoader implements Runnable {
                     CertificateReLoaderUtil.setLastUpdatedTimeStamp(lastModified);
                     localTrustStoreStream = new FileInputStream(trustStoreFile);
                     KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                    trustStore.load(localTrustStoreStream, TRUST_STORE_PASSWORD.toCharArray());
+                    TrustStoreUtils.loadCerts(trustStore, TRUST_STORE, TRUST_STORE_PASSWORD.toCharArray());
                     ServiceReferenceHolder.getInstance().setTrustStore(trustStore);
                 }
             } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {

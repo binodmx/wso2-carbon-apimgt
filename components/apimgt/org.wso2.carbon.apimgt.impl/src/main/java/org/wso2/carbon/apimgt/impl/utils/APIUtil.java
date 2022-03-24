@@ -148,6 +148,7 @@ import org.wso2.carbon.apimgt.impl.PasswordResolverFactory;
 import org.wso2.carbon.apimgt.impl.RESTAPICacheConfiguration;
 import org.wso2.carbon.apimgt.impl.ThrottlePolicyDeploymentManager;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
+import org.wso2.carbon.apimgt.impl.certificatemgt.TrustStoreUtils;
 import org.wso2.carbon.apimgt.impl.clients.UserInformationRecoveryClient;
 import org.wso2.carbon.apimgt.impl.containermgt.ContainerBasedConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
@@ -7359,8 +7360,9 @@ public final class APIUtil {
         String keyStorePassword = CarbonUtils.getServerConfiguration()
                 .getFirstProperty(APIConstants.TRUST_STORE_PASSWORD);
         try {
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            trustStore.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+            //KeyStore trustStore = KeyStore.getInstance("JKS");
+            KeyStore trustStore = ServiceReferenceHolder.getInstance().getTrustStore();
+            //TrustStoreUtils.loadCerts(trustStore, keyStorePath, keyStorePassword.toCharArray());
             sslContext = SSLContexts.custom().loadTrustMaterial(trustStore).build();
 
             X509HostnameVerifier hostnameVerifier;
@@ -7377,10 +7379,6 @@ public final class APIUtil {
             return new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
         } catch (KeyStoreException e) {
             handleException("Failed to read from Key Store", e);
-        } catch (IOException e) {
-            handleException("Key Store not found in " + keyStorePath, e);
-        } catch (CertificateException e) {
-            handleException("Failed to read Certificate", e);
         } catch (NoSuchAlgorithmException e) {
             handleException("Failed to load Key Store from " + keyStorePath, e);
         } catch (KeyManagementException e) {
