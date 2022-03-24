@@ -395,7 +395,7 @@ class APIDefinition extends React.Component {
             fileName = api.provider + '-' + api.name + '-' + api.version + '.graphql';
             isGraphQL = 1;
         } else {
-            downloadLink = 'data:text/' + format + ';charset=utf-8,' + swagger;
+            downloadLink = 'data:text/' + format + ';charset=utf-8,' + encodeURIComponent(swagger);
             fileName = 'swagger.' + format;
         }
         const editorOptions = {
