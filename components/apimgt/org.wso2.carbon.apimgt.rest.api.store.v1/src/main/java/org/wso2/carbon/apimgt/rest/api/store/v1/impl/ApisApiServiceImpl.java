@@ -634,8 +634,14 @@ public class ApisApiServiceImpl implements ApisApiService {
      */
     @Override
     public Response apisApiIdSwaggerGet(String apiId, String labelName, String environmentName, String clusterName,
-            String ifNoneMatch, String xWSO2Tenant, MessageContext messageContext) {
-        String requestedTenantDomain = RestApiUtil.getRequestedTenantDomain(xWSO2Tenant);
+                                        String ifNoneMatch, String xWSO2Tenant, String xWSO2TenantQ,
+                                        MessageContext messageContext) {
+        String requestedTenantDomain;
+        if (StringUtils.isNotEmpty(xWSO2TenantQ) && StringUtils.isEmpty(xWSO2Tenant)) {
+            requestedTenantDomain = RestApiUtil.getRequestedTenantDomain(xWSO2TenantQ);
+        } else {
+            requestedTenantDomain = RestApiUtil.getRequestedTenantDomain(xWSO2Tenant);
+        }
         try {
             APIConsumer apiConsumer = RestApiUtil.getLoggedInUserConsumer();
 

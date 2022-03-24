@@ -25,7 +25,14 @@ import { withStyles } from '@material-ui/core/styles';
 import Icon from '@material-ui/core/Icon';
 import AuthManager from 'AppData/AuthManager';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 import CloudDownloadRounded from '@material-ui/icons/CloudDownloadRounded';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import Tooltip from '@material-ui/core/Tooltip';
+import Cookies from 'js-cookie';
+import queryString from 'query-string';
+import Settings from 'Settings';
 import { ApiContext } from '../ApiContext';
 import Progress from '../../../Shared/Progress';
 import Api from '../../../../data/api';
@@ -93,6 +100,10 @@ class ApiConsole extends React.Component {
             productionApiKey: '',
             sandboxApiKey: '',
             selectedKeyManager: 'Resident Key Manager',
+            urlCopied: false,
+            accessTokenPart: Cookies.get('WSO2_AM_TOKEN_1_Default'),
+            tenant: null,
+            selectedAttribute: null,
         };
         this.accessTokenProvider = this.accessTokenProvider.bind(this);
         this.updateSwagger = this.updateSwagger.bind(this);
@@ -108,6 +119,7 @@ class ApiConsole extends React.Component {
         this.updateAccessToken = this.updateAccessToken.bind(this);
         this.setProductionApiKey = this.setProductionApiKey.bind(this);
         this.setSandboxApiKey = this.setSandboxApiKey.bind(this);
+        this.onCopy = this.onCopy.bind(this);
     }
 
     /**
@@ -125,9 +137,24 @@ class ApiConsole extends React.Component {
         let swagger;
         let productionAccessToken;
         let sandboxAccessToken;
+        const { app: { customUrl: { tenantDomain: customUrlEnabledDomain } } } = Settings;
+        let tenantDomain = null;
+        if (customUrlEnabledDomain !== 'null') {
+            tenantDomain = customUrlEnabledDomain;
+        } else {
+            const { location } = window;
+            if (location) {
+                const { tenant } = queryString.parse(location.search);
+                if (tenant) {
+                    tenantDomain = tenant;
+                }
+            }
+        }
+        this.setState({ tenant: tenantDomain });
 
         this.apiClient = new Api();
         const promiseAPI = this.apiClient.getAPIById(apiID);
+        let selectedAttribute = null;
 
         promiseAPI
             .then((apiResponse) => {
@@ -145,17 +172,21 @@ class ApiConsole extends React.Component {
                 }
                 if (environments && environments.length > 0) {
                     [selectedEnvironment] = environments;
+                    selectedAttribute = 'environmentName';
                     return this.apiClient.getSwaggerByAPIIdAndEnvironment(apiID, selectedEnvironment);
                 } else if (containerMngEnvironments
                     && containerMngEnvironments.some((env) => env.clusterDetails.length > 0)) {
                     const { clusterDetails: [{ clusterName }] } = containerMngEnvironments
                         .find((env) => env.clusterDetails.length > 0);
+                    selectedAttribute = 'clusterName';
                     selectedEnvironment = clusterName;
                     return this.apiClient.getSwaggerByAPIIdAndClusterName(apiID, clusterName);
                 } else if (labels && labels.length > 0) {
+                    selectedAttribute = 'labelName';
                     [selectedEnvironment] = labels;
                     return this.apiClient.getSwaggerByAPIIdAndLabel(apiID, selectedEnvironment);
                 } else {
+                    selectedAttribute = '';
                     return this.apiClient.getSwaggerByAPIId(apiID);
                 }
             })
@@ -177,6 +208,7 @@ class ApiConsole extends React.Component {
                     sandboxAccessToken,
                     selectedEnvironment,
                     securitySchemeType: defaultSecurityScheme,
+                    selectedAttribute,
                 });
                 if (user != null) {
                     return this.apiClient.getSubscriptions(apiID);
@@ -287,6 +319,17 @@ class ApiConsole extends React.Component {
         this.setState({ keys });
     }
 
+    onCopy = () => {
+        this.setState({
+            urlCopied: true,
+        });
+        const that = this;
+        const caller = function () {
+            that.setState({ urlCopied: false });
+        };
+        setTimeout(caller, 2000);
+    }
+
     /**
      * Load the access token for given key type
      * @memberof TryOutController
@@ -386,9 +429,11 @@ class ApiConsole extends React.Component {
         const { classes } = this.props;
         const {
             api, notFound, swagger, securitySchemeType, selectedEnvironment, labels, environments, scopes,
-            username, password, productionAccessToken, sandboxAccessToken, selectedKeyType,
-            sandboxApiKey, productionApiKey, selectedKeyManager, containerMngEnvironments,
+            username, password, productionAccessToken, sandboxAccessToken, selectedKeyType, accessTokenPart,
+            sandboxApiKey, productionApiKey, selectedKeyManager, containerMngEnvironments, urlCopied, tenant,
+            selectedAttribute,
         } = this.state;
+        const { location } = window;
         const user = AuthManager.getUser();
         const downloadSwagger = JSON.stringify({ ...swagger });
         const downloadLink = 'data:text/json;charset=utf-8, ' + encodeURIComponent(downloadSwagger);
@@ -468,19 +513,47 @@ class ApiConsole extends React.Component {
                         api={this.state.api}
                         URLs={null}
                     />
-
                     <Grid container>
-                        <Grid xs={10} item />
+                        <Grid xs={9} item />
                         <Grid xs={2} item>
                             <a href={downloadLink} download={fileName}>
-                                <Typography component='span' className={classes.buttonText}>
+                                <Button size='small'>
                                     <CloudDownloadRounded className={classes.buttonIcon} />
                                     <FormattedMessage
                                         id='Apis.Details.APIConsole.APIConsole.download.swagger'
                                         defaultMessage='Swagger ( /swagger.json )'
                                     />
-                                </Typography>
+                                </Button>
                             </a>
+                        </Grid>
+                        <Grid xs={1} item>
+                            <Tooltip
+                                title={urlCopied
+                                    ? (
+                                        <FormattedMessage
+                                            id='Apis.Details.Swagger.URL.copied'
+                                            defaultMessage='Copied'
+                                        />
+                                    )
+                                    : (
+                                        <FormattedMessage
+                                            id='Apis.Details.Swagger.URL.copy.to.clipboard'
+                                            defaultMessage='Copy to clipboard'
+                                        />
+                                    )}
+                                placement='top'
+                            >
+                                <CopyToClipboard
+                                    text={location.origin + '/api/am/store/v1/apis/' + api.id + '/swagger?accessToken='
+                                    + accessTokenPart + '&X-WSO2-Tenant-Q=' + tenant + '&' + selectedAttribute + '='
+                                    + selectedEnvironment}
+                                    onCopy={() => this.onCopy('urlCopied')}
+                                >
+                                    <Button aria-label='Copy to clipboard' className={classes.button}>
+                                        <FileCopyIcon className={classes.buttonIcon} />
+                                    </Button>
+                                </CopyToClipboard>
+                            </Tooltip>
                         </Grid>
                     </Grid>
                 </Paper>
