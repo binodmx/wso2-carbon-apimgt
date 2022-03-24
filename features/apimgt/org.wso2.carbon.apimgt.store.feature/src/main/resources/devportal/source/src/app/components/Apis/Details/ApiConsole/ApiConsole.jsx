@@ -30,7 +30,6 @@ import CloudDownloadRounded from '@material-ui/icons/CloudDownloadRounded';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import Tooltip from '@material-ui/core/Tooltip';
-import Cookies from 'js-cookie';
 import queryString from 'query-string';
 import Settings from 'Settings';
 import { ApiContext } from '../ApiContext';
@@ -39,6 +38,7 @@ import Api from '../../../../data/api';
 import SwaggerUI from './SwaggerUI';
 import TryOutController from './TryOutController';
 import Application from '../../../../data/Application';
+import Utils from '../../../../data/Utils';
 
 /**
  * @inheritdoc
@@ -101,7 +101,7 @@ class ApiConsole extends React.Component {
             sandboxApiKey: '',
             selectedKeyManager: 'Resident Key Manager',
             urlCopied: false,
-            accessTokenPart: Cookies.get('WSO2_AM_TOKEN_1_Default'),
+            accessTokenPart: Utils.getCookieWithoutEnvironment('WSO2_AM_TOKEN_1_Default'),
             tenant: null,
             selectedAttribute: null,
         };
