@@ -4660,6 +4660,10 @@ public class ApiMgtDAO {
                 int subscriptionCount = getSubscriptionCountByApplicationId(subscriber, applicationId, groupingId);
                 application.setSubscriptionCount(subscriptionCount);
 
+                // Get custom attributes of application
+                Map<String, String> applicationAttributes = getApplicationAttributes(connection, applicationId);
+                application.setApplicationAttributes(applicationAttributes);
+
                 applicationsList.add(application);
             }
 
