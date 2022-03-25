@@ -38,7 +38,7 @@ import Api from '../../../../data/api';
 import SwaggerUI from './SwaggerUI';
 import TryOutController from './TryOutController';
 import Application from '../../../../data/Application';
-import Utils from '../../../../data/Utils';
+import Utils from 'AppData/Utils';
 
 /**
  * @inheritdoc
@@ -323,9 +323,8 @@ class ApiConsole extends React.Component {
         this.setState({
             urlCopied: true,
         });
-        const that = this;
         const caller = function () {
-            that.setState({ urlCopied: false });
+            this.setState({ urlCopied: false });
         };
         setTimeout(caller, 2000);
     }
@@ -547,7 +546,7 @@ class ApiConsole extends React.Component {
                                     text={location.origin + '/api/am/store/v1/apis/' + api.id + '/swagger?accessToken='
                                     + accessTokenPart + '&X-WSO2-Tenant-Q=' + tenant + '&' + selectedAttribute + '='
                                     + selectedEnvironment}
-                                    onCopy={() => this.onCopy('urlCopied')}
+                                    onCopy={this.onCopy}
                                 >
                                     <Button aria-label='Copy to clipboard' className={classes.button}>
                                         <FileCopyIcon className={classes.buttonIcon} />
