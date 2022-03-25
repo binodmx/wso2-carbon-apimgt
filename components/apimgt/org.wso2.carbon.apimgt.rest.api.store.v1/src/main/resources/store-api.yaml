@@ -3792,7 +3792,7 @@ parameters:
     type: string
 
   # Requested Tenant domain
-  # Specified as a header parameter
+  # Specified as part of the query string
   requestedTenant-Q:
     name: X-WSO2-Tenant-Q
     in: query
