@@ -102,7 +102,7 @@ class ApiConsole extends React.Component {
             selectedKeyManager: 'Resident Key Manager',
             urlCopied: false,
             accessTokenPart: Utils.getCookieWithoutEnvironment('WSO2_AM_TOKEN_1_Default'),
-            tenant: null,
+            tenant: '',
             selectedAttribute: null,
         };
         this.accessTokenProvider = this.accessTokenProvider.bind(this);
@@ -138,7 +138,7 @@ class ApiConsole extends React.Component {
         let productionAccessToken;
         let sandboxAccessToken;
         const { app: { customUrl: { tenantDomain: customUrlEnabledDomain } } } = Settings;
-        let tenantDomain = null;
+        let tenantDomain = '';
         if (customUrlEnabledDomain !== 'null') {
             tenantDomain = customUrlEnabledDomain;
         } else {

@@ -99,27 +99,9 @@ class Environments extends React.Component {
         this.state = {
             urlCopied: false,
             accessTokenPart: Utils.getCookieWithoutEnvironment('WSO2_AM_TOKEN_1_Default'),
-            tenant: null,
         };
         this.downloadWSDL = this.downloadWSDL.bind(this);
         this.onCopy = this.onCopy.bind(this);
-    }
-
-    componentDidMount() {
-        const { app: { customUrl: { tenantDomain: customUrlEnabledDomain } } } = Settings;
-        let tenantDomain = null;
-        if (customUrlEnabledDomain !== 'null') {
-            tenantDomain = customUrlEnabledDomain;
-        } else {
-            const { location } = window;
-            if (location) {
-                const { tenant } = queryString.parse(location.search);
-                if (tenant) {
-                    tenantDomain = tenant;
-                }
-            }
-        }
-        this.setState({ tenant: tenantDomain });
     }
 
     onCopy = (name) => {
@@ -185,7 +167,20 @@ class Environments extends React.Component {
     render() {
         const { api } = this.context;
         const { classes, intl } = this.props;
-        const { urlCopied, accessTokenPart, tenant } = this.state;
+        const { urlCopied, accessTokenPart } = this.state;
+        const { app: { customUrl: { tenantDomain: customUrlEnabledDomain } } } = Settings;
+        let tenantDomain = '';
+        if (customUrlEnabledDomain !== 'null') {
+            tenantDomain = customUrlEnabledDomain;
+        } else {
+            const { location } = window;
+            if (location) {
+                const { tenant } = queryString.parse(location.search);
+                if (tenant) {
+                    tenantDomain = tenant;
+                }
+            }
+        }
         // let kubernetes = 'kuberenetes'
 
         // let kubernetes = [{
@@ -842,7 +837,7 @@ class Environments extends React.Component {
                                                         <CopyToClipboard
                                                             text={location.origin + '/api/am/store/v1/apis/' + api.id
                                                             + '/swagger?accessToken=' + accessTokenPart
-                                                            + '&X-WSO2-Tenant-Q=' + tenant + '&' + 'environmentName='
+                                                            + '&X-WSO2-Tenant-Q=' + tenantDomain + '&' + 'environmentName='
                                                             + endpoint.environmentName}
                                                             onCopy={() => this.onCopy('urlCopied')}
                                                         >
