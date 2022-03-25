@@ -120,6 +120,7 @@ public class ApplicationsApiServiceImpl implements ApplicationsApiService {
                     .getApplicationsWithPagination(new Subscriber(username), groupId, offset, limit, query, sortBy,
                             sortOrder);
             if (applications != null) {
+                // Get application attributes from config
                 JSONArray applicationAttributesFromConfig = apiConsumer.getAppAttributesFromConfig(username);
                 for (Application application : applications) {
                     // Remove hidden attributes and set the rest of the attributes from config
