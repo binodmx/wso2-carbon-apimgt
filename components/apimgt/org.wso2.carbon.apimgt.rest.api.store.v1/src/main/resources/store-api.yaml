@@ -249,6 +249,7 @@ paths:
         - $ref: '#/parameters/clusterName'
         - $ref: '#/parameters/If-None-Match'
         - $ref: '#/parameters/requestedTenant'
+        - $ref: '#/parameters/requestedTenant-Q'
       tags:
         - APIs
       responses:
@@ -3788,6 +3789,16 @@ parameters:
     in: query
     description: |
       **API ID** consisting of the **UUID** of the API.
+    type: string
+
+  # Requested Tenant domain
+  # Specified as part of the query string
+  requestedTenant-Q:
+    name: X-WSO2-Tenant-Q
+    in: query
+    description: |
+      For cross-tenant invocations, this is used to specify the tenant domain, where the resource need to be
+        retirieved from.
     type: string
 
   # API Type
