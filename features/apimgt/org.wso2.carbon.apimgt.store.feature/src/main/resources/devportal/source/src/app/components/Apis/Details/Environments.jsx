@@ -35,6 +35,9 @@ import Utils from 'AppData/Utils';
 import Alert from 'AppComponents/Shared/Alert';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { ApiContext } from './ApiContext';
+import FileCopyIcon from "@material-ui/icons/FileCopy";
+import queryString from "query-string";
+import Settings from 'Settings';
 
 const styles = theme => ({
     buttonIcon: {
@@ -95,9 +98,28 @@ class Environments extends React.Component {
         this.apiClient = new API();
         this.state = {
             urlCopied: false,
+            accessTokenPart: Utils.getCookieWithoutEnvironment('WSO2_AM_TOKEN_1_Default'),
+            tenant: null,
         };
         this.downloadWSDL = this.downloadWSDL.bind(this);
         this.onCopy = this.onCopy.bind(this);
+    }
+
+    componentDidMount() {
+        const { app: { customUrl: { tenantDomain: customUrlEnabledDomain } } } = Settings;
+        let tenantDomain = null;
+        if (customUrlEnabledDomain !== 'null') {
+            tenantDomain = customUrlEnabledDomain;
+        } else {
+            const { location } = window;
+            if (location) {
+                const { tenant } = queryString.parse(location.search);
+                if (tenant) {
+                    tenantDomain = tenant;
+                }
+            }
+        }
+        this.setState({ tenant: tenantDomain });
     }
 
     onCopy = (name) => {
@@ -163,7 +185,7 @@ class Environments extends React.Component {
     render() {
         const { api } = this.context;
         const { classes, intl } = this.props;
-        const { urlCopied } = this.state;
+        const { urlCopied, accessTokenPart, tenant } = this.state;
         // let kubernetes = 'kuberenetes'
 
         // let kubernetes = [{
@@ -786,17 +808,51 @@ class Environments extends React.Component {
                                             </Button>
                                         )}
                                         {(api.type === 'HTTP' || api.type === 'SOAPTOREST') && (
-                                            <Button
-                                                size='small'
-                                                onClick={() => this.downloadSwagger(api.id, endpoint.environmentName)}
-                                                data-testid='swagger-download-btn'
-                                            >
-                                                <CloudDownloadRounded className={classes.buttonIcon} />
-                                                <FormattedMessage
-                                                    id='Apis.Details.Environments.download.swagger'
-                                                    defaultMessage='Swagger'
-                                                />
-                                            </Button>
+                                            <Grid container>
+                                                <Grid xs={2} item>
+                                                    <Button
+                                                        size='small'
+                                                        onClick={() => this.downloadSwagger(api.id, endpoint.environmentName)}
+                                                        data-testid='swagger-download-btn'
+                                                    >
+                                                        <CloudDownloadRounded className={classes.buttonIcon} />
+                                                        <FormattedMessage
+                                                            id='Apis.Details.Environments.download.swagger'
+                                                            defaultMessage='Swagger'
+                                                        />
+                                                    </Button>
+                                                </Grid>
+                                                <Grid xs={2} item>
+                                                    <Tooltip
+                                                        title={urlCopied
+                                                            ? (
+                                                                <FormattedMessage
+                                                                    id='Apis.Details.Swagger.URL.copied'
+                                                                    defaultMessage='Copied'
+                                                                />
+                                                            )
+                                                            : (
+                                                                <FormattedMessage
+                                                                    id='Apis.Details.Swagger.URL.copy.to.clipboard'
+                                                                    defaultMessage='Copy to clipboard'
+                                                                />
+                                                            )}
+                                                        placement='top'
+                                                    >
+                                                        <CopyToClipboard
+                                                            text={location.origin + '/api/am/store/v1/apis/' + api.id
+                                                            + '/swagger?accessToken=' + accessTokenPart
+                                                            + '&X-WSO2-Tenant-Q=' + tenant + '&' + 'environmentName='
+                                                            + endpoint.environmentName}
+                                                            onCopy={() => this.onCopy('urlCopied')}
+                                                        >
+                                                            <Button aria-label='Copy to clipboard' size='small'>
+                                                                <FileCopyIcon className={classes.buttonIcon} />
+                                                            </Button>
+                                                        </CopyToClipboard>
+                                                    </Tooltip>
+                                                </Grid>
+                                            </Grid>
                                         )}
                                     </Grid>
                                 </ExpansionPanelDetails>
