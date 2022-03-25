@@ -182,6 +182,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                 logMessage += SEPARATOR + KEY_DIRECTION + "RequestOut";
                 logMessage += SEPARATOR + KEY_HTTP_METHOD + axis2MessageContext.getProperty(HTTP_METHOD);
                 if (messageContext.getTo() != null) {
+                    // Add endpoint address for the correlation logs
                     if (messageContext.getProperty(APIMgtGatewayConstants.SYNAPSE_ENDPOINT_ADDRESS) != null) {
                         logMessage += SEPARATOR + KEY_DESTINATION + messageContext
                                 .getProperty(APIMgtGatewayConstants.SYNAPSE_ENDPOINT_ADDRESS);
