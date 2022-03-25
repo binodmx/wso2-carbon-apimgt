@@ -32,13 +32,13 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import Tooltip from '@material-ui/core/Tooltip';
 import queryString from 'query-string';
 import Settings from 'Settings';
+import Utils from 'AppData/Utils';
 import { ApiContext } from '../ApiContext';
 import Progress from '../../../Shared/Progress';
 import Api from '../../../../data/api';
 import SwaggerUI from './SwaggerUI';
 import TryOutController from './TryOutController';
 import Application from '../../../../data/Application';
-import Utils from 'AppData/Utils';
 
 /**
  * @inheritdoc
