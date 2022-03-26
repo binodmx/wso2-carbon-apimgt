@@ -131,6 +131,7 @@ import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.ClientCertificatesDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.DeploymentStatusListDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.DocumentDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.DocumentListDTO;
+import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.ErrorListItemDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.FileInfoDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.GraphQLQueryComplexityInfoDTO;
 import org.wso2.carbon.apimgt.rest.api.publisher.v1.dto.GraphQLSchemaDTO;
@@ -3474,6 +3475,13 @@ public class ApisApiServiceImpl implements ApisApiService {
 
         OpenAPIDefinitionValidationResponseDTO validationResponseDTO =
                 (OpenAPIDefinitionValidationResponseDTO)validationResponseMap.get(RestApiConstants.RETURN_DTO);
+        if (!validationResponseDTO.isIsValid()) {
+            List<ErrorListItemDTO> errors = validationResponseDTO.getErrors();
+            for (ErrorListItemDTO error : errors) {
+                log.error("Error while parsing OpenAPI definition. Error code: " + error.getCode() + ". Error: "
+                        + error.getDescription());
+            }
+        }
         return Response.ok().entity(validationResponseDTO).build();
     }
     /**
