@@ -30,26 +30,35 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
+import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
+import javax.cache.Cache;
+import javax.cache.Caching;
 import java.util.UUID;
 
 /**
  * Test class for GraphQLResponseProcessor.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ PrivilegedCarbonContext.class, GraphQLProcessor.class })
+@PrepareForTest({ PrivilegedCarbonContext.class, GraphQLProcessor.class,  ServiceReferenceHolder.class,
+        APIUtil.class, WebsocketUtil.class })
 public class GraphQLResponseProcessorTest {
 
     private ChannelHandlerContext channelHandlerContext;
     private APIMgtUsageDataPublisher usageDataPublisher;
     private API graphQLAPI;
     private GraphQLResponseProcessor graphQLResponseProcessor;
+    private APIManagerConfiguration apiManagerConfiguration;
+    ServiceReferenceHolder serviceReferenceHolder;
 
     @Before
     public void setup() {
@@ -63,6 +72,15 @@ public class GraphQLResponseProcessorTest {
         graphQLAPI = new API(UUID.randomUUID().toString(), 2, "admin", "GraphQLAPI", "1.0.0", "/graphql", "Unlimited",
                 APIConstants.GRAPHQL_API, false);
         graphQLResponseProcessor = new GraphQLResponseProcessor();
+        PowerMockito.mockStatic(PrivilegedCarbonContext.class);
+        PowerMockito.when(PrivilegedCarbonContext.getThreadLocalCarbonContext()).thenReturn(privilegedCarbonContext);
+        PowerMockito.mockStatic(ServiceReferenceHolder.class);
+        serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
+        apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
+        PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.mockStatic(APIUtil.class);
+        PowerMockito.mockStatic(WebsocketUtil.class);
     }
 
     @Test
@@ -73,7 +91,7 @@ public class GraphQLResponseProcessorTest {
                 + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         PowerMockito.when(GraphQLProcessor.validateScopes(inboundMessageContext, "liftStatusChange", "1"))
                 .thenReturn(responseDTO);
 
@@ -98,7 +116,7 @@ public class GraphQLResponseProcessorTest {
         String msgText = "{\"type\":\"connection_ack\"}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertFalse(processorResponseDTO.isError());
@@ -114,13 +132,13 @@ public class GraphQLResponseProcessorTest {
                 + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
         inboundProcessorResponseDTO.setError(true);
         inboundProcessorResponseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.BAD_REQUEST);
         inboundProcessorResponseDTO.setErrorMessage("Missing mandatory id field in the message");
         PowerMockito.when(GraphQLProcessor.getBadRequestGraphQLFrameErrorDTO("Missing mandatory id field in"
-                        + " the message", null)).thenReturn(inboundProcessorResponseDTO);
+                + " the message", null)).thenReturn(inboundProcessorResponseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertTrue(processorResponseDTO.isError());
@@ -140,7 +158,7 @@ public class GraphQLResponseProcessorTest {
                 + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
         verbInfoDTO.setHttpVerb("SUBSCRIPTION");
         verbInfoDTO.setThrottling("Unlimited");
@@ -174,7 +192,7 @@ public class GraphQLResponseProcessorTest {
                 + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
         verbInfoDTO.setHttpVerb("SUBSCRIPTION");
         verbInfoDTO.setThrottling("Unlimited");
@@ -208,8 +226,7 @@ public class GraphQLResponseProcessorTest {
                 + "{\"liftStatusChange\":{\"name\":\"Astra Express\"}}}}";
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
 
         VerbInfoDTO verbInfoDTO = new VerbInfoDTO();
         verbInfoDTO.setHttpVerb("SUBSCRIPTION");

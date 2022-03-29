@@ -70,9 +70,10 @@ public class WebsocketHandlerTestCase {
     private org.wso2.carbon.apimgt.keymgt.model.entity.API graphQLAPI;
     private ServiceReferenceHolder serviceReferenceHolder;
     private APIManagerConfiguration apiManagerConfiguration;
+    private APIMgtUsageDataPublisher usageDataPublisher;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         System.setProperty("carbon.home", "test");
         PowerMockito.mockStatic(GraphQLProcessor.class);
         PowerMockito.mockStatic(ServiceReferenceHolder.class);
@@ -101,7 +102,7 @@ public class WebsocketHandlerTestCase {
                 "WS", false);
         graphQLAPI = new API(UUID.randomUUID().toString(), 2, "admin", "GraphQLAPI", "1.0.0", "graphql", "Unlimited",
                 APIConstants.GRAPHQL_API, false);
-
+        usageDataPublisher = Mockito.mock(APIMgtUsageDataPublisher.class);
     }
 
     /*
@@ -143,11 +144,13 @@ public class WebsocketHandlerTestCase {
                 return true;
             }
         };
-        WebsocketInboundHandler websocketInboundHandler = Mockito.mock(WebsocketInboundHandler.class);
         WebSocketThrottleResponseDTO webSocketThrottleResponseDTO = new WebSocketThrottleResponseDTO();
         webSocketThrottleResponseDTO.setThrottled(false);
         PowerMockito.when(WebsocketUtil.doThrottle(channelHandlerContext, msg, null, inboundMessageContext))
                 .thenReturn(webSocketThrottleResponseDTO);
+        InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.when(WebsocketUtil.authenticateOAuthToken(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(responseDTO);
         websocketHandler.write(channelHandlerContext, msg, channelPromise);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString))); // No error has occurred context exists in data-holder map.
@@ -171,14 +174,13 @@ public class WebsocketHandlerTestCase {
         GraphQLOperationDTO graphQLOperationDTO = new GraphQLOperationDTO(verbInfoDTO, "liftStatusChange");
         inboundMessageContext.addVerbInfoForGraphQLMsgId("1", graphQLOperationDTO);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
-        PowerMockito.when(GraphQLProcessor.authenticateGraphQLJWTToken(inboundMessageContext))
-                .thenReturn(responseDTO);
         PowerMockito.when(GraphQLProcessor
                 .validateScopes(Mockito.anyObject(), Mockito.anyObject(), Mockito.anyObject())).thenReturn(responseDTO);
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(Mockito.anyObject(), Mockito.anyObject(),
                         Mockito.anyObject(), Mockito.anyObject(), Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(responseDTO);
 
+        PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
         // happy path
         websocketHandler.write(channelHandlerContext, msg, channelPromise);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()

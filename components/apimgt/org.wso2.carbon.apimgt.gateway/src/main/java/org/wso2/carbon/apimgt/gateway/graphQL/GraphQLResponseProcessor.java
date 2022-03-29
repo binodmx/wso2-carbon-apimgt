@@ -49,7 +49,7 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
      * @return InboundProcessorResponseDTO
      */
     public InboundProcessorResponseDTO handleResponse(WebSocketFrame msg, ChannelHandlerContext ctx,
-            InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher)
+                                                      InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher)
             throws APISecurityException {
 
         String subscriptionOperation = null;
@@ -59,8 +59,9 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(inboundMessageContext.getTenantDomain(), true);
             responseDTO = inboundMessageContext.isJWTToken() ?
-                    authenticateGraphQLJWTToken(inboundMessageContext) :
-                    authenticateGraphQLOAuthToken(responseDTO, inboundMessageContext);
+                    WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
+                    WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
+                            inboundMessageContext);
 
             String msgText = ((TextWebSocketFrame) msg).text();
             JSONObject graphQLMsg = new JSONObject(msgText);

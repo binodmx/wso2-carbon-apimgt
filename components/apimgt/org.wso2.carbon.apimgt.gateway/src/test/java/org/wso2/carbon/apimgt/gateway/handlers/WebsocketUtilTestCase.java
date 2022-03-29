@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.apimgt.gateway.handlers;
 
+import io.netty.channel.ChannelHandlerContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessor;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
@@ -34,21 +36,25 @@ import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.model.entity.API;
+import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import java.util.UUID;
 
 /**
- * Test class for WebsocketUtil
+ * Test class for WebsocketUtil.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({WebsocketUtilTestCase.class, ServiceReferenceHolder.class, Caching.class, APIUtil.class,
         PrivilegedCarbonContext.class, MultitenantUtils.class,
         org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder.class, Caching.class,
-        Cache.class, APIManagerConfigurationService.class, CacheProvider.class, WebsocketUtil.class })
+        Cache.class, APIManagerConfigurationService.class, CacheProvider.class, WebsocketUtil.class,
+        GraphQLProcessor.class })
 public class WebsocketUtilTestCase {
     private String apiKey = "abc";
     private String apiContext = "/ishara";
@@ -62,8 +68,9 @@ public class WebsocketUtilTestCase {
     private ServiceReferenceHolder serviceReferenceHolder;
     private Cache gwTokenCache;
     private Cache gwKeyCache;
-
-
+    private ChannelHandlerContext channelHandlerContext;
+    private APIMgtUsageDataPublisher usageDataPublisher;
+    private API graphQLAPI;
 
     @Before
     public void setup() {
@@ -92,6 +99,14 @@ public class WebsocketUtilTestCase {
         Mockito.when(cacheManager.getCache(APIConstants.GATEWAY_KEY_CACHE_NAME)).thenReturn(gwKeyCache);
         Mockito.when(cacheManager.getCache(APIConstants.GATEWAY_TOKEN_CACHE_NAME)).thenReturn(gwTokenCache);
         PowerMockito.mockStatic(APIUtil.class);
+        System.setProperty("carbon.home", "test");
+        channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
+        usageDataPublisher = Mockito.mock(APIMgtUsageDataPublisher.class);
+        PowerMockito.mockStatic(PrivilegedCarbonContext.class);
+        PowerMockito.when(PrivilegedCarbonContext.getThreadLocalCarbonContext()).thenReturn(privilegedCarbonContext);
+        PowerMockito.mockStatic(GraphQLProcessor.class);
+        graphQLAPI = new API(UUID.randomUUID().toString(), 2, "admin", "GraphQLAPI", "1.0.0", "/graphql", "Unlimited",
+                APIConstants.GRAPHQL_API, false);
     }
 
     @Test
@@ -115,10 +130,7 @@ public class WebsocketUtilTestCase {
     public void testPutCache() {
         APIKeyValidationInfoDTO apiKeyValidationInfoDTO = new APIKeyValidationInfoDTO();
         apiKeyValidationInfoDTO.setApiName(apiName);
-        Cache gwKeyCache = Mockito.mock(Cache.class);
-        Cache gwTokenCache = Mockito.mock(Cache.class);
         PowerMockito.mockStatic(WebsocketUtil.class);
-
         WebsocketUtil.putCache(apiKeyValidationInfoDTO, apiKey, cacheKey);
         Assert.assertEquals(apiName, apiKeyValidationInfoDTO.getApiName());
     }

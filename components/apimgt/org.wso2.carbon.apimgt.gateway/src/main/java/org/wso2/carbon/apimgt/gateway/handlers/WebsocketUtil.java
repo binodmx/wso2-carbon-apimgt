@@ -24,6 +24,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import org.apache.axiom.util.UIDGenerator;
@@ -41,9 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
+import org.wso2.carbon.apimgt.gateway.dto.GraphQLOperationDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
+import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessor;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APIKeyValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
@@ -81,7 +84,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class WebsocketUtil {
+public class WebsocketUtil extends GraphQLProcessor {
 	private static Logger log = LoggerFactory.getLogger(WebsocketUtil.class);
 	private static boolean removeOAuthHeadersFromOutMessage = true;
 	private static boolean gatewayTokenCacheEnabled = false;
@@ -710,6 +713,64 @@ public class WebsocketUtil {
 	}
 
 	/**
+	 * Authenticates JWT token in incoming GraphQL subscription requests.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @return InboundProcessorResponseDTO
+	 */
+	public static InboundProcessorResponseDTO authenticateWSAndGraphQLJWTToken(InboundMessageContext inboundMessageContext) {
+
+		InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+		AuthenticationContext authenticationContext;
+		JWTValidator jwtValidator = new JWTValidator(new APIKeyValidator());
+		try {
+			PrivilegedCarbonContext.startTenantFlow();
+			PrivilegedCarbonContext.getThreadLocalCarbonContext()
+					.setTenantDomain(inboundMessageContext.getTenantDomain(), true);
+			authenticationContext = jwtValidator.authenticateForWSAndGraphQL(inboundMessageContext.getSignedJWTInfo(),
+					inboundMessageContext.getApiContextUri(), inboundMessageContext.getVersion());
+			boolean isDefaultVersion = false;
+			inboundMessageContext.setAuthContext(authenticationContext);
+			if ((inboundMessageContext.getApiContextUri().startsWith("/" + inboundMessageContext.getVersion())
+					|| inboundMessageContext.getApiContextUri().startsWith(
+					"/t/" + inboundMessageContext.getTenantDomain() + "/" + inboundMessageContext.getVersion()))) {
+				inboundMessageContext.setVersion(APIConstants.DEFAULT_WEBSOCKET_VERSION);
+				isDefaultVersion = true;
+			}
+			if (!WebsocketUtil.validateAuthenticationContext(inboundMessageContext, isDefaultVersion)) {
+				responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+						APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE, true);
+			}
+		} catch (APISecurityException e) {
+			log.error(String.valueOf(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS), e);
+			responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+					e.getMessage(), true);
+		} finally {
+			PrivilegedCarbonContext.endTenantFlow();
+		}
+		return responseDTO;
+	}
+
+	/**
+	 * Get error frame DTO for error code and message closeConnection parameters.
+	 *
+	 * @param errorCode       Error code
+	 * @param errorMessage    Error message
+	 * @param closeConnection Whether to close connection after throwing the error frame
+	 * @return InboundProcessorResponseDTO
+	 */
+	private static InboundProcessorResponseDTO getFrameErrorDTO(int errorCode, String errorMessage,
+																boolean closeConnection) {
+
+		InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
+		inboundProcessorResponseDTO.setError(true);
+		inboundProcessorResponseDTO.setErrorCode(errorCode);
+		inboundProcessorResponseDTO.setErrorMessage(errorMessage);
+		inboundProcessorResponseDTO.setCloseConnection(closeConnection);
+		return inboundProcessorResponseDTO;
+	}
+
+	/**
 	 * Authenticates OAuth token in incoming GraphQL subscription requests/responses or in WebSocket Handshake requests.
 	 *
 	 * @param responseDTO           InboundProcessorResponseDTO
@@ -782,5 +843,19 @@ public class WebsocketUtil {
 			String apiVersion) throws APISecurityException {
 
 		return new WebsocketWSClient().getAPIKeyData(apiContextUri, apiVersion, key, domain);
+	}
+
+	/**
+	 * Check if messages is valid subscription operation execution result. Payload should consist 'type' field and its
+	 * value equal to either of 'data' or 'next'. The value 'data' is used in 'subscriptions-transport-ws'
+	 * protocol and 'next' is used in 'graphql-ws' protocol.
+	 *
+	 * @param graphQLMsg GraphQL message
+	 * @return true if valid operation
+	 */
+	private static boolean checkIfSubscribeMessageResponse(JSONObject graphQLMsg) {
+		return graphQLMsg.getString(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_TYPE) != null
+				&& GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ARRAY_FOR_DATA.contains(
+				graphQLMsg.getString(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_TYPE));
 	}
 }
