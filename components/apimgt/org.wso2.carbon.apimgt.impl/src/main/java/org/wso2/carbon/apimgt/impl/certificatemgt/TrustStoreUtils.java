@@ -10,11 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
 public final class TrustStoreUtils {
-//    public static synchronized void loadCerts(KeyStore trustStore, FileInputStream localTrustStoreStream,char[] password )
-//            throws CertificateException, NoSuchAlgorithmException, IOException {
-//                trustStore.load(localTrustStoreStream, password);
-//    }
-
     public static synchronized void loadCerts(KeyStore trustStore, String keyStorePath, char[] password )
             throws CertificateException, NoSuchAlgorithmException, IOException {
         FileInputStream localTrustStoreStream = new FileInputStream(keyStorePath);

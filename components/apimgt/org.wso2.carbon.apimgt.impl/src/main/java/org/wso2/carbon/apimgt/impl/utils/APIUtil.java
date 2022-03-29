@@ -7360,9 +7360,7 @@ public final class APIUtil {
         String keyStorePassword = CarbonUtils.getServerConfiguration()
                 .getFirstProperty(APIConstants.TRUST_STORE_PASSWORD);
         try {
-            //KeyStore trustStore = KeyStore.getInstance("JKS");
             KeyStore trustStore = ServiceReferenceHolder.getInstance().getTrustStore();
-            //TrustStoreUtils.loadCerts(trustStore, keyStorePath, keyStorePassword.toCharArray());
             sslContext = SSLContexts.custom().loadTrustMaterial(trustStore).build();
 
             X509HostnameVerifier hostnameVerifier;
