@@ -543,9 +543,9 @@ class ApiConsole extends React.Component {
                                 placement='top'
                             >
                                 <CopyToClipboard
-                                    text={location.origin + '/api/am/store/v1/apis/' + api.id + '/swagger?accessToken='
-                                    + accessTokenPart + '&X-WSO2-Tenant-Q=' + tenant + '&' + selectedAttribute + '='
-                                    + selectedEnvironment}
+                                    text={location.origin + '/api/am/store/v1/apis/' + api.id
+                                    + '/swagger?X-WSO2-Tenant-Q=' + tenant + '&' + selectedAttribute + '='
+                                    + selectedEnvironment + (accessTokenPart ? '&accessToken=' + accessTokenPart : '')}
                                     onCopy={this.onCopy}
                                 >
                                     <Button aria-label='Copy to clipboard' className={classes.button}>
