@@ -715,8 +715,10 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
 
         // Add Client Certificates
         if (gatewayAPIDTO.getClientCertificatesToBeAdd() != null) {
-            for (GatewayContentDTO certificate : gatewayAPIDTO.getClientCertificatesToBeAdd()) {
-                certificateManager.addClientCertificateToGateway(certificate.getContent(), certificate.getName());
+            synchronized (certificateManager) {
+                for (GatewayContentDTO certificate : gatewayAPIDTO.getClientCertificatesToBeAdd()) {
+                    certificateManager.addClientCertificateToGateway(certificate.getContent(), certificate.getName());
+                }
             }
         }
         if (log.isDebugEnabled()) {
@@ -888,8 +890,10 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
 
         // Remove clientCertificates
         if (gatewayAPIDTO.getClientCertificatesToBeRemove() != null) {
-            for (String alias : gatewayAPIDTO.getClientCertificatesToBeRemove()) {
-                certificateManager.deleteClientCertificateFromGateway(alias);
+            synchronized (certificateManager) {
+                for (String alias : gatewayAPIDTO.getClientCertificatesToBeRemove()) {
+                    certificateManager.deleteClientCertificateFromGateway(alias);
+                }
             }
         }
         if (log.isDebugEnabled()) {

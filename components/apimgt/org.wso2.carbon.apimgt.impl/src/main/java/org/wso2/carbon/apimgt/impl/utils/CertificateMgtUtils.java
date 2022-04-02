@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.dto.CertificateInformationDTO;
 import org.wso2.carbon.apimgt.impl.certificatemgt.ResponseCode;
+import org.wso2.carbon.apimgt.impl.certificatemgt.TrustStoreUtils;
 import org.wso2.carbon.apimgt.impl.certificatemgt.exceptions.CertificateManagementException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
@@ -118,7 +119,7 @@ public class CertificateMgtUtils {
             File trustStoreFile = new File(TRUST_STORE);
             localTrustStoreStream = new FileInputStream(trustStoreFile);
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(localTrustStoreStream, TRUST_STORE_PASSWORD);
+            TrustStoreUtils.loadCerts(trustStore, TRUST_STORE,TRUST_STORE_PASSWORD);
 
             CertificateFactory cf = CertificateFactory.getInstance(CERTIFICATE_TYPE);
             while (serverCert.available() > 0) {
@@ -247,7 +248,7 @@ public class CertificateMgtUtils {
             File trustStoreFile = new File(TRUST_STORE);
             localTrustStoreStream = new FileInputStream(trustStoreFile);
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(localTrustStoreStream, TRUST_STORE_PASSWORD);
+            TrustStoreUtils.loadCerts(trustStore, TRUST_STORE,TRUST_STORE_PASSWORD);
 
             if (trustStore.containsAlias(alias)) {
                 trustStore.deleteEntry(alias);

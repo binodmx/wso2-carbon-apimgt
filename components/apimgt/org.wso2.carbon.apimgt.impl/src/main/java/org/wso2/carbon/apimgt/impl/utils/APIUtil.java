@@ -7359,8 +7359,7 @@ public final class APIUtil {
         String keyStorePassword = CarbonUtils.getServerConfiguration()
                 .getFirstProperty(APIConstants.TRUST_STORE_PASSWORD);
         try {
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            trustStore.load(new FileInputStream(keyStorePath), keyStorePassword.toCharArray());
+            KeyStore trustStore = ServiceReferenceHolder.getInstance().getTrustStore();
             sslContext = SSLContexts.custom().loadTrustMaterial(trustStore).build();
 
             X509HostnameVerifier hostnameVerifier;
@@ -7377,10 +7376,6 @@ public final class APIUtil {
             return new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
         } catch (KeyStoreException e) {
             handleException("Failed to read from Key Store", e);
-        } catch (IOException e) {
-            handleException("Key Store not found in " + keyStorePath, e);
-        } catch (CertificateException e) {
-            handleException("Failed to read Certificate", e);
         } catch (NoSuchAlgorithmException e) {
             handleException("Failed to load Key Store from " + keyStorePath, e);
         } catch (KeyManagementException e) {
