@@ -179,7 +179,7 @@ public class APIConsumerImplTest {
         Mockito.when(userRealm.getAuthorizationManager()).thenReturn(authorizationManager);
         Mockito.when(apiMgtDAO.getKeyManagerConfigurationByName(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(keyManagerConfigurationDTO);
-        Mockito.when(KeyManagerHolder.getKeyManagerInstance(Mockito.anyString(),Mockito.anyString()))
+        PowerMockito.when(KeyManagerHolder.getKeyManagerInstance(Mockito.anyString(),Mockito.anyString()))
                 .thenReturn(keyManager);
         PowerMockito.when(APIUtil.replaceSystemProperty(anyString())).thenAnswer((Answer<String>) invocation -> {
             Object[] args = invocation.getArguments();
@@ -696,7 +696,12 @@ public class APIConsumerImplTest {
     public void testRenewConsumerSecret() throws APIManagementException {
         APIConsumerImpl apiConsumer = new APIConsumerImplWrapper();
         String clientId = UUID.randomUUID().toString();
-        Mockito.when(keyManager.getNewApplicationConsumerSecret((AccessTokenRequest) Mockito.anyObject())).thenReturn
+        apiConsumer.apiMgtDAO = apiMgtDAO;
+        KeyManagerConfigurationDTO keyManagerConfiguration = new KeyManagerConfigurationDTO();
+        keyManagerConfiguration.setEnabled(true);
+        Mockito.when(apiMgtDAO.getKeyManagerConfigurationByName(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(keyManagerConfiguration);
+        Mockito.when(keyManager.getNewApplicationConsumerSecret(Mockito.anyObject())).thenReturn
                 ("updatedClientSecret");
         assertNotNull(apiConsumer.renewConsumerSecret(clientId, APIConstants.KeyManager.DEFAULT_KEY_MANAGER));
     }
