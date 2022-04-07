@@ -12611,7 +12611,7 @@ public class ApiMgtDAO {
                     String apiContext = conditionsArray[0];
                     String applicationIdentifier = conditionsArray[2];
 
-                    String[] app = applicationIdentifier.split("-");
+                    String[] app = applicationIdentifier.split("-", 2);
                     String appOwner = app[0];
                     String appName = app[1];
 
