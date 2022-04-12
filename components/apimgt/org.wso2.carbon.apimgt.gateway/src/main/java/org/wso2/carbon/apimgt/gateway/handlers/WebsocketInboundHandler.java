@@ -371,7 +371,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                                     APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT).get(0));
                     removeTokenFromQuery(requestMap, inboundMessageContext);
                 } else {
-                    handleEmptyAuthHeader(responseDTO, inboundMessageContext);
+                    return handleEmptyAuthHeader(responseDTO, inboundMessageContext);
                 }
             }
             String authorizationHeader = req.headers().get(WebsocketUtil.authorizationHeader);
