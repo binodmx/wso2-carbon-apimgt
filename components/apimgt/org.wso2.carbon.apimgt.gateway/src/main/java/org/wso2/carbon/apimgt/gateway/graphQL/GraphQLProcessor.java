@@ -110,22 +110,6 @@ public abstract class GraphQLProcessor {
     }
 
     /**
-     * Get GraphQL Subscriptions handshake error DTO for error code and message. The closeConnection parameter is false.
-     *
-     * @param errorCode    Error code
-     * @param errorMessage Error message
-     * @return InboundProcessorResponseDTO
-     */
-    public static InboundProcessorResponseDTO getHandshakeErrorDTO(int errorCode, String errorMessage) {
-
-        InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
-        inboundProcessorResponseDTO.setError(true);
-        inboundProcessorResponseDTO.setErrorCode(errorCode);
-        inboundProcessorResponseDTO.setErrorMessage(errorMessage);
-        return inboundProcessorResponseDTO;
-    }
-
-    /**
      * Checks if the request is throttled for GraphQL subscriptions.
      *
      * @param msg                   Websocket frame
