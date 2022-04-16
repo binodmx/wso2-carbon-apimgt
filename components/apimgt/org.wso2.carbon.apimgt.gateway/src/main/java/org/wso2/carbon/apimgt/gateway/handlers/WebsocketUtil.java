@@ -811,9 +811,11 @@ public class WebsocketUtil extends GraphQLProcessor {
 					inboundMessageContext.getApiContextUri(), inboundMessageContext.getVersion());
 		} else {
 			responseDTO.setError(true);
+			return responseDTO;
 		}
 		if (info == null || !info.isAuthorized()) {
 			responseDTO.setError(true);
+			return responseDTO;
 		}
 		if (info.getApiName() != null && info.getApiName().contains("*")) {
 			String[] str = info.getApiName().split("\\*");

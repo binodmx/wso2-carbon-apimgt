@@ -375,10 +375,13 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             String authorizationHeader = req.headers().get(WebsocketUtil.authorizationHeader);
-            inboundMessageContext.setHeaders(
-                    inboundMessageContext.getHeaders().add(HttpHeaders.AUTHORIZATION, authorizationHeader));
-            String[] auth = authorizationHeader.split(" ");
-            if (auth.length != 2) {
+            String[] auth = null;
+            if (authorizationHeader != null) {
+                inboundMessageContext.setHeaders(
+                        inboundMessageContext.getHeaders().add(HttpHeaders.AUTHORIZATION, authorizationHeader));
+                auth = authorizationHeader.split(" ");
+            }
+            if (authorizationHeader == null || auth.length != 2) {
                 handleEmptyAuthHeader(responseDTO, inboundMessageContext);
             } else if (APIConstants.CONSUMER_KEY_SEGMENT.equals(auth[0])) {
                 boolean isJwtToken = false;
