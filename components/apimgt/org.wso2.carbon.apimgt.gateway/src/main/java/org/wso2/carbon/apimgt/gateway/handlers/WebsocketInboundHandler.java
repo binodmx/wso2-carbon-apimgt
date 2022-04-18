@@ -371,7 +371,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                                     APIConstants.AUTHORIZATION_QUERY_PARAM_DEFAULT).get(0));
                     removeTokenFromQuery(requestMap, inboundMessageContext);
                 } else {
-                    handleEmptyAuthHeader(responseDTO, inboundMessageContext);
+                    return handleEmptyAuthHeader(responseDTO, inboundMessageContext);
                 }
             }
             String authorizationHeader = req.headers().get(WebsocketUtil.authorizationHeader);
@@ -450,8 +450,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         log.error(errorMessage + " in request for the websocket context "
                 + inboundMessageContext.getApiContextUri());
         responseDTO.setError(true);
-        responseDTO = GraphQLRequestProcessor.getHandshakeErrorDTO(
-                GraphQLConstants.HandshakeErrorConstants.API_AUTH_ERROR, errorMessage);
+        responseDTO = WebsocketUtil.getHandshakeErrorDTO(
+                APIMgtGatewayConstants.WEB_SOCKET_API_AUTH_ERROR, errorMessage);
         return responseDTO;
     }
 

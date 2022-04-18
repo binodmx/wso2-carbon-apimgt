@@ -860,4 +860,20 @@ public class WebsocketUtil extends GraphQLProcessor {
 				&& GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ARRAY_FOR_DATA.contains(
 				graphQLMsg.getString(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_TYPE));
 	}
+
+	/**
+	 * Get GraphQL Subscriptions handshake error DTO for error code and message. The closeConnection parameter is false.
+	 *
+	 * @param errorCode    Error code
+	 * @param errorMessage Error message
+	 * @return InboundProcessorResponseDTO
+	 */
+	public static InboundProcessorResponseDTO getHandshakeErrorDTO(int errorCode, String errorMessage) {
+
+		InboundProcessorResponseDTO inboundProcessorResponseDTO = new InboundProcessorResponseDTO();
+		inboundProcessorResponseDTO.setError(true);
+		inboundProcessorResponseDTO.setErrorCode(errorCode);
+		inboundProcessorResponseDTO.setErrorMessage(errorMessage);
+		return inboundProcessorResponseDTO;
+	}
 }

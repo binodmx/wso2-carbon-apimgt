@@ -58,10 +58,4 @@ public class GraphQLConstants {
         public static final String PAYLOAD_FIELD_NAME_ID = "id";
         public static final String PAYLOAD_FIELD_TYPE_ERROR = "error";
     }
-
-    // Constants for GrpahQL subscriptions handshake error codes and messages
-    public static class HandshakeErrorConstants {
-        public static final int API_AUTH_ERROR = 401;
-        public static final String API_AUTH_INVALID_CREDENTIALS_MESSAGE = "Invalid Credentials";
-    }
 }
