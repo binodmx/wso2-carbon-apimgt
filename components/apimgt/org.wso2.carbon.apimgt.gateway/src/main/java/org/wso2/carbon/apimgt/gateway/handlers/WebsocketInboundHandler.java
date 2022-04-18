@@ -448,7 +448,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 + inboundMessageContext.getApiContextUri());
         responseDTO.setError(true);
         responseDTO = WebsocketUtil.getHandshakeErrorDTO(
-                GraphQLConstants.HandshakeErrorConstants.API_AUTH_ERROR, errorMessage);
+                APIMgtGatewayConstants.WEB_SOCKET_API_AUTH_ERROR, errorMessage);
         return responseDTO;
     }
 

@@ -106,6 +106,7 @@ public class APIMgtGatewayConstants {
     public static final String WS_CUSTOM_HEADER = "ws.custom.header";
     public static final String WS_NOT_SECURED = "ws";
     public static final String WS_SECURED = "wss";
+    public static final int WEB_SOCKET_API_AUTH_ERROR = 401;
 
     public static final String GATEWAY_TYPE = "SYNAPSE";
     public static final String SYNAPDE_GW_LABEL = "Synapse";
