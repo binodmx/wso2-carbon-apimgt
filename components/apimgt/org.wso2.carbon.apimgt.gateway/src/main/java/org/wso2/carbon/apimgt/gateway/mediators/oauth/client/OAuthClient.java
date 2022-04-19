@@ -103,11 +103,16 @@ public class OAuthClient {
                 .getHttpClient(urlObject.getPort(), urlObject.getProtocol())) {
             HttpPost httpPost = new HttpPost(url);
 
-            // Set authorization header only if the token endpoint type is defined.
-            if (!APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE.equals(tokenEndpointAuthMethod)) {
+            // Set authorization header.
+            if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD_DEFAULT.equals(tokenEndpointAuthMethod)) {
                 String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
                 httpPost.setHeader(APIConstants.OAuthConstants.AUTHORIZATION_HEADER, "Basic " + credentials);
+            } else if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE.equals(tokenEndpointAuthMethod)) {
+                // Not setting any headers since the auth type is none.
+            } else {
+                throw new APIManagementException("Un supported token endpoint auth method: " + tokenEndpointAuthMethod);
             }
+
             httpPost.setHeader(APIConstants.HEADER_CONTENT_TYPE, APIConstants.OAuthConstants.APPLICATION_X_WWW_FORM_URLENCODED);
             if (refreshToken != null) {
                 payload.append(APIConstants.OAuthConstants.REFRESH_TOKEN_GRANT_TYPE)
