@@ -68,7 +68,7 @@ public class OAuthClient {
                                               String username, char[] password, String grantType, JSONObject customParameters, String refreshToken)
             throws IOException, APIManagementException, ParseException {
         return generateToken(url, clientId, clientSecret, username, password, grantType, customParameters, refreshToken,
-                APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD_DEFAULT);
+                APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_BASIC);
     }
     /**
      * Method to generate the access token for an OAuth backend
@@ -82,8 +82,8 @@ public class OAuthClient {
      * @param customParameters              The custom parameters JSON Object
      * @param refreshToken                  The refresh token
      * @param tokenEndpointAuthMethod       Token Endpoint Auth Type
-     *                                          OAuth
-     *                                          None
+     *                                          client_secret_basic
+     *                                          none
      * @return TokenResponse object
      * @throws IOException            In the event of a problem parsing the response from the backend
      * @throws APIManagementException In the event of an unexpected HTTP status code from the backend
@@ -104,7 +104,7 @@ public class OAuthClient {
             HttpPost httpPost = new HttpPost(url);
 
             // Set authorization header.
-            if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD_DEFAULT.equals(tokenEndpointAuthMethod)) {
+            if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_BASIC.equalsIgnoreCase(tokenEndpointAuthMethod)) {
                 String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes());
                 httpPost.setHeader(APIConstants.OAuthConstants.AUTHORIZATION_HEADER, "Basic " + credentials);
             } else if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE.equals(tokenEndpointAuthMethod)) {
