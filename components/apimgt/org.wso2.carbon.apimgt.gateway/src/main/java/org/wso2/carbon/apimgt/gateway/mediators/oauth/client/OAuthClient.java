@@ -110,7 +110,7 @@ public class OAuthClient {
             } else if (APIConstants.OAuthConstants.TOKEN_ENDPOINT_AUTH_NONE.equals(tokenEndpointAuthMethod)) {
                 // Not setting any headers since the auth type is none.
             } else {
-                throw new APIManagementException("Un supported token endpoint auth method: " + tokenEndpointAuthMethod);
+                throw new APIManagementException("Unsupported token endpoint auth method: " + tokenEndpointAuthMethod);
             }
 
             httpPost.setHeader(APIConstants.HEADER_CONTENT_TYPE, APIConstants.OAuthConstants.APPLICATION_X_WWW_FORM_URLENCODED);
