@@ -73,7 +73,7 @@
         "remark-gfm": "^3.0.0",
         "sanitize-html": "^2.5.1",
         "subscriptions-transport-ws": "^0.8.3",
-        "swagger-client": "^3.17.0",
+        "swagger-client": "^3.18.0",
         "swagger-ui-react": "^3.25.0"
     },
     "devDependencies": {
