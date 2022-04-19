@@ -82,6 +82,8 @@ public class OAuthClient {
      * @param customParameters              The custom parameters JSON Object
      * @param refreshToken                  The refresh token
      * @param tokenEndpointAuthMethod       Token Endpoint Auth Type
+     *                                          OAuth
+     *                                          None
      * @return TokenResponse object
      * @throws IOException            In the event of a problem parsing the response from the backend
      * @throws APIManagementException In the event of an unexpected HTTP status code from the backend

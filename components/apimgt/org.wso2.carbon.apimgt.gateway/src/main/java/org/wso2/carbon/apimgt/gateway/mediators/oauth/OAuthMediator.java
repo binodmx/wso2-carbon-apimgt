@@ -118,7 +118,7 @@ public class OAuthMediator extends AbstractMediator implements ManagedLifecycle 
 
             Object tokenEndpointAuthMethodProperty = messageContext.getProperty(OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD);
             if (tokenEndpointAuthMethodProperty != null) {
-                String tokenEndpointAuthMethod = (String) messageContext.getProperty(OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD);
+                String tokenEndpointAuthMethod = (String) tokenEndpointAuthMethodProperty;
                 if (StringUtils.isNotEmpty(tokenEndpointAuthMethod)) {
                     oAuthEndpoint.setTokenEndpointAuthMethod(tokenEndpointAuthMethod);
                 }

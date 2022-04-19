@@ -19,6 +19,7 @@
 package org.wso2.carbon.apimgt.gateway.mediators.oauth.conf;
 
 import org.json.simple.JSONObject;
+import org.wso2.carbon.apimgt.impl.APIConstants;
 
 public class OAuthEndpoint {
 
@@ -31,7 +32,6 @@ public class OAuthEndpoint {
     private String grantType;
     private JSONObject customParameters;
     private String tokenEndpointAuthMethod;
-    //TODO authTYpe
 
     public String getId() {
         return id;
