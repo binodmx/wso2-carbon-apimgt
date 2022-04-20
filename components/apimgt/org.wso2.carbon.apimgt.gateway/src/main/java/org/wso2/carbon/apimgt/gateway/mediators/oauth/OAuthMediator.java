@@ -19,7 +19,6 @@
 package org.wso2.carbon.apimgt.gateway.mediators.oauth;
 
 import com.google.gson.Gson;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -36,7 +35,6 @@ import org.wso2.carbon.apimgt.gateway.mediators.oauth.client.TokenResponse;
 import org.wso2.carbon.apimgt.gateway.mediators.oauth.conf.OAuthEndpoint;
 import org.wso2.carbon.apimgt.gateway.utils.redis.RedisCacheUtils;
 import org.wso2.carbon.apimgt.gateway.utils.redis.RedisConfig;
-import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIConstants.OAuthConstants;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.core.util.CryptoException;
@@ -115,14 +113,6 @@ public class OAuthMediator extends AbstractMediator implements ManagedLifecycle 
             oAuthEndpoint.setClientId(clientId);
             oAuthEndpoint.setClientSecret(decryptedClientSecret);
             oAuthEndpoint.setUsername(username);
-
-            Object tokenEndpointAuthMethodProperty = messageContext.getProperty(OAuthConstants.TOKEN_ENDPOINT_AUTH_METHOD);
-            if (tokenEndpointAuthMethodProperty != null) {
-                String tokenEndpointAuthMethod = (String) tokenEndpointAuthMethodProperty;
-                if (StringUtils.isNotEmpty(tokenEndpointAuthMethod)) {
-                    oAuthEndpoint.setTokenEndpointAuthMethod(tokenEndpointAuthMethod);
-                }
-            }
             if (password != null) {
                 oAuthEndpoint.setPassword(password.toCharArray());
             }
