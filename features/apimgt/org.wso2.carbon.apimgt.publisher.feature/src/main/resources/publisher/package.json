@@ -70,7 +70,7 @@
         "react-toastify": "^1.7.0",
         "remark-gfm": "^3.0.0",
         "swagger-client": "^3.17.0",
-        "swagger-ui-react": "^3.25.0",
+        "swagger-ui-react": "^3.52.5",
         "typeface-roboto": "0.0.35"
     },
     "devDependencies": {
