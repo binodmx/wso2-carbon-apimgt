@@ -107,7 +107,7 @@ public class OAuthTokenGenerator {
         TokenResponse tokenResponse = OAuthClient.generateToken(oAuthEndpoint.getTokenApiUrl(),
                 oAuthEndpoint.getClientId(), oAuthEndpoint.getClientSecret(), oAuthEndpoint.getUsername(),
                 oAuthEndpoint.getPassword(), oAuthEndpoint.getGrantType(), oAuthEndpoint.getCustomParameters(),
-                refreshToken, oAuthEndpoint.getTokenEndpointAuthMethod());
+                refreshToken);
         assert tokenResponse != null;
         if (tokenResponse.getExpiresIn() != null) {
             if (OAuthMediator.isRedisEnabled) {
