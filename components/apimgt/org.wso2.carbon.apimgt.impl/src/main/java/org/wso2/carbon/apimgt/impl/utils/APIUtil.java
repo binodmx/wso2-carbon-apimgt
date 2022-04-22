@@ -8034,6 +8034,19 @@ public final class APIUtil {
     }
 
     /**
+     * Used to get if it is enabled to skip default API handler in api-manager.xml
+     *
+     * @return true if skipDefaultApiHandler is set to true in api-manager.xml
+     */
+    public static boolean skipDefaultApiHandler() {
+
+        String shouldSkipDefaultApiHandler =
+                ServiceReferenceHolder.getInstance().getAPIManagerConfigurationService().getAPIManagerConfiguration()
+                        .getFirstProperty(APIConstants.SKIP_DEFAULT_API_HANDLER);
+        return Boolean.parseBoolean(shouldSkipDefaultApiHandler);
+    }
+
+    /**
      * Used to get access control allowed origins define in api-manager.xml
      *
      * @return allow origins list defined in api-manager.xml
