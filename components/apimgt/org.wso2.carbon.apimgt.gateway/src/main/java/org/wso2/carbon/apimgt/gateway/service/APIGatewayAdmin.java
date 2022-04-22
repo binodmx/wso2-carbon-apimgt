@@ -786,6 +786,8 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
             log.debug("Start to deploy Default API Definition" + gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion());
         }
 
+        // If skipDefaultApiHandler is true default XML file will be created to handle default version of APIs.
+        // Otherwise, DefaultApiHandler is used for that task and no default XML file will be created.
         if (APIUtil.skipDefaultApiHandler() && StringUtils.isNotEmpty(gatewayAPIDTO.getDefaultAPIDefinition())) {
             restapiAdminServiceProxy.addApi(gatewayAPIDTO.getDefaultAPIDefinition());
         }
