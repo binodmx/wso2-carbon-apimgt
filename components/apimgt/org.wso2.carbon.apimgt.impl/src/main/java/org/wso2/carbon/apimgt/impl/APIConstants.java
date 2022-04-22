@@ -861,6 +861,10 @@ public final class APIConstants {
     public static final String PASS_REQUEST_PARAMS_TO_LAMBDA_FUNCTION = LAMBDA_MEDIATOR_CONFIG
             + "PassRequestParamsToLambdaFunction";
 
+    public static final String GLOBAL_HANDLERS_PROPERTIES = "GlobalHandlers.Properties.";
+
+    public static final String SKIP_DEFAULT_API_HANDLER = GLOBAL_HANDLERS_PROPERTIES + "SkipDefaultAPIHandler";
+
     public static final String API_KEY_TYPE = "AM_KEY_TYPE";
     public static final String API_KEY_TYPE_PRODUCTION = "PRODUCTION";
     public static final String API_KEY_TYPE_SANDBOX = "SANDBOX";

@@ -43,6 +43,7 @@ import org.wso2.carbon.apimgt.gateway.utils.SequenceAdminServiceProxy;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.certificatemgt.CertificateManager;
 import org.wso2.carbon.apimgt.impl.certificatemgt.CertificateManagerImpl;
+import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.rest.api.APIData;
 import org.wso2.carbon.rest.api.ResourceData;
@@ -783,6 +784,10 @@ public class APIGatewayAdmin extends org.wso2.carbon.core.AbstractAdmin {
         if (log.isDebugEnabled()) {
             log.debug(gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion() + " API Definition deployed");
             log.debug("Start to deploy Default API Definition" + gatewayAPIDTO.getName() + ":" + gatewayAPIDTO.getVersion());
+        }
+
+        if (APIUtil.skipDefaultApiHandler() && StringUtils.isNotEmpty(gatewayAPIDTO.getDefaultAPIDefinition())) {
+            restapiAdminServiceProxy.addApi(gatewayAPIDTO.getDefaultAPIDefinition());
         }
 
         if (log.isDebugEnabled()) {
