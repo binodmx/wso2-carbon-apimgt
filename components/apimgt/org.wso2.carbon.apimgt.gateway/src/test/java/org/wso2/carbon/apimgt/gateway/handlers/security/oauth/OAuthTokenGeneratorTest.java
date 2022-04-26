@@ -63,7 +63,7 @@ public class OAuthTokenGeneratorTest {
         mockTokenResponse.setTokenType("Bearer");
         PowerMockito.when(OAuthClient
                 .generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                        Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString()))
+                        Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(mockTokenResponse);
 
         // Initialize properties of oAuthEndpoint object having common values.
@@ -101,7 +101,7 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called only one time (during the first token generation operation).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(1));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
     }
 
     /**
@@ -136,7 +136,7 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called three times (during the first, second and third token generation operations).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(3));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
     }
 
     /**
@@ -164,7 +164,7 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called two times (during the first and second token generation operations).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(2));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
     }
 
     /**
@@ -195,7 +195,7 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called only one time (during the first token generation operation).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(1));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
         Assert.assertNotNull(tokenCache.getTokenMap().get(oAuthEndpoint.getId()));
     }
 
@@ -233,7 +233,7 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called three times (during the first, second and third token generation operations).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(3));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
     }
 
     /**
@@ -262,6 +262,6 @@ public class OAuthTokenGeneratorTest {
         // Token endpoint will be called two times (during the first and second token generation operations).
         PowerMockito.verifyStatic(OAuthClient.class, Mockito.times(2));
         OAuthClient.generateToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString());
+                Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.anyString());
     }
 }
