@@ -19,7 +19,6 @@
 package org.wso2.carbon.apimgt.gateway.mediators.oauth.conf;
 
 import org.json.simple.JSONObject;
-import org.wso2.carbon.apimgt.impl.APIConstants;
 
 public class OAuthEndpoint {
 
@@ -102,6 +101,6 @@ public class OAuthEndpoint {
     }
 
     public String getTokenEndpointAuthMethod() {
-        return grantType;
+        return tokenEndpointAuthMethod;
     }
 }
