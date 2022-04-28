@@ -21,7 +21,7 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvocationType;
@@ -29,7 +29,6 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,11 +72,11 @@ public class AWSLambdaMediator extends AbstractMediator {
 
     /**
      * mediate to AWS Lambda
+     *
      * @param messageContext - contains the payload
      * @return true
      */
     public boolean mediate(MessageContext messageContext) {
-
         org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) messageContext)
                 .getAxis2MessageContext();
         boolean passRequestParamsToLambdaFunction = APIUtil.passRequestParamsToLambdaFunction();
@@ -91,6 +90,7 @@ public class AWSLambdaMediator extends AbstractMediator {
         InvokeResult invokeResult;
         if (passRequestParamsToLambdaFunction) {
             JsonObject payload = new JsonObject();
+
             // set headers
             JsonObject headers = new JsonObject();
             TreeMap transportHeaders =
@@ -114,7 +114,7 @@ public class AWSLambdaMediator extends AbstractMediator {
                                 (String) messageContext.getProperty(propertyKey));
                     } else if (propertyKey.startsWith(RESTConstants.REST_QUERY_PARAM_PREFIX)) {
                         queryStringParameters.addProperty(propertyKey.substring(RESTConstants.REST_QUERY_PARAM_PREFIX
-                                        .length()), (String) messageContext.getProperty(propertyKey));
+                                .length()), (String) messageContext.getProperty(propertyKey));
                     }
                 }
             }
@@ -123,6 +123,7 @@ public class AWSLambdaMediator extends AbstractMediator {
             payload.add(BODY_PARAMETER, new JsonParser().parse(body).getAsJsonObject());
             payload.addProperty(HTTP_METHOD, (String) messageContext.getProperty(APIConstants.REST_METHOD));
             payload.addProperty(PATH, (String) messageContext.getProperty(APIConstants.API_ELECTED_RESOURCE));
+
             if (log.isDebugEnabled()) {
                 log.debug("Passing the payload " + payload.toString() + " to AWS Lambda function with resource name "
                         + resourceName);
@@ -158,6 +159,7 @@ public class AWSLambdaMediator extends AbstractMediator {
 
     /**
      * invoke AWS Lambda function
+     *
      * @param payload - input parameters to pass to AWS Lambda function as a JSONString
      * @return InvokeResult
      */
@@ -167,11 +169,13 @@ public class AWSLambdaMediator extends AbstractMediator {
             region = resourceNameSplit[3];
             // set credential provider
             AWSCredentialsProvider credentialsProvider;
+            AWSLambda awsLambda;
             if (StringUtils.isEmpty(accessKey) && StringUtils.isEmpty(secretKey)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Using temporary credentials supplied by the IAM role attached to the EC2 instance");
                 }
-                credentialsProvider = InstanceProfileCredentialsProvider.getInstance();
+                credentialsProvider = DefaultAWSCredentialsProviderChain.getInstance();
+                awsLambda = AWSLambdaClientBuilder.standard().withCredentials(credentialsProvider).build();
             } else if (!StringUtils.isEmpty(accessKey) && !StringUtils.isEmpty(secretKey)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Using user given stored credentials");
@@ -183,6 +187,10 @@ public class AWSLambdaMediator extends AbstractMediator {
                 }
                 BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
                 credentialsProvider = new AWSStaticCredentialsProvider(awsCredentials);
+                awsLambda = AWSLambdaClientBuilder.standard()
+                        .withCredentials(credentialsProvider)
+                        .withRegion(region)
+                        .build();
             } else {
                 log.error("Missing AWS Credentials");
                 return null;
@@ -196,11 +204,6 @@ public class AWSLambdaMediator extends AbstractMediator {
                     .withPayload(payload)
                     .withInvocationType(InvocationType.RequestResponse)
                     .withSdkClientExecutionTimeout(resourceTimeout);
-            // set aws lambda client
-            AWSLambda awsLambda = AWSLambdaClientBuilder.standard()
-                    .withCredentials(credentialsProvider)
-                    .withRegion(region)
-                    .build();
             return awsLambda.invoke(invokeRequest);
         } catch (SdkClientException e) {
             log.error("Error while invoking the lambda function", e);
@@ -230,6 +233,10 @@ public class AWSLambdaMediator extends AbstractMediator {
         return secretKey;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
     public String getResourceName() {
         return resourceName;
     }
@@ -244,6 +251,10 @@ public class AWSLambdaMediator extends AbstractMediator {
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public void setResourceName(String resourceName) {
