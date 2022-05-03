@@ -33,8 +33,10 @@ import org.wso2.carbon.apimgt.api.dto.ConditionGroupDTO;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.MethodStats;
 import org.wso2.carbon.apimgt.gateway.handlers.security.*;
+import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.utils.OpenAPIUtils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
+import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.BasicAuthValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
@@ -286,6 +288,9 @@ public class BasicAuthAuthenticator implements Authenticator {
         final String authHeaderSplitter = ",";
         Map headers = (Map) ((Axis2MessageContext) synCtx).getAxis2MessageContext().
                 getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        boolean removeBasicAuthHeadersFromOutMessage =
+                Boolean.parseBoolean(ServiceReferenceHolder.getInstance().getAPIManagerConfiguration()
+                        .getFirstProperty(APIConstants.REMOVE_OAUTH_HEADERS_FROM_MESSAGE));
         if (headers != null) {
             String authHeader = (String) headers.get(getSecurityHeader());
             if (authHeader == null) {
@@ -308,10 +313,12 @@ public class BasicAuthAuthenticator implements Authenticator {
                     }
                     String remainingAuthHeader = String.join(authHeaderSplitter, remainingAuthHeaders);
                     //Remove basic authorization header segment sent and pass others to the backend
-                    if (StringUtils.isNotBlank(remainingAuthHeader)) {
-                        headers.put(getSecurityHeader(), remainingAuthHeader);
-                    } else {
-                        headers.remove(getSecurityHeader());
+                    if (removeBasicAuthHeadersFromOutMessage) {
+                        if (StringUtils.isNotBlank(remainingAuthHeader)) {
+                            headers.put(getSecurityHeader(), remainingAuthHeader);
+                        } else {
+                            headers.remove(getSecurityHeader());
+                        }
                     }
                     return basicAuthHeader;
                 }
