@@ -531,12 +531,27 @@ function EndpointOverview(props) {
      * Method to handle the endpoint security changes.
      * @param {string} value The value
      * @param {string} type The security property that is being modified.
+     * @param {string} password The secured endpoint's password.
      * */
-    const handleEndpointSecurityChange = (value, type) => {
-        endpointsDispatcher({
-            action: 'endpointSecurity',
-            value: { ...endpointSecurityInfo, [type]: value },
-        });
+    const handleEndpointSecurityChange = (value, type, password = null) => {
+        if (password === null) {
+            endpointsDispatcher({
+                action: 'endpointSecurity',
+                value: { ...endpointSecurityInfo, [type]: value },
+            });
+        } else {
+            const tmpSecurityInfo = cloneDeep(value);
+            endpointsDispatcher({
+                action: 'endpointSecurity',
+                value: {
+                    ...endpointSecurityInfo,
+                    [type]: {
+                        ...tmpSecurityInfo,
+                        password: '',
+                    },
+                },
+            });
+        }
     };
 
     const saveEndpointSecurityConfig = (endpointSecurityObj, enType) => {
