@@ -102,6 +102,7 @@ function EndpointSecurity(props) {
     const [isUsernameUpdated, setIsUsernameUpdated] = useState(false);
     const [isPasswordUpdated, setIsPasswordUpdated] = useState(false);
     const iff = (condition, then, otherwise) => (condition ? then : otherwise);
+    const passwordMask = '**********';
 
     const authTypes = [
         {
@@ -158,7 +159,7 @@ function EndpointSecurity(props) {
             } = securityInfo;
             tmpSecurity.type = type === null ? 'NONE' : type;
             tmpSecurity.username = username;
-            tmpSecurity.password = password === '' ? '**********' : password;
+            tmpSecurity.password = password === '' ? passwordMask : password;
             tmpSecurity.grantType = grantType;
             tmpSecurity.tokenUrl = tokenUrl;
             tmpSecurity.clientId = clientId === '' ? '********' : clientId;
@@ -197,7 +198,11 @@ function EndpointSecurity(props) {
             setSecurityValidity({ ...securityValidity, [field]: validity });
         }
         const type = isProduction ? 'production' : 'sandbox';
-        onChangeEndpointAuth(endpointSecurityInfo, type);
+        if (endpointSecurityInfo.password === passwordMask) {
+            onChangeEndpointAuth(endpointSecurityInfo, type, '');
+        } else {
+            onChangeEndpointAuth(endpointSecurityInfo, type);
+        }
     };
 
     /**
