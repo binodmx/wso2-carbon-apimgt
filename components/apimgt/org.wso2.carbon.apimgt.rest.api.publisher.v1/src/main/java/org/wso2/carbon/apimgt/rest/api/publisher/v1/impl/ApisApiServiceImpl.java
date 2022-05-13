@@ -3991,6 +3991,12 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
         } catch (FaultGatewaysException e) {
             String errorMessage = "Error while updating the API in Gateway " + apiId;
+            if (e.getFaultMap() != null && !e.getFaultMap().isEmpty()) {
+                StringBuilder stringBuilder = new StringBuilder(errorMessage);
+                stringBuilder.append(" ");
+                stringBuilder.append(e.getFaultMap());
+                errorMessage = stringBuilder.toString();
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         }
         return null;
