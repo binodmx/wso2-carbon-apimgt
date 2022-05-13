@@ -24,6 +24,8 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,8 @@ import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 
+import java.util.HashMap;
+
 public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInboundHandler, WebsocketOutboundHandler> {
 
     private static final Log log = LogFactory.getLog(WebsocketInboundHandler.class);
@@ -43,6 +47,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         super(new WebsocketInboundHandler(), new WebsocketOutboundHandler());
     }
     private static GraphQLResponseProcessor graphQLResponseProcessor = new GraphQLResponseProcessor();
+    private final String API_PROPERTIES = "API_PROPERTIES";
+    private final String WEB_SC_API_UT = "api.ut.WS_SC";
 
     public WebsocketHandler(WebsocketInboundHandler websocketInboundHandler,
                             WebsocketOutboundHandler websocketOutboundHandler) {
@@ -64,6 +70,13 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         }
 
         if ((msg instanceof CloseWebSocketFrame) || (msg instanceof PongWebSocketFrame)) {
+
+            Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
+            if (attributes != null) {
+                HashMap apiProperties = (HashMap) attributes.get();
+                apiProperties.put(WEB_SC_API_UT, ((CloseWebSocketFrame) msg).statusCode());
+            }
+
             //remove inbound message context from data holder
             InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().remove(channelId);
             //if the inbound frame is a closed frame, throttling, analytics will not be published.
