@@ -457,6 +457,7 @@
                             com.amazonaws.*; version="${com.amazonaws.version}",
                             org.apache.servicemix.bundles.jedis.*; version="${servicemix.bundles.jedis.version}",
                             com.nimbusds.jwt.*; version="${com.nimbusds.version}",
+                            com.nimbusds.jose.*; version="${com.nimbusds.version}",
                             org.apache.commons.codec.*,
                             *;resolution:=optional
                         </Import-Package>
