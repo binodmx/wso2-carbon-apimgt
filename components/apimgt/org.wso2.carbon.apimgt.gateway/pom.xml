@@ -456,7 +456,7 @@
                             graphql.*; version="${graphql.java.version}",
                             com.amazonaws.*; version="${com.amazonaws.version}",
                             org.apache.servicemix.bundles.jedis.*; version="${servicemix.bundles.jedis.version}",
-                            com.nimbusds.jwt.*,
+                            com.nimbusds.jwt.*; version="${com.nimbusds.version}",
                             org.apache.commons.codec.*,
                             *;resolution:=optional
                         </Import-Package>
