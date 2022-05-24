@@ -24,6 +24,7 @@ import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.keymgt.KeyManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.keymgt.KeyManagerDataService;
+import org.wso2.carbon.apimgt.impl.perlog.PerAPILogService;
 
 /**
  * Class for keeping service references.
@@ -34,6 +35,8 @@ public class ServiceReferenceHolder {
 
     private APIManagerConfiguration apimConfiguration;
     private KeyManagerConfigurationService keyManagerService;
+
+    private PerAPILogService perAPILogService;
 
     public static ServiceReferenceHolder getInstance() {
         return instance;
@@ -67,4 +70,15 @@ public class ServiceReferenceHolder {
         return keyManagerService;
     }
 
+    public void setPerAPILogService(PerAPILogService perAPILogService) {
+        if (perAPILogService != null) {
+            this.perAPILogService = perAPILogService;
+        } else {
+            this.perAPILogService = null;
+        }
+    }
+
+    public PerAPILogService getPerAPILogService() {
+        return perAPILogService;
+    }
 }

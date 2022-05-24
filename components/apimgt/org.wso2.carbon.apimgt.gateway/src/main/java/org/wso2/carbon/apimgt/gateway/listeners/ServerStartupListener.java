@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.gateway.internal.APIHandlerServiceComponent;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.gateway.perlogging.PerAPILogger;
 import org.wso2.carbon.apimgt.gateway.service.APIThrottleDataServiceImpl;
 import org.wso2.carbon.apimgt.gateway.service.CacheInvalidationServiceImpl;
 import org.wso2.carbon.apimgt.gateway.service.RevokedTokenDataImpl;
@@ -29,6 +30,7 @@ import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.gateway.throttling.publisher.ThrottleDataPublisher;
 import org.wso2.carbon.apimgt.impl.caching.CacheInvalidationService;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.apimgt.impl.perlog.PerAPILogService;
 
 public class ServerStartupListener implements ServerStartupObserver {
 
@@ -53,6 +55,9 @@ public class ServerStartupListener implements ServerStartupObserver {
         ServiceReferenceHolder.getInstance().setThrottleDataHolder(throttleDataHolder);
         ServiceReferenceHolder.getInstance().setRevokedTokenService(new RevokedTokenDataImpl());
         log.debug("APIThrottleDataService Registered...");
+
+        PerAPILogService perAPILogService = PerAPILogger.getInstance();
+        ServiceReferenceHolder.getInstance().setPerAPILogService(perAPILogService);
     }
 }
 

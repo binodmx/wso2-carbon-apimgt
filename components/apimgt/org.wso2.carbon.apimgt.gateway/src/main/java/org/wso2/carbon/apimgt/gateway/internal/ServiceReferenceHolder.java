@@ -27,6 +27,7 @@ import org.wso2.carbon.apimgt.impl.dto.ThrottleProperties;
 import org.wso2.carbon.apimgt.impl.jwt.JWTValidationService;
 import org.wso2.carbon.apimgt.impl.gatewayartifactsynchronizer.ArtifactRetriever;
 import org.wso2.carbon.apimgt.impl.keymgt.KeyManagerDataService;
+import org.wso2.carbon.apimgt.impl.perlog.PerAPILogService;
 import org.wso2.carbon.apimgt.impl.throttling.APIThrottleDataService;
 import org.wso2.carbon.apimgt.impl.token.RevokedTokenService;
 import org.wso2.carbon.apimgt.tracing.TracingService;
@@ -78,6 +79,8 @@ public class ServiceReferenceHolder {
         return throttleDataHolder;
     }
     private ArtifactRetriever artifactRetriever;
+
+    private PerAPILogService perAPILogService;
 
     private ServiceReferenceHolder() {
 
@@ -303,5 +306,13 @@ public class ServiceReferenceHolder {
     public void setKeyManagerDataService(KeyManagerDataService keyManagerDataService) {
 
         this.keyManagerDataService = keyManagerDataService;
+    }
+
+    public PerAPILogService getPerAPILogService() {
+        return perAPILogService;
+    }
+
+    public void setPerAPILogService(PerAPILogService perAPILogService) {
+        this.perAPILogService = perAPILogService;
     }
 }

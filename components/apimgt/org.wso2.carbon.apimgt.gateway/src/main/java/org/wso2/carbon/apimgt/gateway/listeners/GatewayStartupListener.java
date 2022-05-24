@@ -140,6 +140,8 @@ public class GatewayStartupListener extends AbstractAxis2ConfigurationContextObs
                 new APIMgtGatewayCacheMessageListener());
         jmsTransportHandlerForEventHub
                 .subscribeForJmsEvents(APIConstants.TopicNames.TOPIC_NOTIFICATION, new GatewayJMSMessageListener());
+        jmsTransportHandlerForEventHub
+                .subscribeForJmsEvents(APIConstants.TopicNames.PER_API_LOG, new PerAPILoggingListener());
     }
 
     private void deployAPIsInSyncMode(String tenantDomain) throws ArtifactSynchronizerException {

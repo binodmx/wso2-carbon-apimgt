@@ -110,4 +110,11 @@ class LogUtils {
     protected static String getConsumerKey(org.apache.synapse.MessageContext messageContext){
         return (String) messageContext.getProperty(APIMgtGatewayConstants.CONSUMER_KEY);
     }
+
+    protected static String getTransportInURL(org.apache.synapse.MessageContext messageContext) {
+        org.apache.axis2.context.MessageContext axis2MsgContext = ((Axis2MessageContext) messageContext)
+                .getAxis2MessageContext();
+        String transportInURL = (String) axis2MsgContext.getProperty("TransportInURL");
+        return transportInURL.substring(1);
+    }
 }
