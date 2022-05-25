@@ -42,22 +42,26 @@ public class PerAPILogger implements PerAPILogService {
         return perAPILogService;
     }
 
-    @Override public void publishLogAPIData(String context, String value) {
+    @Override
+    public void publishLogAPIData(String context, String value) {
         Object[] objects = new Object[] { context, value };
         Event perapilogmessage =
                 new Event(streamId, System.currentTimeMillis(), null, null, objects);
         ServiceReferenceHolder.getInstance().getThrottleDataPublisher().getDataPublisher().tryPublish(perapilogmessage);
     }
 
-    @Override public Map<String, String> getLogData() {
+    @Override
+    public Map<String, String> getLogData() {
         return LogsHandler.getLogData();
     }
 
-    @Override public String getLogData(String context) {
+    @Override
+    public String getLogData(String context) {
         return LogsHandler.getLogData(context);
     }
 
-    @Override public void syncLocalAPILogDetailsMap(Map<String, Object> map) {
+    @Override
+    public void syncLocalAPILogDetailsMap(Map<String, Object> map) {
         LogsHandler.syncAPILogData(map);
     }
 
