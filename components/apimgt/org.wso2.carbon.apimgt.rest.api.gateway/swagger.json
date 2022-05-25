@@ -1,0 +1,199 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "This document specifies a **RESTful API** for WSO2 **API Manager** - Gateway",
+    "version" : "v0.9",
+    "title" : "WSO2 API Manager - Gateway",
+    "contact" : {
+      "name" : "WSO2",
+      "url" : "http://wso2.com/products/api-manager/",
+      "email" : "architecture@wso2.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "basePath" : "/api/am/gateway/v0.9",
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "paths" : {
+    "/api-logging" : {
+      "get" : {
+        "summary" : "GET log enabled API data\n",
+        "parameters" : [ {
+          "name" : "context",
+          "in" : "query",
+          "description" : "API context with the version (eg: pizzashack/1.0.0). If this is not provided, then it will retrieve all logs enabled APIs with log levels.\n",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Logs enabled API details",
+            "schema" : {
+              "$ref" : "#/definitions/APIList"
+            }
+          },
+          "404" : {
+            "description" : "Not Found.\nRequest API resource or external store Ids not found.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error while retrieving API data to be logged",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "post" : {
+        "summary" : "POST logging data of the API with its context template and version\n",
+        "description" : "This operation enables you to provide the API context template(context/version) with the log level (headers, body or all). You should either provide a payload or context and logLevel as query parameters with this API request.\n",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "Payload",
+          "description" : "context and the logLevel can be provided as a payload. This is useful if you want to enable logs for multiple APIs at once.\n",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/APIList"
+          }
+        }, {
+          "name" : "context",
+          "in" : "query",
+          "description" : "API context ( context/version eg: pizzashack/1.0.0)\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "logLevel",
+          "in" : "query",
+          "description" : "logLevel of the API. \"all\",\"headers\" or \"body\"\n",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "all", "headers", "body" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully Enabled the logs for the API",
+            "schema" : {
+              "$ref" : "#/definitions/APIList"
+            }
+          },
+          "404" : {
+            "description" : "Not Found.\nRequest API resource or external store Ids not found.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error while configuring API to be logged",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "summary" : "Delete log enabled API data\n",
+        "parameters" : [ {
+          "name" : "context",
+          "in" : "query",
+          "description" : "API context with the version (eg :pizzashack/1.0.0). If this is not provided all API details will be deleted.\n",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Successfully deleted"
+          },
+          "404" : {
+            "description" : "Not Found.\nRequest API context is not found.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error while deleting API details",
+            "schema" : {
+              "$ref" : "#/definitions/Error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "APIList" : {
+      "properties" : {
+        "apis" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/API"
+          }
+        }
+      },
+      "title" : "apis"
+    },
+    "API" : {
+      "properties" : {
+        "context" : {
+          "type" : "string",
+          "example" : "pizashack/v1.0.0"
+        },
+        "logLevel" : {
+          "type" : "string",
+          "example" : "all"
+        }
+      },
+      "title" : "API Info object with log details"
+    },
+    "Error" : {
+      "required" : [ "code", "message" ],
+      "properties" : {
+        "code" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "message" : {
+          "type" : "string",
+          "description" : "Error message."
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "A detail description about the error message.\n"
+        },
+        "moreInfo" : {
+          "type" : "string",
+          "description" : "Preferably an url with more details about the error.\n"
+        },
+        "error" : {
+          "type" : "array",
+          "description" : "If there are more than one error list them out.\nFor example, list out validation errors by each field.\n",
+          "items" : {
+            "$ref" : "#/definitions/ErrorListItem"
+          }
+        }
+      },
+      "title" : "Error object returned with 4XX HTTP Status"
+    },
+    "ErrorListItem" : {
+      "required" : [ "code", "message" ],
+      "properties" : {
+        "code" : {
+          "type" : "string"
+        },
+        "message" : {
+          "type" : "string",
+          "description" : "Description about individual errors occurred\n"
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "A detail description about the error message.\n"
+        }
+      },
+      "title" : "Description of individual errors that may have occurred during a request."
+    }
+  }
+}

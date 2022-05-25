@@ -32,6 +32,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.APIManagerConfigurationService;
 import org.wso2.carbon.apimgt.impl.keymgt.KeyManagerConfigurationService;
+import org.wso2.carbon.apimgt.impl.perlog.PerAPILogService;
 import org.wso2.carbon.apimgt.jms.listener.utils.JMSListenerStartupShutdownListener;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
@@ -114,7 +115,22 @@ public class JMSListenerComponent {
             this.registration.unregister();
         }
     }
-    
+
+    @Reference(
+            name = "perapi.log.service",
+            service = PerAPILogService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetPerAPIlogService")
+    protected void setPerAPIlogService(PerAPILogService perAPIlogService) {
+        log.debug("Setting Per API log Service");
+        ServiceReferenceHolder.getInstance().setPerAPILogService(perAPIlogService);
+    }
+
+    protected void unsetPerAPIlogService(PerAPILogService perAPILogService) {
+        log.debug("unSetting Per API log Service");
+        ServiceReferenceHolder.getInstance().setPerAPILogService(null);
+    }
 
 
 }

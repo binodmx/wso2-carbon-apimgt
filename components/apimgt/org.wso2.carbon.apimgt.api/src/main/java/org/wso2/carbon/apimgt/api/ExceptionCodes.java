@@ -373,7 +373,19 @@ ExceptionCodes implements ErrorHandler {
     MEDIATION_POLICY_NAME_TOO_LONG(900850, "Mediation Policy Name Too Long", 400,
                                                 "The name of the mediation policy exceeds the max length (%s)"),
     INVALID_ENDPOINT_CREDENTIALS(902000, "Invalid Endpoint Security credentials", 400,
-            "Invalid Endpoint Security " + "credentials", false);
+            "Invalid Endpoint Security " + "credentials", false),
+
+    // Per API Logging Related
+    LOGGING_API_NOT_FOUND(901400,"Requested Resource Not Found", 404,
+            "Request API Not Found for context: %s"),
+
+    LOGGING_API_INCORRECT_LOG_LEVEL(901401,"Bad Request", 400,
+            "Log level should be either all,body or headers"),
+
+    LOGGING_API_MISSING_DATA(901402,"Missing data",
+            400, "API context or log level is missing");
+
+
 
     private final long errorCode;
     private final String errorMessage;
