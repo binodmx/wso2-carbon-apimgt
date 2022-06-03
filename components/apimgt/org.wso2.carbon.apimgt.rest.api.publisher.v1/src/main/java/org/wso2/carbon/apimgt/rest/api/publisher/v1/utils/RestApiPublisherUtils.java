@@ -96,13 +96,32 @@ public class RestApiPublisherUtils {
         String userName = RestApiUtil.getLoggedInUsername();
         boolean isMatched = false;
         String[] userRoleList = null;
+        String[] tenantRoleList = APIUtil.getRoleNames(userName);
 
         if (APIUtil.hasPermission(userName, APIConstants.Permissions.APIM_ADMIN)) {
             isMatched = true;
         } else {
             userRoleList = APIUtil.getListOfRoles(userName);
         }
+
         if (inputRoles != null && !inputRoles.isEmpty()) {
+            if (Boolean.getBoolean(System.getProperty(APIConstants.CASE_SENSITIVE_CHECK_PATH))) {
+                String status = "";
+                if (tenantRoleList != null || userRoleList != null) {
+                    for (String inputRole : inputRoles) {
+                        if (!isMatched && userRoleList != null && APIUtil.compareRoleList(userRoleList, inputRole)) {
+                            isMatched = true;
+                        }
+                        if (tenantRoleList != null && !APIUtil.compareRoleList(tenantRoleList, inputRole)) {
+                            status = "Invalid user roles found in accessControlRole list";
+                        }
+                    }
+                    status = isMatched ? "" : "This user does not have at least one role specified in API access control.";
+                } else {
+                    status = "Invalid user roles found";
+                }
+                return status;
+            }
             if (!isMatched && userRoleList != null) {
                 for (String inputRole : inputRoles) {
                     if (APIUtil.compareRoleList(userRoleList, inputRole)) {
