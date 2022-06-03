@@ -2563,5 +2563,5 @@ public final class APIConstants {
         public static final String BODY = "body";
     }
         
-    public static final String CASE_SENSITIVE_CHECK_PATH =    "caeSensitiveRoleValidation";
+    public static final String CASE_SENSITIVE_CHECK_PATH =    "caseSensitiveRoleValidation";
 }
