@@ -73,7 +73,7 @@ public class GraphQLAPIHandler extends AbstractHandler {
     private static final Log log = LogFactory.getLog(GraphQLAPIHandler.class);
     private GraphQLSchema schema = null;
     private String apiUUID;
-    private static String schemaDefinition;
+    private String schemaDefinition;
     private QueryValidator queryValidator;
 
     public GraphQLAPIHandler() {

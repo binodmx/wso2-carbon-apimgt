@@ -118,9 +118,11 @@ export default function Environments() {
             .finally(() => setPublishing(false));
     }
 
-    const existSubscriptions = api.operations.find((operation) => {
-        return operation.verb === 'SUBSCRIPTION';
-    });
+    const existSubscriptions = () => {
+        api.operations.find((operation) => {
+            return operation.verb === 'SUBSCRIPTION';
+        });
+    };
 
     return (
         <>

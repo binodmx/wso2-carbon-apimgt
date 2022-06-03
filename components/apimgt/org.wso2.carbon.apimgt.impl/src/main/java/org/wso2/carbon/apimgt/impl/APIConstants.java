@@ -1795,6 +1795,8 @@ public final class APIConstants {
     public static final String API_PRODUCT_IDENTIFIER_TYPE = "API Product";
     public static final String[] API_SUPPORTED_TYPE_LIST = {"HTTP", "WS", "SOAPTOREST", "GRAPHQL", "SOAP"};
 
+    public static final String PER_API_LOG = "perAPILog";
+
     public static class AdvancedThrottleConstants {
 
         public static final String THROTTLING_CONFIGURATIONS = "ThrottlingConfigurations";
@@ -2512,6 +2514,7 @@ public final class APIConstants {
         public static final String TOPIC_CACHE_INVALIDATION = "cacheInvalidation";
         public static final String TOPIC_KEY_MANAGER = "keyManager";
         public static final String TOPIC_NOTIFICATION = "notification";
+        public static final String PER_API_LOG = "perAPILog";
     }
 
     public enum PolicyType {
@@ -2551,6 +2554,14 @@ public final class APIConstants {
 
     // Constants related to basic health check APIs
     public static final String WEB_SOCKET_HEALTH_CHECK_PATH = "/health";
-
+    
+    public static class APILogHandler {
+        public static final String DELETE = "delete";
+        public static final String DELETE_ALL = "deleteAll";
+        public static final String HEADERS = "headers";
+        public static final String ALL = "all";
+        public static final String BODY = "body";
+    }
+        
     public static final String CASE_SENSITIVE_CHECK_PATH =    "caeSensitiveRoleValidation";
 }

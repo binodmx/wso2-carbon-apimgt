@@ -74,7 +74,7 @@
         "sanitize-html": "^2.5.1",
         "subscriptions-transport-ws": "^0.9.19",
         "swagger-client": "^3.18.0",
-        "swagger-ui-react": "^3.25.0"
+        "swagger-ui-react": "^4.7.0"
     },
     "devDependencies": {
         "@babel/core": "^7.4.4",

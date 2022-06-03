@@ -38,6 +38,7 @@ import org.wso2.carbon.apimgt.gateway.jwt.RevokedJWTMapCleaner;
 import org.wso2.carbon.apimgt.gateway.jwt.RevokedJWTTokensRetriever;
 import org.wso2.carbon.apimgt.gateway.listeners.GatewayStartupListener;
 import org.wso2.carbon.apimgt.gateway.listeners.ServerStartupListener;
+import org.wso2.carbon.apimgt.gateway.perlogging.PerAPILogger;
 import org.wso2.carbon.apimgt.gateway.service.APIThrottleDataServiceImpl;
 import org.wso2.carbon.apimgt.gateway.service.CacheInvalidationServiceImpl;
 import org.wso2.carbon.apimgt.gateway.service.RevokedTokenDataImpl;
@@ -54,6 +55,7 @@ import org.wso2.carbon.apimgt.impl.dto.GatewayArtifactSynchronizerProperties;
 import org.wso2.carbon.apimgt.impl.gatewayartifactsynchronizer.ArtifactRetriever;
 import org.wso2.carbon.apimgt.impl.jwt.JWTValidationService;
 import org.wso2.carbon.apimgt.impl.keymgt.KeyManagerDataService;
+import org.wso2.carbon.apimgt.impl.perlog.PerAPILogService;
 import org.wso2.carbon.apimgt.tracing.TracingService;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
@@ -110,6 +112,8 @@ public class APIHandlerServiceComponent {
                 bundleContext.registerService(Axis2ConfigurationContextObserver.class.getName(), listener, null);
                 bundleContext.registerService(ServerStartupObserver.class.getName(), new ServerStartupListener(), null);
 
+                PerAPILogService perAPILogService = PerAPILogger.getInstance();
+
                 // Set APIM Gateway JWT Generator
 
                 registration =
@@ -118,6 +122,8 @@ public class APIHandlerServiceComponent {
                 registration =
                         context.getBundleContext().registerService(AbstractAPIMgtGatewayJWTGenerator.class.getName(),
                                 new APIMgtGatewayUrlSafeJWTGeneratorImpl(), null);
+                registration = context.getBundleContext()
+                        .registerService(PerAPILogService.class.getName(), perAPILogService, null);
                 // Start JWT revoked map cleaner.
                 RevokedJWTMapCleaner revokedJWTMapCleaner = new RevokedJWTMapCleaner();
                 revokedJWTMapCleaner.startJWTRevokedMapCleaner();
