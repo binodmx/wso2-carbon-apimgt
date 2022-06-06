@@ -105,7 +105,7 @@ public class RestApiPublisherUtils {
         }
 
         if (inputRoles != null && !inputRoles.isEmpty()) {
-            if (Boolean.getBoolean(System.getProperty(APIConstants.CASE_SENSITIVE_CHECK_PATH))) {
+            if (Boolean.parseBoolean(System.getProperty(APIConstants.CASE_SENSITIVE_CHECK_PATH))) {
                 String status = "";
                 if (tenantRoleList != null || userRoleList != null) {
                     for (String inputRole : inputRoles) {
