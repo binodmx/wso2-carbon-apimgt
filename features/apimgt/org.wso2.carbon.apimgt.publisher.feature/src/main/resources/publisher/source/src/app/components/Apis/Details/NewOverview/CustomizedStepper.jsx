@@ -251,7 +251,7 @@ export default function CustomizedSteppers() {
             .finally(() => setUpdating(false))
             .catch((errorResponse) => {
                 console.log(errorResponse);
-                Alert.error(JSON.stringify(errorResponse.message));
+                Alert.error(JSON.stringify(errorResponse.response.body.description));
             });
     }
 
