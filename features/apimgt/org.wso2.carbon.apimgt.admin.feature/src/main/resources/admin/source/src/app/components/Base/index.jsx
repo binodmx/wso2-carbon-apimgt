@@ -79,7 +79,7 @@ function Base(props) {
     return (
         <div className={classes.root}>
             <CssBaseline />
-            <nav className={classes.drawer}>
+            <nav className={classes.drawer} aria-label="admin-portal-navbar">
                 {leftMenu}
             </nav>
             <div className={classes.app}>

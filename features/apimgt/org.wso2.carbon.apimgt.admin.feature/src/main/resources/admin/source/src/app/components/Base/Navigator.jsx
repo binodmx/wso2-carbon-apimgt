@@ -80,11 +80,11 @@ function Navigator(props) {
     }
 
     const isWorkflowManager = _scopes.includes('apim:api_workflow_view')
-    && _scopes.includes('apim:api_workflow_approve')
-    && _scopes.includes('apim:tenantInfo')
-    && _scopes.includes('openid')
-    && _scopes.includes('apim:admin_settings')
-    && _scopes.length === 5;
+        && _scopes.includes('apim:api_workflow_approve')
+        && _scopes.includes('apim:tenantInfo')
+        && _scopes.includes('openid')
+        && _scopes.includes('apim:admin_settings')
+        && _scopes.length === 5;
 
     if (isWorkflowManager) {
         const { location: { pathname } } = history;
@@ -140,9 +140,9 @@ function Navigator(props) {
         <Drawer variant='permanent' {...other}>
             <List disablePadding>
                 <ListItem className={clsx(classes.firebase, classes.item, 'itemCategory', classes.logoWrapper)}>
-                    <Link component={RouterLink} to='/'>
+                    <Link component={RouterLink} role="listitem" to='/'>
                         <img
-                            alt='logo'
+                            alt='logo APIM admin portal'
                             src={Configurations.app.context
                                 + logoUrl}
                             width={logoWidth}
@@ -157,29 +157,32 @@ function Navigator(props) {
                     <>
                         {!children && (
                             <Link
+                                role="listitem"
                                 component={RouterLink}
                                 to={parentPath}
                                 style={{ textDecoration: 'none' }}
                                 data-testid={`${id}-link`}
                             >
-                                <ListItem
-                                    className={clsx(
-                                        classes.item,
-                                        'itemCategory',
-                                        parentActive && classes.itemActiveItem,
-                                    )}
-                                >
-                                    <ListItemIcon className={classes.itemIcon}>
-                                        {parentIcon}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        classes={{
-                                            primary: classes.itemPrimary,
-                                        }}
+                                <List disablePadding>
+                                    <ListItem
+                                        className={clsx(
+                                            classes.item,
+                                            'itemCategory',
+                                            parentActive && classes.itemActiveItem,
+                                        )}
                                     >
-                                        {id}
-                                    </ListItemText>
-                                </ListItem>
+                                        <ListItemIcon className={classes.itemIcon}>
+                                            {parentIcon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            classes={{
+                                                primary: classes.itemPrimary,
+                                            }}
+                                        >
+                                            {id}
+                                        </ListItemText>
+                                    </ListItem>
+                                </List>
                             </Link>
                         )}
                         {children && (
