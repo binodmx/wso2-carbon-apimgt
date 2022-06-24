@@ -5537,7 +5537,7 @@ public class ApiMgtDAO {
                                 || APIConstants.BLOCKED.equals(oldStatus))) {
                     setPublishedDefVersion(identifier, conn, null);
                 } else if (APIConstants.PUBLISHED.equals(newStatus) || APIConstants.DEPRECATED.equals(newStatus)
-                        || APIConstants.BLOCKED.equals(newStatus)) {
+                        || APIConstants.BLOCKED.equals(newStatus) || APIConstants.PROTOTYPED.equals(newStatus)) {
                     setPublishedDefVersion(identifier, conn, identifier.getVersion());
                 }
             }
@@ -6069,7 +6069,7 @@ public class ApiMgtDAO {
             prepStmtDefVersionAdd.setString(3, api.getId().getVersion());
             String apistatus = api.getStatus();
             if (APIConstants.PUBLISHED.equals(apistatus) || APIConstants.DEPRECATED.equals(apistatus) || APIConstants
-                    .BLOCKED.equals(apistatus)) {
+                    .BLOCKED.equals(apistatus) || APIConstants.PROTOTYPED.equals(apistatus)) {
                 prepStmtDefVersionAdd.setString(4, api.getId().getVersion());
             } else {
                 prepStmtDefVersionAdd.setString(4, publishedDefaultVersion);
