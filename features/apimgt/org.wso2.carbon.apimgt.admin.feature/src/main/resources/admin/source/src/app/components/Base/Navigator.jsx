@@ -138,9 +138,9 @@ function Navigator(props) {
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <Drawer variant='permanent' {...other}>
-            <List disablePadding>
+            <List disablePadding role="list">
                 <ListItem className={clsx(classes.firebase, classes.item, 'itemCategory', classes.logoWrapper)}>
-                    <Link component={RouterLink} role="listitem" to='/'>
+                    <Link component={RouterLink} to='/'>
                         <img
                             alt='logo APIM admin portal'
                             src={Configurations.app.context
@@ -157,13 +157,12 @@ function Navigator(props) {
                     <>
                         {!children && (
                             <Link
-                                role="listitem"
                                 component={RouterLink}
                                 to={parentPath}
                                 style={{ textDecoration: 'none' }}
                                 data-testid={`${id}-link`}
                             >
-                                <List disablePadding>
+                                <List disablePadding role="list">
                                     <ListItem
                                         className={clsx(
                                             classes.item,
@@ -186,8 +185,8 @@ function Navigator(props) {
                             </Link>
                         )}
                         {children && (
-                            <React.Fragment key={id}>
-                                <NavigatorChildren navChildren={children} navId={id} classes={classes} />
+                            <React.Fragment key={id} role="listitem">
+                                <NavigatorChildren navChildren={children} navId={id} classes={classes} role="listitem"/>
                             </React.Fragment>
                         )}
 
