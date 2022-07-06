@@ -789,7 +789,9 @@ public class WebsocketUtil extends GraphQLProcessor {
 			APIKeyValidationInfoDTO info = null;
 			boolean prefixAdded = false;
 
-			log.debug("The token was identified as an OAuth token");
+			if (log.isDebugEnabled()) {
+				log.debug("The token was identified as an OAuth token");
+			}
 			//If the key have already been validated
 			if (WebsocketUtil.isGatewayTokenCacheEnabled()) {
 				cacheKey = WebsocketUtil.getAccessTokenCacheKey(apiKey, inboundMessageContext.getUri());
