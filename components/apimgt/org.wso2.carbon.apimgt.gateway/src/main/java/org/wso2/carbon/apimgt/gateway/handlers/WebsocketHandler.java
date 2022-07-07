@@ -37,6 +37,7 @@ import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLResponseProcessor;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.HashMap;
 
@@ -90,7 +91,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                responseDTO = graphQLResponseProcessor.handleResponse((WebSocketFrame) msg,
                         ctx, inboundMessageContext, inboundHandler().getUsageDataPublisher());
                 if (responseDTO.isError()) {
-                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise);
+                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
@@ -108,13 +109,14 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                             inboundHandler().getUsageDataPublisher())) {
                         handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
                     } else {
+                        ReferenceCountUtil.release(msg);
                         ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
                         if (log.isDebugEnabled()) {
                             log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
                         }
                     }
                 } else {
-                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise);
+                    handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
                 }
             }
         } else {
@@ -126,9 +128,13 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
      * @param responseDTO InboundProcessorResponseDTO
      * @param channelId   Channel Id of the web socket connection
      * @param ctx         ChannelHandlerContext
+     * @param msg         WebsocketFrame that was received
      */
     private void handleWebsocketFrameRequestError(InboundProcessorResponseDTO responseDTO, String channelId,
-                                                  ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
+                                                  ChannelHandlerContext ctx, ChannelPromise promise, Object msg)
+            throws Exception {
+        // Release WebsocketFrame
+        ReferenceCountUtil.release(msg);
         if (responseDTO.isCloseConnection()) {
             // remove inbound message context from data holder
             InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
