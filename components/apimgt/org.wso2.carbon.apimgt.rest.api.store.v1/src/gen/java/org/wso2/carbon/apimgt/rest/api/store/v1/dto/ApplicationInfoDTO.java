@@ -26,6 +26,7 @@ public class ApplicationInfoDTO   {
     private Integer subscriptionCount = null;
     private Object attributes = null;
     private String owner = null;
+    private String tokenType = null;
 
   /**
    **/
@@ -180,6 +181,23 @@ public class ApplicationInfoDTO   {
     this.owner = owner;
   }
 
+  /**
+   **/
+  public ApplicationInfoDTO tokenType(String tokenType) {
+    this.tokenType = tokenType;
+    return this;
+  }
+
+  
+  @ApiModelProperty(example = "JWT", value = "")
+  @JsonProperty("tokenType")
+  public String getTokenType() {
+    return tokenType;
+  }
+  public void setTokenType(String tokenType) {
+    this.tokenType = tokenType;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -198,12 +216,13 @@ public class ApplicationInfoDTO   {
         Objects.equals(groups, applicationInfo.groups) &&
         Objects.equals(subscriptionCount, applicationInfo.subscriptionCount) &&
         Objects.equals(attributes, applicationInfo.attributes) &&
-        Objects.equals(owner, applicationInfo.owner);
+        Objects.equals(owner, applicationInfo.owner) &&
+        Objects.equals(tokenType, applicationInfo.tokenType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationId, name, throttlingPolicy, description, status, groups, subscriptionCount, attributes, owner);
+    return Objects.hash(applicationId, name, throttlingPolicy, description, status, groups, subscriptionCount, attributes, owner, tokenType);
   }
 
   @Override
@@ -220,6 +239,7 @@ public class ApplicationInfoDTO   {
     sb.append("    subscriptionCount: ").append(toIndentedString(subscriptionCount)).append("\n");
     sb.append("    attributes: ").append(toIndentedString(attributes)).append("\n");
     sb.append("    owner: ").append(toIndentedString(owner)).append("\n");
+    sb.append("    tokenType: ").append(toIndentedString(tokenType)).append("\n");
     sb.append("}");
     return sb.toString();
   }

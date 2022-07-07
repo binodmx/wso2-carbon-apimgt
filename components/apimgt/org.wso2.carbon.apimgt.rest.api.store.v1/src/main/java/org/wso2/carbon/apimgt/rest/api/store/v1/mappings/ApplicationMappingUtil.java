@@ -185,6 +185,7 @@ public class ApplicationMappingUtil {
         applicationInfoDTO.setAttributes(applicationAttributes);
         applicationInfoDTO.setSubscriptionCount(application.getSubscriptionCount());
         applicationInfoDTO.setOwner(application.getOwner());
+        applicationInfoDTO.setTokenType(application.getTokenType());
         return applicationInfoDTO;
     }
 
