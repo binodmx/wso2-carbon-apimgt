@@ -222,7 +222,7 @@ export default function ListApplications() {
                 apiCall={apiCall}
                 EditComponent={EditApplication}
                 editComponentProps={{
-                    icon: <EditIcon aria-label='edit-application-settings'/>,
+                    icon: <EditIcon aria-label='edit-application-settings' />,
                     title: 'Change Application Owner',
                     applicationList,
                 }}

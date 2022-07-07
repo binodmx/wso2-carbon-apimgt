@@ -157,14 +157,15 @@ function ListBase(props) {
     }, []);
 
     useLayoutEffect(() => {
-        let sortButtonList = document.getElementsByClassName("MuiTableSortLabel-root");
-        let footerList = document.getElementsByClassName("MuiTable-root");
+        let i;
+        const sortButtonList = document.getElementsByClassName('MuiTableSortLabel-root');
+        const footerList = document.getElementsByClassName('MuiTable-root');
 
-        for (var i = 0; i < sortButtonList.length; i++) {
-            sortButtonList[i].setAttribute("aria-label", `sort-icon-button-${i}`);
+        for (i = 0; i < sortButtonList.length; i++) {
+            sortButtonList[i].setAttribute('aria-label', `sort-icon-button-${i}`);
         }
 
-        if (footerList.length > 1) footerList[1].setAttribute("role", "presentation");
+        if (footerList.length > 1) footerList[1].setAttribute('role', 'presentation');
     });
 
 
@@ -350,7 +351,11 @@ function ListBase(props) {
                                         )}
                                         >
                                             <IconButton onClick={fetchData}>
-                                                <RefreshIcon aria-label="refresh-advanced-policies" className={classes.block} color='inherit' />
+                                                <RefreshIcon
+                                                    aria-label='refresh-advanced-policies'
+                                                    className={classes.block}
+                                                    color='inherit'
+                                                />
                                             </IconButton>
 
                                         </Tooltip>

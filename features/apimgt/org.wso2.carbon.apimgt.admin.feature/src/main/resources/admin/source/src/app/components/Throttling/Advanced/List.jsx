@@ -83,7 +83,14 @@ export default function ListMG() {
                 customBodyRender: (value, tableMeta) => {
                     if (typeof tableMeta.rowData === 'object') {
                         const artifactId = tableMeta.rowData[tableMeta.rowData.length - 2];
-                        return <RouterLink to={`/throttling/advanced/${artifactId}`} aria-label={`advanced-policies+${artifactId}`}>{value}</RouterLink>;
+                        return (
+                            <RouterLink
+                                to={`/throttling/advanced/${artifactId}`}
+                                aria-label={`advanced-policies+${artifactId}`}
+                            >
+                                {value}
+                            </RouterLink>
+                        );
                     } else {
                         return <div />;
                     }
@@ -177,7 +184,6 @@ export default function ListMG() {
     Send the following prop to ListBase component.
     import { Link as RouterLink } from 'react-router-dom';
     import Button from '@material-ui/core/Button';
-    
     const addButtonOverride = (
         <RouterLink to='/'>
             <Button variant='contained' color='primary'>
@@ -200,8 +206,6 @@ export default function ListMG() {
     /* **************************************************************** */
     /*
     Send the following props to ListBase to override the action column.
-    
-    
     To disable the Edit button pass an empty component. Ex EditComponent={() => <span />}
     To disable the Delete button pass an empty component. Ex DeleteComponent={() => <span />}
     To make the edit link go to a new page send a react-router-dom as the EditComponent.
@@ -225,7 +229,6 @@ export default function ListMG() {
             }
         }
     ]
-    
     */
     /* ====================
     Uncomment following to add an action which can do an action which can perform on a given item
@@ -249,7 +252,7 @@ export default function ListMG() {
     =========== */
     const addButtonOverride = (
         <RouterLink to='/throttling/advanced/create'>
-            <Button variant='contained' color='primary' size='small' role="button">
+            <Button variant='contained' color='primary' size='small' role='button'>
                 <FormattedMessage
                     id='Throttling.Advanced.List.add.new.polcy'
                     defaultMessage='Add New Policy'

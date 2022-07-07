@@ -63,7 +63,7 @@ function Delete({ updateList, dataRow }) {
                 id: 'Throttling.Advanced.Delete.save.text',
                 defaultMessage: 'Delete',
             })}
-            icon={<DeleteForeverIcon aria-label="delete-advanced-policies"/>}
+            icon={<DeleteForeverIcon aria-label='delete-advanced-policies' />}
             formSaveCallback={formSaveCallback}
         >
             <DialogContentText>

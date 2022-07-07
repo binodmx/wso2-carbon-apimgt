@@ -64,7 +64,7 @@ function Delete(props) {
         <FormDialogBase
             title='Delete Subscription Policy?'
             saveButtonText='Delete'
-            icon={<DeleteForeverIcon aria-label="delete-subscription-policies"/>}
+            icon={<DeleteForeverIcon aria-label='delete-subscription-policies' />}
             formSaveCallback={formSaveCallback}
         >
             <DialogContentText>

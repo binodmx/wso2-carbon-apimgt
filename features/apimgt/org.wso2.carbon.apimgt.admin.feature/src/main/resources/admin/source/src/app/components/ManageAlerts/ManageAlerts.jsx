@@ -517,7 +517,7 @@ const ManageAlerts = (props) => {
                                                             disabled={isInProgress.subscribing}
                                                             variant='contained'
                                                             color='default'
-                                                            role="button"
+                                                            role='button'
                                                         >
                                                             {isInProgress.unSubscribing
                                                             && <CircularProgress size={15} />}
