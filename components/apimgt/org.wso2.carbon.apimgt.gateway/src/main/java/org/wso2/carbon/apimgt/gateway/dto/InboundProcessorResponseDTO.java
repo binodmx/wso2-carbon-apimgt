@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.apimgt.gateway.dto;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 
@@ -82,7 +83,9 @@ public class InboundProcessorResponseDTO {
         JSONObject payload = new JSONObject();
         payload.put(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE, errorMessage);
         payload.put(GraphQLConstants.FrameErrorConstants.ERROR_CODE, errorCode);
-        jsonObject.put(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD, payload);
+        JSONArray errorPayloads = new JSONArray();
+        errorPayloads.put(payload);
+        jsonObject.put(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD, errorPayloads);
         return jsonObject.toString();
     }
 }
