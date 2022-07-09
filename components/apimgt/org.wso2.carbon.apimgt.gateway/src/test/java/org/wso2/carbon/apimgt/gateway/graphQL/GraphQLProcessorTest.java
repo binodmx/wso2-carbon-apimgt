@@ -19,6 +19,7 @@ package org.wso2.carbon.apimgt.gateway.graphQL;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -112,8 +113,8 @@ public class GraphQLProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_TYPE),
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_TYPE_ERROR);
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
-        JSONObject payload = (JSONObject) errorJson.get(
-                GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD);
+        JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
+                GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
         Assert.assertEquals(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE),
                 GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
         Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
