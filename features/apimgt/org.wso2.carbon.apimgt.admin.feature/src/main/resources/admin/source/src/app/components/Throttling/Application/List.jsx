@@ -254,7 +254,7 @@ export default function ListApplicationThrottlingPolicies() {
                 emptyBoxProps={emptyBoxProps}
                 apiCall={apiCall}
                 editComponentProps={{
-                    icon: <EditIcon />,
+                    icon: <EditIcon aria-label='edit-application-policies' />,
                     title: 'Edit Application Policy',
                 }}
                 DeleteComponent={Delete}

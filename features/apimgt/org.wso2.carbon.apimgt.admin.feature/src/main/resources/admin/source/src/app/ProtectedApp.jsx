@@ -221,8 +221,8 @@ class Protected extends Component {
                         title='iframeOP'
                         id='iframeOP'
                         src={checkSessionURL}
-                        width={0}
-                        height={0}
+                        width="0%"
+                        height="0%"
                         style={{ position: 'absolute', bottom: 0 }}
                     />
                 </AppErrorBoundary>

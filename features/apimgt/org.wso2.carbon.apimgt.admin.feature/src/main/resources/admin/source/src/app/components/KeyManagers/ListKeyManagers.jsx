@@ -122,7 +122,7 @@ export default function ListKeyManagers() {
     };
     const addButtonOverride = (
         <RouterLink to='/settings/key-managers/create'>
-            <Button variant='contained' color='primary' size='small'>
+            <Button variant='contained' color='primary' size='small' role='button'>
                 <FormattedMessage
                     id='KeyManagers.ListKeyManagers.addButtonProps.triggerButtonText'
                     defaultMessage='Add Key Manager'
@@ -188,6 +188,9 @@ export default function ListKeyManagers() {
                     onChange={updateSomething}
                     color='primary'
                     size='small'
+                    inputProps={{
+                        'aria-label': 'key-manager-checkbox',
+                    }}
                 />
             );
         },

@@ -89,7 +89,11 @@ function ListAddOns(props) {
                         )}
                         >
                             <IconButton onClick={onRefresh}>
-                                <RefreshIcon className={classes.block} color='inherit' />
+                                <RefreshIcon
+                                    className={classes.block}
+                                    color='inherit'
+                                    aria-label='refresh-button-icon'
+                                />
                             </IconButton>
                         </Tooltip>
                     </Grid>

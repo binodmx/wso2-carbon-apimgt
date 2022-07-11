@@ -98,7 +98,7 @@ export default function RateLimitingCard() {
             description: intl.formatMessage({
                 id: 'Dashboard.rateLimiting.card.customPolicies.description',
                 defaultMessage: 'Allows system administrators to define dynamic '
-                + 'rules for specific use cases, which are applied globally across all tenants.',
+                    + 'rules for specific use cases, which are applied globally across all tenants.',
             }),
             icon: <AssignmentIcon color='inherit' fontSize='small' />,
             path: '/throttling/custom',
@@ -125,7 +125,10 @@ export default function RateLimitingCard() {
                                 </Box>
                                 <Box flexGrow={1}>
                                     <Link component={RouterLink} to={policy.path} color='inherit'>
-                                        <Typography variant='subtitle2'>
+                                        <Typography
+                                            variant='body1'
+                                            style={{ fontWeight: 'bold' }}
+                                        >
                                             {policy.name}
                                         </Typography>
                                     </Link>

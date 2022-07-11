@@ -94,7 +94,7 @@ export default function AdminTable(props) {
             <div className={classes.root}>
                 <TableContainer>
                     <Table
-                        aria-labelledby='tableTitle'
+                        role='presentation'
                         size='medium'
                         aria-label='enhanced table'
                     >
