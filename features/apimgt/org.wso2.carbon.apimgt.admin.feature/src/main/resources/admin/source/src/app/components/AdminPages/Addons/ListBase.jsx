@@ -324,8 +324,9 @@ function ListBase(props) {
                                                 disableUnderline: true,
                                                 className: classes.searchInput,
                                             }}
+                                            // eslint-disable-next-line react/jsx-no-duplicate-props
                                             inputProps={{
-                                                'aria-label': 'search-by-policy'
+                                                'aria-label': 'search-by-policy',
                                             }}
                                             onChange={filterData}
                                             value={searchText}
