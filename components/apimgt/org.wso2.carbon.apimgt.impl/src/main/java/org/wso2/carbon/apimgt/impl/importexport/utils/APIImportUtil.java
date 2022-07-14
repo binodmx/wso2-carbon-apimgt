@@ -227,6 +227,14 @@ public final class APIImportUtil {
                     throw new APIMgtResourceAlreadyExistsException(errMsg);
                 }
 
+                if (!apiProvider.isValidContext(importedApi.getId().getProviderName(), importedApi.getId().getApiName(),
+                                                importedApi.getContext(), currentUser)) {
+                    String errMsg = "Error occurred while adding the API [" + importedApi.getId().getApiName() + '-'
+                            + importedApi.getId().getVersion()
+                            + "]. Context doesn't match with the previous version(s).";
+                    throw new IOException(errMsg);
+                }
+
                 // Initialize to CREATED when import
                 currentStatus = APIStatus.CREATED.toString();
             }

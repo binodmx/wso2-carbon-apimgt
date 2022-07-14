@@ -1535,4 +1535,17 @@ public interface APIProvider extends APIManager {
      * @return a list of Deploymentstatus objects in different cloud environments
      */
     List <DeploymentStatus> getDeploymentStatus(APIIdentifier apiId) throws APIManagementException ;
+
+    /**
+     * This method checks if the context of the API matches its previous versions.
+     *
+     * @param providerName Name of the provider
+     * @param apiName      Name of the API
+     * @param context      Context of the API
+     * @param userName     Logged in user
+     * @return true if the context of the API matches its previous versions. Otherwise, return false.
+     * @throws APIManagementException if an exception occurs while querying the APIs.
+     */
+    boolean isValidContext(String providerName, String apiName, String context, String userName)
+            throws APIManagementException;
 }
