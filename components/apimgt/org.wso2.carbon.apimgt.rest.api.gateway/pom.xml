@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.wso2.carbon.apimgt</groupId>
         <artifactId>apimgt</artifactId>
-        <version>6.7.206.327</version>
+        <version>6.7.206.328-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.apimgt.rest.api.gateway</artifactId>
-  <version>6.7.206.327</version>
+  <version>6.7.206</version>
     <name>WSO2 API Manager Gateway REST API</name>
     <description>WSO2 API Manager REST API for Gateway</description>
     <packaging>war</packaging>
