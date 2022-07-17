@@ -3567,8 +3567,9 @@ public class ApisApiServiceImpl implements ApisApiService {
             if (!syncOperations) {
                 validateScopes(apiToAdd);
                 swaggerData = new SwaggerData(apiToAdd);
+                String jsonContent = OASParserUtil.removeUnsupportedBlocksFromResources(validationResponse.getJsonContent());
                 definitionToAdd = apiDefinition
-                        .populateCustomManagementInfo(validationResponse.getJsonContent(), swaggerData);
+                        .populateCustomManagementInfo(jsonContent, swaggerData);
             }
 
             // adding the API and definition
