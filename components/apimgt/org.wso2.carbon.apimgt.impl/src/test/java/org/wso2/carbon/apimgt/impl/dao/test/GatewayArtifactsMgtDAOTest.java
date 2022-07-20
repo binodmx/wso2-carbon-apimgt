@@ -35,7 +35,8 @@ import java.util.List;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GatewayArtifactsMgtDAOTest {
     public static GatewayArtifactsMgtDAO gatewayArtifactsMgtDAO;
-    String apiUUID = "1236233";
+    private static final String API_UUID_1 = "1236233";
+    private static final String API_UUID_2 = "1236234";
     String apiName = "testAddGatewayPublishedAPIDetails";
     String version = "1.0.0";
     String label = "Production and Sandbox";
@@ -104,20 +105,23 @@ public class GatewayArtifactsMgtDAOTest {
 
     @Test
     public void testAddValidateGatewayPublishedAPIDetails() throws APIManagementException {
-        boolean result = gatewayArtifactsMgtDAO.addGatewayPublishedAPIDetails(apiUUID, apiName, version,
+        boolean result = gatewayArtifactsMgtDAO.addGatewayPublishedAPIDetails(API_UUID_1, apiName, version,
                 String.valueOf(MultitenantConstants.SUPER_TENANT_ID));
         Assert.assertTrue(result);
     }
 
     @Test
     public void testAddValidateGatewayPublishedAPIArtifacts() throws APIManagementException {
-        boolean result = gatewayArtifactsMgtDAO.addGatewayPublishedAPIArtifacts(apiUUID, label , anyInputStream,
+        boolean result1 = gatewayArtifactsMgtDAO.addGatewayPublishedAPIDetails(API_UUID_2, apiName, version,
+                String.valueOf(MultitenantConstants.SUPER_TENANT_ID));
+        Assert.assertTrue(result1);
+        boolean result2 = gatewayArtifactsMgtDAO.addGatewayPublishedAPIArtifacts(API_UUID_2, label , anyInputStream,
                 1, APIConstants.GatewayArtifactSynchronizer.GATEWAY_INSTRUCTION_PUBLISH,
                 SQLConstants.ADD_GW_API_ARTIFACT);
-        Assert.assertTrue(result);
+        Assert.assertTrue(result2);
         List<String> artifacts = gatewayArtifactsMgtDAO
                 .getAllGatewayPublishedAPIArtifacts(label, String.valueOf(MultitenantConstants.SUPER_TENANT_ID));
-        Assert.assertTrue(artifacts.size() == 1);
+        Assert.assertTrue(artifacts.size() >= 1);
     }
 
 }
