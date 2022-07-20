@@ -35,6 +35,7 @@ import io.swagger.models.Swagger;
 import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
+import io.swagger.parser.util.DeserializationUtils;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.core.util.Json;
@@ -137,6 +138,8 @@ public class OASParserUtil {
     private static final String REF_PREFIX = "#/components/";
     private static final String ARRAY_DATA_TYPE = "array";
     private static final String OBJECT_DATA_TYPE = "object";
+    private static final String OPENAPI_RESOURCE_KEY = "paths";
+    private static final String[] UNSUPPORTED_RESOURCE_BLOCKS = new String[]{"servers"};
 
     static class SwaggerUpdateContext {
         private final Paths paths = new Paths();
@@ -869,6 +872,15 @@ public class OASParserUtil {
      */
     public static APIDefinitionValidationResponse validateAPIDefinition(String apiDefinition, boolean returnJsonContent)
             throws APIManagementException {
+        if (!apiDefinition.trim().startsWith("{")) {
+            try {
+                JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
+                apiDefinition = jsonNode.toString();
+            } catch (IOException e) {
+                throw new APIManagementException("Error while reading API definition yaml", e);
+            }
+        }
+        apiDefinition = removeUnsupportedBlocksFromResources(apiDefinition);
         APIDefinitionValidationResponse validationResponse =
                 oas3Parser.validateAPIDefinition(apiDefinition, returnJsonContent);
         if (!validationResponse.isValid()) {
@@ -994,6 +1006,15 @@ public class OASParserUtil {
 
             if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
                 String responseStr = EntityUtils.toString(response.getEntity(), "UTF-8");
+                if (!responseStr.trim().startsWith("{")) {
+                    try {
+                        JsonNode jsonNode = DeserializationUtils.readYamlTree(responseStr);
+                        responseStr = jsonNode.toString();
+                    } catch (IOException e) {
+                        throw new APIManagementException("Error while reading API definition yaml", e);
+                    }
+                }
+                responseStr = removeUnsupportedBlocksFromResources(responseStr);
                 validationResponse = validateAPIDefinition(responseStr, returnJsonContent);
             } else {
                 validationResponse.setValid(false);
@@ -1624,6 +1645,46 @@ public class OASParserUtil {
             appSecurityState = Boolean.parseBoolean(String.valueOf(appSecurityTypesNode.get("optional")));
         }
         return appSecurityState;
+    }
+
+    /**
+     * This method removes the unsupported json blocks from the given json string.
+     *
+     * @param jsonString
+     * @return String
+     */
+    public static String removeUnsupportedBlocksFromResources(String jsonString) {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        if (jsonObject.has(OPENAPI_RESOURCE_KEY)) {
+            JSONObject paths = jsonObject.optJSONObject(OPENAPI_RESOURCE_KEY);
+            if (paths != null ) {
+                for (String unsupportedBlockKey : UNSUPPORTED_RESOURCE_BLOCKS) {
+                    removeBlocksRecursivelyFromJsonObject(unsupportedBlockKey, paths);
+                }
+            }
+        }
+        return jsonObject.toString();
+    }
+
+    /**
+     * This method removes provided key from the json object recursively.
+     *
+     * @param keyToBeRemoved
+     * @param jsonObject
+     */
+    private static void removeBlocksRecursivelyFromJsonObject(String keyToBeRemoved, JSONObject jsonObject) {
+        if (jsonObject == null) {
+            return;
+        }
+        if (jsonObject.has(keyToBeRemoved)) {
+            jsonObject.remove(keyToBeRemoved);
+        }
+        for (Object key : jsonObject.keySet()) {
+            JSONObject subObj = jsonObject.optJSONObject(key.toString());
+            if (subObj != null) {
+                removeBlocksRecursivelyFromJsonObject(keyToBeRemoved, subObj);
+            }
+        }
     }
 
 }
