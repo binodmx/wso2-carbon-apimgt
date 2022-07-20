@@ -105,6 +105,11 @@ public class APIProductImportUtil {
             // Locate the "providerName" within the "id" and set it as the current user
             JsonObject apiProductId = configObject.getAsJsonObject(APIImportExportConstants.ID_ELEMENT);
 
+            // Versioning is not supported for API Products
+            // Set API Product version to 1.0.0
+            apiProductId.add(APIImportExportConstants.VERSION_ELEMENT,
+                             (new JsonParser().parse(APIConstants.API_PRODUCT_VERSION)));
+
             prevProvider = apiProductId.get(APIImportExportConstants.PROVIDER_ELEMENT).getAsString();
             apiProductName = apiProductId.get(APIImportExportConstants.API_PRODUCT_NAME_ELEMENT).getAsString();
             apiProductVersion = apiProductId.get(APIImportExportConstants.VERSION_ELEMENT).getAsString();
