@@ -160,7 +160,7 @@ public class LogsHandler extends AbstractSynapseHandler {
             try {
                 // Set API related information to API_INFO property in messageContext
                 APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
-                apiInfo.setRequestSize(buildRequestMessage(messageContext));
+                apiInfo.setRequestSize(getContentLength(messageContext));
                 apiInfo.setApiMsgUUID(messageContext.getMessageID());
                 apiInfo.setApiName(LogUtils.getAPIName(messageContext));
                 apiInfo.setApiCTX(LogUtils.getAPICtx(messageContext));
@@ -232,7 +232,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                     APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
                     long responseTime = getResponseTime(messageContext);
                     long beTotalLatency = getBackendLatency(messageContext);
-                    long responseSize = buildResponseMessage(messageContext);
+                    long responseSize = getContentLength(messageContext);;
                     String apiResponseSC = LogUtils.getRestHttpResponseStatusCode(messageContext);
                     String applicationName = LogUtils.getApplicationName(messageContext);
                     String apiConsumerKey = LogUtils.getConsumerKey(messageContext);
@@ -354,74 +354,6 @@ public class LogsHandler extends AbstractSynapseHandler {
             correlationLog.error("Error getResponseTime -  " + e.getMessage(), e);
         }
         return responseTime;
-    }
-
-    /*
-     * buildRequestMessage
-     */
-    private long buildRequestMessage(org.apache.synapse.MessageContext messageContext) {
-        long requestSize = 0;
-        org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
-                .getAxis2MessageContext();
-        Map headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-        String contentLength = null;
-        if (headers != null) {
-            contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
-        }
-        if (contentLength != null) {
-            requestSize = Integer.parseInt(contentLength);
-        } else {
-            // When chunking is enabled
-            try {
-                RelayUtils.buildMessage(axis2MC);
-            } catch (IOException | XMLStreamException ex) {
-                // In case of an exception, it won't be propagated up,and set response size to 0
-                correlationLog.error(REQUEST_BODY_SIZE_ERROR, ex);
-            }
-            SOAPEnvelope env = messageContext.getEnvelope();
-            if (env != null) {
-                SOAPBody soapbody = env.getBody();
-                if (soapbody != null) {
-                    byte[] size = soapbody.toString().getBytes(Charset.defaultCharset());
-                    requestSize = size.length;
-                }
-
-            }
-        }
-        return requestSize;
-    }
-
-    /*
-     * buildResponseMessage
-     */
-    private long buildResponseMessage(org.apache.synapse.MessageContext messageContext) {
-        long responseSize = 0;
-        org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext) messageContext)
-                .getAxis2MessageContext();
-        Map headers = (Map) axis2MC.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-        String contentLength = (String) headers.get(HttpHeaders.CONTENT_LENGTH);
-        if (contentLength != null) {
-            responseSize = Integer.parseInt(contentLength);
-        } else {
-            // When chunking is enabled
-            try {
-                RelayUtils.buildMessage(axis2MC);
-            } catch (IOException | XMLStreamException ex) {
-                // In case of an exception, it won't be propagated up,and set response size to 0
-                correlationLog.error(REQUEST_BODY_SIZE_ERROR, ex);
-            }
-        }
-        SOAPEnvelope env = messageContext.getEnvelope();
-        if (env != null) {
-            SOAPBody soapbody = env.getBody();
-            if (soapbody != null) {
-                byte[] size = soapbody.toString().getBytes(Charset.defaultCharset());
-                responseSize = size.length;
-            }
-
-        }
-        return responseSize;
-
     }
 
     private long getContentLength(org.apache.synapse.MessageContext messageContext) {
