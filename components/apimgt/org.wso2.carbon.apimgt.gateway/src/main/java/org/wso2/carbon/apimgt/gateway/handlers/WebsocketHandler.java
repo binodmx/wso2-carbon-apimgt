@@ -29,6 +29,7 @@ import io.netty.util.AttributeKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
@@ -59,6 +60,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 
+        ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME)).set(System
+                .currentTimeMillis());
         String channelId = ctx.channel().id().asLongText();
         InboundMessageContext inboundMessageContext;
         if (InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(channelId)) {
@@ -167,12 +170,16 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
      */
     private void handleWSResponseSuccess(ChannelHandlerContext ctx, Object msg, ChannelPromise promise,
             InboundMessageContext inboundMessageContext) throws Exception {
+        long endTime = System.currentTimeMillis();
+        long startTime = (long) ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME))
+                .get();
+        long serviceTime = endTime - startTime;
         outboundHandler().write(ctx, msg, promise);
         // publish analytics events if analytics is enabled
         if (APIUtil.isAnalyticsEnabled()) {
             String clientIp = getClientIp(ctx);
             WebsocketUtil.publishWSRequestEvent(clientIp, true, inboundMessageContext,
-                    inboundHandler().getUsageDataPublisher());
+                    inboundHandler().getUsageDataPublisher(), serviceTime);
         }
     }
 

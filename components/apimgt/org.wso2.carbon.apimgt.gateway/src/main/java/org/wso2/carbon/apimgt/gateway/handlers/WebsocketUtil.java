@@ -583,7 +583,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 			requestPublisherDTO.setResponseCacheHit(false);
 			requestPublisherDTO.setResponseCode(0);
 			requestPublisherDTO.setResponseSize(0);
-			requestPublisherDTO.setServiceTime(0);
+			requestPublisherDTO.setServiceTime(requestPublisherDTO.getServiceTime());
 			requestPublisherDTO.setResponseTime(0);
 			ExecutionTimeDTO executionTime = new ExecutionTimeDTO();
 			executionTime.setBackEndLatency(0);
@@ -610,12 +610,13 @@ public class WebsocketUtil extends GraphQLProcessor {
 	 */
 	public static void publishWSRequestEvent(String clientIp, boolean isThrottledOut,
 											 InboundMessageContext inboundMessageContext,
-											 APIMgtUsageDataPublisher usageDataPublisher) {
+											 APIMgtUsageDataPublisher usageDataPublisher, long serviceTime) {
 
 		RequestResponseStreamDTO requestPublisherDTO = new RequestResponseStreamDTO();
 		requestPublisherDTO.setApiMethod("-");
 		requestPublisherDTO.setApiResourcePath("-");
 		requestPublisherDTO.setApiResourceTemplate("-");
+		requestPublisherDTO.setServiceTime(serviceTime);
 		publishRequestEvent(requestPublisherDTO, clientIp, isThrottledOut, inboundMessageContext, usageDataPublisher);
 	}
 

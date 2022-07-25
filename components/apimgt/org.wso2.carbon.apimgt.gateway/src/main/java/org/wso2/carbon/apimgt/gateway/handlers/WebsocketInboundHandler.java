@@ -146,6 +146,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
 
+        ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.REQUEST_START_TIME)).set(System
+                .currentTimeMillis());
         String channelId = ctx.channel().id().asLongText();
         InboundMessageContext inboundMessageContext;
         if (InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(channelId)) {
@@ -566,10 +568,14 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     private void handleWSRequestSuccess(ChannelHandlerContext ctx, Object msg,
             InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
         ctx.fireChannelRead(msg);
+        long endTime = System.currentTimeMillis();
+        long startTime = (long) ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.REQUEST_START_TIME))
+                .get();
+        long serviceTime = endTime - startTime;
         // publish analytics events if analytics is enabled
         if (APIUtil.isAnalyticsEnabled()) {
             WebsocketUtil.publishWSRequestEvent(inboundMessageContext.getUserIP(), true, inboundMessageContext,
-                    usageDataPublisher);
+                    usageDataPublisher, serviceTime);
         }
     }
 
