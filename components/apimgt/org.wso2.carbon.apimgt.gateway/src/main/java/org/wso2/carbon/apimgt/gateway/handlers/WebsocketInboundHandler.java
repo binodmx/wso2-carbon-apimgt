@@ -78,6 +78,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.cache.Cache;
+
 /**
  * This is a handler which is actually embedded to the netty pipeline which does operations such as
  * authentication and throttling for the websocket handshake and subsequent websocket frames.
