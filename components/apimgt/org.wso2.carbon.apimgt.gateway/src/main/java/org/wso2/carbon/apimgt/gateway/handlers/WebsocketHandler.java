@@ -99,6 +99,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                         ctx, inboundMessageContext, inboundHandler().getUsageDataPublisher());
                 if (responseDTO.isError()) {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
@@ -124,6 +126,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     }
                 } else {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
                 }
             }
         } else {

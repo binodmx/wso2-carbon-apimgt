@@ -621,11 +621,19 @@ public class WebsocketUtil extends GraphQLProcessor {
 		publishRequestEvent(requestPublisherDTO, clientIp, isThrottledOut, inboundMessageContext, usageDataPublisher);
 	}
 
+	/**
+	 * Publish fault event to analytics server.
+	 *
+	 * @param closeWebSocketFrame   CloseWebSocketFrame
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 */
 	public static void publishFaultEvent(CloseWebSocketFrame closeWebSocketFrame,
 										 InboundMessageContext inboundMessageContext,
 										 APIMgtUsageDataPublisher usageDataPublisher){
 
 		FaultPublisherDTO faultPublisherDTO = new FaultPublisherDTO();
+		long requestTime = System.currentTimeMillis();
 		faultPublisherDTO.setApiMethod("-");
 		faultPublisherDTO.setApiResourceTemplate("-");
 		faultPublisherDTO.setApiResourcePath("-");
@@ -646,6 +654,43 @@ public class WebsocketUtil extends GraphQLProcessor {
 		faultPublisherDTO.setMetaClientType(inboundMessageContext.getInfoDTO().getType());
 		faultPublisherDTO.setUsername(inboundMessageContext.getInfoDTO().getEndUserName());
 		faultPublisherDTO.setProtocol("WebSocket");
+		faultPublisherDTO.setRequestTimestamp(requestTime);
+		usageDataPublisher.publishEvent(faultPublisherDTO);
+	}
+
+	/**
+	 * Publish fault event to analytics server.
+	 *
+	 * @param responseDTO   Response detail populated Request Response DTO
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 */
+	public static void publishFaultEvent(InboundProcessorResponseDTO responseDTO,
+										 InboundMessageContext inboundMessageContext,
+										 APIMgtUsageDataPublisher usageDataPublisher){
+		long requestTime = System.currentTimeMillis();
+		FaultPublisherDTO faultPublisherDTO = new FaultPublisherDTO();
+		faultPublisherDTO.setApiMethod("-");
+		faultPublisherDTO.setApiResourceTemplate("-");
+		faultPublisherDTO.setApiResourcePath("-");
+		faultPublisherDTO.setUserTenantDomain(inboundMessageContext.getTenantDomain());
+		faultPublisherDTO.setApiContext(inboundMessageContext.getApiContextUri());
+		faultPublisherDTO.setApiVersion(inboundMessageContext.getVersion());
+		faultPublisherDTO.setApiCreator(inboundMessageContext.getElectedAPI().getApiProvider());
+		faultPublisherDTO.setApiName(inboundMessageContext.getElectedAPI().getApiName());
+		faultPublisherDTO.setErrorCode(String.valueOf(responseDTO.getErrorCode()));
+		faultPublisherDTO.setErrorMessage(responseDTO.getErrorMessage());
+		faultPublisherDTO.setApplicationName(inboundMessageContext.getInfoDTO().getApplicationName());
+		faultPublisherDTO.setHostname(DataPublisherUtil.getHostAddress());
+		faultPublisherDTO.setApplicationId(inboundMessageContext.getInfoDTO().getApplicationId());
+		faultPublisherDTO.setApplicationOwner(inboundMessageContext.getInfoDTO().getSubscriber());
+		faultPublisherDTO.setApplicationConsumerKey(inboundMessageContext.getInfoDTO().getConsumerKey());
+		faultPublisherDTO.setApiCreatorTenantDomain(MultitenantUtils.getTenantDomain(inboundMessageContext
+				.getInfoDTO().getApiPublisher()));
+		faultPublisherDTO.setMetaClientType(inboundMessageContext.getInfoDTO().getType());
+		faultPublisherDTO.setUsername(inboundMessageContext.getInfoDTO().getEndUserName());
+		faultPublisherDTO.setProtocol("WebSocket");
+		faultPublisherDTO.setRequestTimestamp(requestTime);
 		usageDataPublisher.publishEvent(faultPublisherDTO);
 	}
 
