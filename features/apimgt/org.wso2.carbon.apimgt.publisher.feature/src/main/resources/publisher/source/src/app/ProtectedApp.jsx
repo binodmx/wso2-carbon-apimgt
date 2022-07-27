@@ -40,6 +40,8 @@ import Progress from 'AppComponents/Shared/Progress';
 import Configurations from 'Config';
 import Scopes from 'AppComponents/Scopes/Scopes';
 import merge from 'lodash/merge';
+import User from './data/User';
+import Utils from './data/Utils';
 
 const ThemeProvider = CoreThemeProvider || NormalThemeProvider;
 const Apis = lazy(() => import('AppComponents/Apis/Apis' /* webpackChunkName: "DeferredAPIs" */));
@@ -68,6 +70,8 @@ export default class Protected extends Component {
         this.state = {
             settings: null,
             theme: null,
+            clientId: Utils.getCookieWithoutEnvironment(User.CONST.PUBLISHER_CLIENT_ID),
+            sessionState: Utils.getCookieWithoutEnvironment(User.CONST.PUBLISHER_SESSION_STATE),
         };
         this.environments = [];
         this.checkSession = this.checkSession.bind(this);
@@ -175,7 +179,7 @@ export default class Protected extends Component {
         if (Configurations.app.singleLogout && Configurations.app.singleLogout.enabled) {
             setInterval(() => {
                 // Check session will only trigger if user is available
-                const { clientId, sessionState } = AuthManager.getUser().getAppInfo();
+                const { clientId, sessionState } = this.state;
                 const msg = clientId + ' ' + sessionState;
                 document.getElementById('iframeOP').contentWindow.postMessage(msg, Configurations.idp.origin);
             }, Configurations.app.singleLogout.timeout);
