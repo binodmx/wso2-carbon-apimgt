@@ -1537,15 +1537,15 @@ public interface APIProvider extends APIManager {
     List <DeploymentStatus> getDeploymentStatus(APIIdentifier apiId) throws APIManagementException ;
 
     /**
-     * This method checks if the context of the API matches its previous versions.
+     * This method checks if the contextTemplate of the API matches its previous versions.
      *
-     * @param providerName Name of the provider
-     * @param apiName      Name of the API
-     * @param context      Context of the API
-     * @param userName     Logged in user
-     * @return true if the context of the API matches its previous versions. Otherwise, return false.
+     * @param providerName    Name of the provider
+     * @param apiName         Name of the API
+     * @param contextTemplate Context template of the API
+     * @param userName        Logged in user
+     * @return true if the contextTemplate of the API matches its previous versions. Otherwise, return false.
      * @throws APIManagementException if an exception occurs while querying the APIs.
      */
-    boolean isValidContext(String providerName, String apiName, String context, String userName)
+    boolean isValidContext(String providerName, String apiName, String contextTemplate, String userName)
             throws APIManagementException;
 }

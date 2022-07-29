@@ -442,7 +442,8 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
         }
 
-        if (!apiProvider.isValidContext(body.getProvider(), body.getName(), body.getContext(), username)) {
+        if (!apiProvider.isValidContext(body.getProvider(), body.getName(),
+                                        body.getContext() + "/" + APIConstants.VERSION_PLACEHOLDER, username)) {
             throw new APIManagementException(
                     ExceptionCodes.from(ExceptionCodes.BLOCK_CONDITION_UNSUPPORTED_API_CONTEXT));
         }

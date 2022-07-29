@@ -9096,12 +9096,17 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
     }
 
     @Override
-    public boolean isValidContext(String providerName, String apiName, String context, String userName) throws APIManagementException {
+    public boolean isValidContext(String providerName, String apiName, String contextTemplate, String userName)
+            throws APIManagementException {
         if (isApiNameExist(apiName)) {
+            if (!contextTemplate.startsWith("/")) {
+                contextTemplate = "/" + contextTemplate;
+            }
             List<String> versions = getApiVersionsMatchingApiName(apiName, userName);
             for (String version : versions) {
-                String currentContext = getAPI(new APIIdentifier(providerName, apiName, version)).getContext();
-                if (currentContext.equals(context)) {
+                String currentContextTemplate = getAPI(
+                        new APIIdentifier(providerName, apiName, version)).getContextTemplate();
+                if (currentContextTemplate.equals(contextTemplate)) {
                     return true;
                 }
             }
