@@ -126,6 +126,8 @@ public class WebsocketInboundHandlerTestCase {
         Attribute attribute = Mockito.mock(Attribute.class);
         ChannelId channelId = Mockito.mock(ChannelId.class);
         Mockito.when(channel.attr(AttributeKey.valueOf("API_PROPERTIES"))).thenReturn(attribute);
+        Mockito.when(attribute.get()).thenReturn(00000000L);
+        Mockito.when(channel.attr(AttributeKey.valueOf("api.ut.requestTime"))).thenReturn(attribute);
         Mockito.when(channelHandlerContext.channel()).thenReturn(channel);
         Mockito.when(channel.id()).thenReturn(channelId);
         Mockito.when(channelId.asLongText()).thenReturn(channelIdString);

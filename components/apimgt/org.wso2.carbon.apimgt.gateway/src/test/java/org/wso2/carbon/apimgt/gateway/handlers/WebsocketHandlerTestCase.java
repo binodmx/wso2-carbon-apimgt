@@ -26,6 +26,8 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +105,10 @@ public class WebsocketHandlerTestCase {
         graphQLAPI = new API(UUID.randomUUID().toString(), 2, "admin", "GraphQLAPI", "1.0.0", "graphql", "Unlimited",
                 APIConstants.GRAPHQL_API, false);
         usageDataPublisher = Mockito.mock(APIMgtUsageDataPublisher.class);
+        Attribute attribute = Mockito.mock(Attribute.class);
+        Mockito.when(channel.attr(AttributeKey.valueOf("api.ut.responseTime"))).thenReturn(attribute);
+        Mockito.when(attribute.get()).thenReturn(00000000L);
+
     }
 
     /*
