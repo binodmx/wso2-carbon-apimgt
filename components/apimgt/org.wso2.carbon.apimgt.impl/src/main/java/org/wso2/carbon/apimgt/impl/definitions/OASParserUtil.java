@@ -1693,6 +1693,7 @@ public class OASParserUtil {
      *
      * @param keyToBeRemoved
      * @param jsonObject
+     * @return boolean
      */
     private static boolean removeBlocksRecursivelyFromJsonObject(String keyToBeRemoved, JSONObject jsonObject, boolean definitionUpdated) {
         if (jsonObject == null) {
