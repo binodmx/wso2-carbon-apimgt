@@ -27,7 +27,6 @@ public class ApplicationInfoDTO   {
     private Object attributes = null;
     private String owner = null;
     private String tokenType = null;
-
   /**
    **/
   public ApplicationInfoDTO applicationId(String applicationId) {
