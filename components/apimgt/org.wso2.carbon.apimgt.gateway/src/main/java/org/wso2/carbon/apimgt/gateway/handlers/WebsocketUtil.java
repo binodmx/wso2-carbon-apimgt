@@ -527,6 +527,13 @@ public class WebsocketUtil extends GraphQLProcessor {
 		return webSocketThrottleResponseDTO;
 	}
 
+	/**
+	 * Validates whether there any active deny policies and set error values in InboundProcessorResponseDTO.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param responseDTO           InboundProcessorResponseDTO
+	 * @return InboundProcessorResponseDTO
+	 */
 	public static InboundProcessorResponseDTO validateDenyPolicies(InboundProcessorResponseDTO responseDTO,
 			InboundMessageContext inboundMessageContext) {
 		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
