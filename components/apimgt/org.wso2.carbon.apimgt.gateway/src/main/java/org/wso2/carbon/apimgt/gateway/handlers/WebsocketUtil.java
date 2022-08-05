@@ -527,7 +527,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 		return webSocketThrottleResponseDTO;
 	}
 
-	public static InboundProcessorResponseDTO applyDenyPolicies(InboundProcessorResponseDTO responseDTO,
+	public static InboundProcessorResponseDTO validateDenyPolicies(InboundProcessorResponseDTO responseDTO,
 			InboundMessageContext inboundMessageContext) {
 		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
 		String clientIp = inboundMessageContext.getUserIP();
@@ -552,9 +552,9 @@ public class WebsocketUtil extends GraphQLProcessor {
 		}
 
 		if (isBlockedRequest) {
+			responseDTO.setError(true);
 			responseDTO.setCloseConnection(true);
 			responseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST);
-			responseDTO.setError(true);
 			responseDTO.setErrorMessage(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE);
 		}
 		return responseDTO;

@@ -107,8 +107,13 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                         WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
                         WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
                                 inboundMessageContext);
-                responseDTO = WebsocketUtil.applyDenyPolicies(responseDTO, inboundMessageContext);
                 if (!responseDTO.isError()) {
+                    // Validate the deny policies are applied to the API when there are no authentication errors
+                    responseDTO = WebsocketUtil.validateDenyPolicies(responseDTO, inboundMessageContext);
+                    // Check whether the error is now present after deny policies validation
+                    if (responseDTO.isError()) {
+                        handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    }
                     if (isAllowed(ctx, (WebSocketFrame) msg, inboundMessageContext,
                             inboundHandler().getUsageDataPublisher())) {
                         handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
