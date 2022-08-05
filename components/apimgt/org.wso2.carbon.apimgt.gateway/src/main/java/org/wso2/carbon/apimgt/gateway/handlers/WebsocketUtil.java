@@ -55,6 +55,7 @@ import org.wso2.carbon.apimgt.gateway.handlers.security.AuthenticationContext;
 import org.wso2.carbon.apimgt.gateway.handlers.security.jwt.JWTValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.throttling.APIThrottleConstants;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
@@ -524,6 +525,43 @@ public class WebsocketUtil extends GraphQLProcessor {
 		ServiceReferenceHolder.getInstance().getThrottleDataPublisher().getDataPublisher().tryPublish(event);
 		webSocketThrottleResponseDTO.setThrottled(false);
 		return webSocketThrottleResponseDTO;
+	}
+
+	public static InboundProcessorResponseDTO applyDenyPolicies(InboundProcessorResponseDTO responseDTO,
+			InboundMessageContext inboundMessageContext) {
+		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
+		String clientIp = inboundMessageContext.getUserIP();
+		String apiTenantDomain = inboundMessageContext.getTenantDomain();
+		String apiContext = inboundMessageContext.getApiContextUri();
+		String apiVersion = inboundMessageContext.getVersion();
+		boolean isBlockedRequest = false;
+		String appLevelBlockingKey = "";
+		String subscriptionLevelBlockingKey = "";
+		String authorizedUser;
+
+		if (getThrottleDataHolder().isBlockingConditionsPresent()) {
+			appLevelBlockingKey = infoDTO.getSubscriber() + ":" + infoDTO.getApplicationName();
+			subscriptionLevelBlockingKey =
+					apiContext + ":" + apiVersion + ":" + infoDTO.getSubscriber() + "-" + infoDTO.getApplicationName()
+							+ ":" + infoDTO.getType();
+			authorizedUser = infoDTO.getEndUserName();
+
+			isBlockedRequest = getThrottleDataHolder()
+					.isRequestBlocked(apiContext, appLevelBlockingKey, authorizedUser, clientIp, apiTenantDomain,
+							subscriptionLevelBlockingKey);
+		}
+
+		if (isBlockedRequest) {
+			responseDTO.setCloseConnection(true);
+			responseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST);
+			responseDTO.setError(true);
+			responseDTO.setErrorMessage(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE);
+		}
+		return responseDTO;
+	}
+
+	protected static ThrottleDataHolder getThrottleDataHolder() {
+		return ServiceReferenceHolder.getInstance().getThrottleDataHolder();
 	}
 
 	public static String getRemoteIP(ChannelHandlerContext ctx) {

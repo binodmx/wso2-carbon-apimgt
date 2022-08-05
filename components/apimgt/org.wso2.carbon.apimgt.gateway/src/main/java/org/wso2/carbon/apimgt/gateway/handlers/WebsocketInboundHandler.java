@@ -291,6 +291,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                         WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
                         WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
                                 inboundMessageContext);
+                responseDTO = WebsocketUtil.applyDenyPolicies(responseDTO, inboundMessageContext);
                 if (!responseDTO.isError()) {
                     WebSocketThrottleResponseDTO throttleResponseDTO =
                             WebsocketUtil.doThrottle(ctx, (WebSocketFrame) msg, null, inboundMessageContext);

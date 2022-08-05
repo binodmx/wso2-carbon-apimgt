@@ -35,6 +35,8 @@ public class GraphQLConstants {
         public static final String THROTTLED_OUT_ERROR_MESSAGE = "Websocket frame throttled out";
         public static final int INTERNAL_SERVER_ERROR = 4004;
         public static final int BAD_REQUEST = 4005;
+        public static final int BLOCKED_REQUEST = 4006;
+        public static final String BLOCKED_REQUEST_MESSAGE = "Blocked from accessing the resource";
         public static final int GRAPHQL_QUERY_TOO_DEEP = 4020;
         public static final String GRAPHQL_QUERY_TOO_DEEP_MESSAGE = "QUERY TOO DEEP";
         public static final int GRAPHQL_QUERY_TOO_COMPLEX = 4021;
