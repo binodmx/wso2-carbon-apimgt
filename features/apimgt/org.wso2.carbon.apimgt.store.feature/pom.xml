@@ -257,6 +257,21 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <executions>
+                     <execution>
+                        <id>npm install (initialize)</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <workingDirectory>src/main/resources/devportal</workingDirectory>
+                            <executable>${npm.executable}</executable>
+                            <arguments>
+                                <argument>ci</argument>
+                                <argument>--silent</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>npm run build (compile)</id>
                         <goals>
@@ -264,7 +279,7 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
-                            <workingDirectory>${basedir}/src/main/resources/devportal</workingDirectory>
+                            <workingDirectory>src/main/resources/devportal</workingDirectory>
                             <executable>${npm.executable}</executable>
                             <arguments>
                                 <argument>run</argument>
