@@ -92,6 +92,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 	private static boolean gatewayTokenCacheEnabled = false;
 	public static Set<String> allowedOriginsConfigured = new HashSet<>();
 	public static String authorizationHeader = null;
+	public static final String EMPTY_PROPERTY = "-";
+	public static final String WEBSOCKET_KEYWORD = "WebSocket";
 
 	static {
 		initParams();
@@ -579,8 +581,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 			requestPublisherDTO.setCorrelationID(correlationID);
 			requestPublisherDTO.setGatewayType(APIMgtGatewayConstants.GATEWAY_TYPE);
 			requestPublisherDTO.setLabel(APIMgtGatewayConstants.SYNAPDE_GW_LABEL);
-			requestPublisherDTO.setProtocol("WebSocket");
-			requestPublisherDTO.setDestination("-");
+			requestPublisherDTO.setProtocol(WEBSOCKET_KEYWORD);
+			requestPublisherDTO.setDestination(EMPTY_PROPERTY);
 			requestPublisherDTO.setBackendTime(0);
 			requestPublisherDTO.setResponseCacheHit(false);
 			requestPublisherDTO.setResponseCode(0);
@@ -615,9 +617,9 @@ public class WebsocketUtil extends GraphQLProcessor {
 											 APIMgtUsageDataPublisher usageDataPublisher, long serviceTime) {
 
 		RequestResponseStreamDTO requestPublisherDTO = new RequestResponseStreamDTO();
-		requestPublisherDTO.setApiMethod("-");
-		requestPublisherDTO.setApiResourcePath("-");
-		requestPublisherDTO.setApiResourceTemplate("-");
+		requestPublisherDTO.setApiMethod(EMPTY_PROPERTY);
+		requestPublisherDTO.setApiResourcePath(EMPTY_PROPERTY);
+		requestPublisherDTO.setApiResourceTemplate(EMPTY_PROPERTY);
 		requestPublisherDTO.setServiceTime(serviceTime);
 		publishRequestEvent(requestPublisherDTO, clientIp, isThrottledOut, inboundMessageContext, usageDataPublisher);
 	}
@@ -635,9 +637,9 @@ public class WebsocketUtil extends GraphQLProcessor {
 
 		FaultPublisherDTO faultPublisherDTO = new FaultPublisherDTO();
 		long requestTime = System.currentTimeMillis();
-		faultPublisherDTO.setApiMethod("-");
-		faultPublisherDTO.setApiResourceTemplate("-");
-		faultPublisherDTO.setApiResourcePath("-");
+		faultPublisherDTO.setApiMethod(EMPTY_PROPERTY);
+		faultPublisherDTO.setApiResourceTemplate(EMPTY_PROPERTY);
+		faultPublisherDTO.setApiResourcePath(EMPTY_PROPERTY);
 		faultPublisherDTO.setUserTenantDomain(inboundMessageContext.getTenantDomain());
 		faultPublisherDTO.setApiContext(inboundMessageContext.getApiContextUri());
 		faultPublisherDTO.setApiVersion(inboundMessageContext.getVersion());
@@ -654,7 +656,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 				.getInfoDTO().getApiPublisher()));
 		faultPublisherDTO.setMetaClientType(inboundMessageContext.getInfoDTO().getType());
 		faultPublisherDTO.setUsername(inboundMessageContext.getInfoDTO().getEndUserName());
-		faultPublisherDTO.setProtocol("WebSocket");
+		faultPublisherDTO.setProtocol(WEBSOCKET_KEYWORD);
 		faultPublisherDTO.setRequestTimestamp(requestTime);
 		usageDataPublisher.publishEvent(faultPublisherDTO);
 	}
@@ -671,9 +673,9 @@ public class WebsocketUtil extends GraphQLProcessor {
 										 APIMgtUsageDataPublisher usageDataPublisher){
 		long requestTime = System.currentTimeMillis();
 		FaultPublisherDTO faultPublisherDTO = new FaultPublisherDTO();
-		faultPublisherDTO.setApiMethod("-");
-		faultPublisherDTO.setApiResourceTemplate("-");
-		faultPublisherDTO.setApiResourcePath("-");
+		faultPublisherDTO.setApiMethod(EMPTY_PROPERTY);
+		faultPublisherDTO.setApiResourceTemplate(EMPTY_PROPERTY);
+		faultPublisherDTO.setApiResourcePath(EMPTY_PROPERTY);
 		faultPublisherDTO.setUserTenantDomain(inboundMessageContext.getTenantDomain());
 		faultPublisherDTO.setApiContext(inboundMessageContext.getApiContextUri());
 		faultPublisherDTO.setApiVersion(inboundMessageContext.getVersion());
@@ -690,7 +692,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 				.getInfoDTO().getApiPublisher()));
 		faultPublisherDTO.setMetaClientType(inboundMessageContext.getInfoDTO().getType());
 		faultPublisherDTO.setUsername(inboundMessageContext.getInfoDTO().getEndUserName());
-		faultPublisherDTO.setProtocol("WebSocket");
+		faultPublisherDTO.setProtocol(WEBSOCKET_KEYWORD);
 		faultPublisherDTO.setRequestTimestamp(requestTime);
 		usageDataPublisher.publishEvent(faultPublisherDTO);
 	}
@@ -727,8 +729,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 											  String throttleOutReason) {
 
 		ThrottlePublisherDTO throttlePublisherDTO = new ThrottlePublisherDTO();
-		throttlePublisherDTO.setApiResourceTemplate("-");
-		throttlePublisherDTO.setApiMethod("-");
+		throttlePublisherDTO.setApiResourceTemplate(EMPTY_PROPERTY);
+		throttlePublisherDTO.setApiMethod(EMPTY_PROPERTY);
 		publishThrottleEvent(inboundMessageContext, usageDataPublisher, throttlePublisherDTO, throttleOutReason);
 	}
 
@@ -780,7 +782,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 			throttlePublisherDTO.setUsername(infoDTO.getEndUserName());
 			throttlePublisherDTO.setCorrelationID(correlationID);
 			throttlePublisherDTO.setHostName(DataPublisherUtil.getHostAddress());
-			throttlePublisherDTO.setAccessToken("-");
+			throttlePublisherDTO.setAccessToken(EMPTY_PROPERTY);
 			usageDataPublisher.publishEvent(throttlePublisherDTO);
 		} catch (Exception e) {
 			// flow should not break if event publishing failed
