@@ -473,7 +473,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                                                                 InboundMessageContext inboundMessageContext, String msg) {
         log.error(msg + " in request for the websocket context " + inboundMessageContext.getApiContextUri());
 
-                + inboundMessageContext.getApiContextUri());
         responseDTO.setError(true);
         responseDTO = WebsocketUtil.getHandshakeErrorDTO(
                 APIMgtGatewayConstants.WEB_SOCKET_API_AUTH_ERROR, msg);
