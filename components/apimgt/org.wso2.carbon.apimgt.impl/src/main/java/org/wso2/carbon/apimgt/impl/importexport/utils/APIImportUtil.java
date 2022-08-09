@@ -228,7 +228,7 @@ public final class APIImportUtil {
                 }
 
                 if (!apiProvider.isValidContext(importedApi.getId().getProviderName(), importedApi.getId().getApiName(),
-                                                importedApi.getContext(), currentUser)) {
+                                                importedApi.getContextTemplate(), currentUser)) {
                     String errMsg = "Error occurred while adding the API [" + importedApi.getId().getApiName() + '-'
                             + importedApi.getId().getVersion()
                             + "]. Context doesn't match with the previous version(s).";

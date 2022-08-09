@@ -37,6 +37,7 @@ public class APIMgtGatewayConstants {
     public static final String APPLICATION_NAME = "api.ut.application.name";
     public static final String APPLICATION_ID = "api.ut.application.id";
     public static final String REQUEST_START_TIME = "api.ut.requestTime";
+    public static final String RESPONSE_START_TIME = "api.ut.responseTime";
     public static final String BACKEND_REQUEST_START_TIME = "api.ut.backendRequestTime";
     public static final String BACKEND_REQUEST_END_TIME = "api.ut.backendRequestEndTime";
     public static final String END_USER_NAME = "api.ut.userName";

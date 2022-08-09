@@ -2019,6 +2019,7 @@ public final class APIConstants {
     // Prefix used for saving the custom properties related with APIs
     public static final String API_RELATED_CUSTOM_PROPERTIES_PREFIX = "api_meta.";
     // Reserved keywords for search.
+    public static final String API_RELATED_CUSTOM_PROPERTIES_DISPLAY_DEV = "__display";
     public static final String[] API_SEARCH_PREFIXES = {DOCUMENTATION_SEARCH_TYPE_PREFIX, TAGS_SEARCH_TYPE_PREFIX,
             NAME_TYPE_PREFIX, SUBCONTEXT_SEARCH_TYPE_PREFIX, PROVIDER_SEARCH_TYPE_PREFIX, CONTEXT_SEARCH_TYPE_PREFIX,
             VERSION_SEARCH_TYPE_PREFIX, LCSTATE_SEARCH_KEY.toLowerCase(), API_DESCRIPTION.toLowerCase(),
