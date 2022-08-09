@@ -76,10 +76,9 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         }
 
         if ((msg instanceof CloseWebSocketFrame) || (msg instanceof PongWebSocketFrame)) {
-            CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) msg;
-            if (closeWebSocketFrame.statusCode() > 1001) {
-                WebsocketUtil.publishFaultEvent(closeWebSocketFrame, inboundMessageContext,
-                        inboundHandler().getUsageDataPublisher());
+            if (msg instanceof CloseWebSocketFrame && ((CloseWebSocketFrame) msg).statusCode() > 1001) {
+                    WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
             }
 
             Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
