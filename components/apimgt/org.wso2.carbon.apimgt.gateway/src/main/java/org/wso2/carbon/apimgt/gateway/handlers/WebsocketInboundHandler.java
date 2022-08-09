@@ -471,7 +471,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
      */
     private InboundProcessorResponseDTO handleInvalidAuthHeader(InboundProcessorResponseDTO responseDTO,
                                                                 InboundMessageContext inboundMessageContext, String msg) {
-
         log.error(msg + " in request for the websocket context "
                 + inboundMessageContext.getApiContextUri());
         responseDTO.setError(true);
