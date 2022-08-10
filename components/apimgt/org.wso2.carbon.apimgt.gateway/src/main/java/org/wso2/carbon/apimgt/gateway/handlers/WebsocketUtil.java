@@ -536,6 +536,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 	 */
 	public static InboundProcessorResponseDTO validateDenyPolicies(InboundProcessorResponseDTO responseDTO,
 			InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
+
 		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
 		String clientIp = inboundMessageContext.getUserIP();
 		String apiTenantDomain = inboundMessageContext.getTenantDomain();
@@ -559,10 +560,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 		}
 
 		if (isBlockedRequest) {
-			responseDTO.setError(true);
-			responseDTO.setCloseConnection(true);
-			responseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST);
-			responseDTO.setErrorMessage(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE);
+			responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST,
+					GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE, true);
 			if (APIUtil.isAnalyticsEnabled()) {
 				WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,
 						APIThrottleConstants.REQUEST_BLOCKED);
