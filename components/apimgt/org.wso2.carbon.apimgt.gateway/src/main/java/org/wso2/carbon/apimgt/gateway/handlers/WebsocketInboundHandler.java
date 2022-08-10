@@ -293,7 +293,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                                 inboundMessageContext);
                 if (!responseDTO.isError()) {
                     // Validate the deny policies are applied to the API when there are no authentication errors
-                    responseDTO = WebsocketUtil.validateDenyPolicies(responseDTO, inboundMessageContext);
+                    responseDTO = WebsocketUtil
+                            .validateDenyPolicies(responseDTO, inboundMessageContext, usageDataPublisher);
                     // Check whether the error is now present after deny policies validation
                     if (responseDTO.isError()) {
                         handleWebsocketFrameRequestError(responseDTO, channelId, ctx, msg);
