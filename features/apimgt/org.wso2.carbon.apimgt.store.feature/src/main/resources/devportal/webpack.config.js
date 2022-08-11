@@ -32,9 +32,6 @@ const config = {
         chunkFilename: '[name].[contenthash].bundle.js',
         publicPath: 'site/public/dist/',
     },
-    stats: {
-        warnings: false
-    },
     watch: false,
     watchOptions: {
         aggregateTimeout: 200,
@@ -49,6 +46,10 @@ const config = {
             AppData: path.resolve(__dirname, 'source/src/app/data/'),
             AppComponents: path.resolve(__dirname, 'source/src/app/components/'),
             AppTests: path.resolve(__dirname, 'source/Tests/'),
+            react: fs.existsSync('../../../../../node_modules/react')
+                ? path.resolve('../../../../../node_modules/react') : path.resolve('../node_modules/react'),
+            reactDom: fs.existsSync('../../../../../node_modules/react-dom')
+                ? path.resolve('../../../../../node_modules/react-dom') : path.resolve('../node_modules/react-dom'),
         },
         extensions: ['.mjs','.js', '.jsx'],
     },

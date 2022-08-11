@@ -19,11 +19,12 @@
 import React from 'react';
 import Notification from 'rc-notification';
 import userThemes from 'userCustomThemes';
-import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 import defaultTheme from 'AppData/defaultTheme';
 import Message from './Message';
 
-const theme = createTheme(defaultTheme);
+const theme = createMuiTheme(defaultTheme);
 
 /**
  * Common alerting/message displaying component for Store application, Pre-set vertical: 'top',
@@ -67,8 +68,8 @@ class Alert {
                     key: this.key,
                     duration: this.duration,
                     content: (
-                        <ThemeProvider theme={createTheme(defaultTheme)}>
-                            <ThemeProvider theme={(currentTheme) => createTheme(
+                        <ThemeProvider theme={createMuiTheme(defaultTheme)}>
+                            <ThemeProvider theme={(currentTheme) => createMuiTheme(
                                 { ...userThemes.light(currentTheme), ...currentTheme },
                             )}
                             >
