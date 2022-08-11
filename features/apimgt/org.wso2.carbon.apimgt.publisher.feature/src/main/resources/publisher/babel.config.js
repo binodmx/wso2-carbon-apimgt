@@ -50,7 +50,6 @@ module.exports = {
                 '@babel/plugin-syntax-dynamic-import',
                 '@babel/plugin-transform-spread',
                 '@babel/plugin-proposal-object-rest-spread',
-                '@babel/plugin-transform-classes'
             ],
         },
         development: {

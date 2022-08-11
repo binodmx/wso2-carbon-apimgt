@@ -90,15 +90,7 @@ module.exports = {
         ["Route", "Operation", "Listing", "DeferredDetails", "Details", "svg", "Paper", "EditableRow", "CreateScope", "EditScope", "WrappedComponent", "ErrorIcon", "WarningIcon","CheckCircleIcon","InfoIcon"]
     }],
     "react/prop-types": [1, { ignore: ["classes", "api", "theme", "history", "intl"] }], // https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/prop-types.md
-    "react/destructuring-assignment": [1, "always"],
-    "no-multiple-empty-lines": ["off"],
-    "react/sort-comp": ["off"],
-    "react/jsx-no-bind": ["off"],
-    "react/forbid-prop-types": ["off"],
-    "react/no-array-index-key": ["off"],
-    "react/jsx-indent": ["off"],
-    "react/jsx-curly-brace-presence": ["off"],
-    "indent": ["off"]
+    "react/destructuring-assignment": [1, "always"]
   },
   plugins: ["react", "jest", "prettier"]
 };

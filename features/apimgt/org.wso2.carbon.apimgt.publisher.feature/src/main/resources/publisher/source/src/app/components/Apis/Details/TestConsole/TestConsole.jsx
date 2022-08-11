@@ -28,14 +28,12 @@ import Paper from '@material-ui/core/Paper';
 import 'swagger-ui-react/swagger-ui.css';
 import API from 'AppData/api';
 import AuthManager, { isRestricted } from 'AppData/AuthManager';
+import { TryOutController, SwaggerUI } from 'developer_portal';
 import Button from '@material-ui/core/Button';
 import InlineMessage from 'AppComponents/Shared/InlineMessage';
 import ApiContext, { withAPI } from 'AppComponents/Apis/Details/components/ApiContext';
 import uuid from 'uuid/v4';
 import Alert from 'AppComponents/Shared/Alert';
-import TryOutController from './TryOutController';
-import SwaggerUI from './SwaggerUI';
-
 
 /**
  * @inheritdoc

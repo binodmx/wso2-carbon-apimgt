@@ -51,8 +51,10 @@ export default function Tags(props) {
             return (
                 <FormattedMessage
                     id='Apis.Details.Configuration.components.Tags.error'
-                    defaultMessage={'The tag contains one or more illegal characters '
-                    + '( ~ ! @ # ; % ^ & * + = | < > , \' " \\\\ / ) .'}
+                    defaultMessage={
+                        'The tag contains one or more illegal characters '
+                        + '( ~ ! @ # ; % ^ & * + = { } | < > , \' " \\\\ / ) .'
+                    }
                 />
             );
         } else {
