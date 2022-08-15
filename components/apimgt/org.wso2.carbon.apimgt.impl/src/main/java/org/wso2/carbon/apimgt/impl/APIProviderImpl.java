@@ -7909,7 +7909,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
             }
             String publisherAccessControlRoles = resource.getProperty(APIConstants.DISPLAY_PUBLISHER_ROLES);
             if (publisherAccessControlRoles != null && !publisherAccessControlRoles.trim().isEmpty()) {
-                String[] accessControlRoleList = publisherAccessControlRoles.replaceAll("\\s+", "").split(",");
+                String[] accessControlRoleList = publisherAccessControlRoles.split(",");
                 if (log.isDebugEnabled()) {
                     log.debug(identifierType + " has restricted access to creators and publishers with the roles : " + Arrays
                             .toString(accessControlRoleList));
