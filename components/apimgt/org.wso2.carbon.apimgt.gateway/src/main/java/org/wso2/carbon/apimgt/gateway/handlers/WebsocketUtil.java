@@ -375,6 +375,31 @@ public class WebsocketUtil extends GraphQLProcessor {
 	}
 
 	/**
+	 * Send access blocked for API request message
+	 *
+	 * @param ctx                   Channel handler context
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param responseDTO           InboundProcessorResponseDTO
+	 * @throws APISecurityException
+	 */
+	public static void sendBlockedAPIRequestMessage(ChannelHandlerContext ctx,
+			InboundMessageContext inboundMessageContext, InboundProcessorResponseDTO responseDTO) throws APISecurityException {
+
+		String errorMessage = APISecurityConstants.API_BLOCKED_MESSAGE;
+		FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+				HttpResponseStatus.valueOf(responseDTO.getErrorCode()),
+				Unpooled.copiedBuffer(errorMessage, CharsetUtil.UTF_8));
+		httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+		httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpResponse.content().readableBytes());
+		ctx.writeAndFlush(httpResponse);
+		if (log.isDebugEnabled()) {
+			log.debug("API request blocked for the websocket API: " + inboundMessageContext.getApiContextUri());
+		}
+		throw new APISecurityException(APISecurityConstants.API_BLOCKED,
+				APISecurityConstants.API_BLOCKED_MESSAGE);
+	}
+
+	/**
 	 * @param tenantDomain Tenant domain
 	 * @return Synapse message context
 	 * @throws AxisFault If an error occurs while retrieving the synapse message context

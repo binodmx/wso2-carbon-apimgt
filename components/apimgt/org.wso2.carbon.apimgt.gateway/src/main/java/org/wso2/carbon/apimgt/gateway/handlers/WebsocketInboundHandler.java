@@ -205,60 +205,67 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
 
             InboundProcessorResponseDTO responseDTO = validateOAuthHeader(req, inboundMessageContext);
             if (!responseDTO.isError()) {
-                if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(inboundMessageContext.getTenantDomain())) {
-                    // carbon-mediation only support websocket invocation from super tenant APIs.
-                    // This is a workaround to mimic the the invocation came from super tenant.
-                    req.setUri(req.getUri().replaceFirst("/", "-"));
-                    String modifiedUri = inboundMessageContext.getUri().replaceFirst("/t/", "-t/");
-                    req.setUri(modifiedUri);
-                    msg = req;
-                } else {
-                    req.setUri(inboundMessageContext.getUri()); // Setting endpoint appended uri
-                }
-                setApiPropertiesMapToChannel(ctx, inboundMessageContext);
-
-                if (StringUtils.isNotEmpty(inboundMessageContext.getToken())) {
-                    String backendJwtHeader = null;
-                    JWTConfigurationDto jwtConfigurationDto = ServiceReferenceHolder.getInstance()
-                            .getAPIManagerConfiguration().getJwtConfigurationDto();
-                    if (jwtConfigurationDto != null) {
-                        backendJwtHeader = jwtConfigurationDto.getJwtHeader();
-                    }
-                    if (StringUtils.isEmpty(backendJwtHeader)) {
-                        backendJwtHeader = APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER;
-                    }
-                    boolean isSSLEnabled = ctx.channel().pipeline().get("ssl") != null;
-                    String prefix = null;
-                    AxisConfiguration axisConfiguration = ServiceReferenceHolder.getInstance()
-                            .getServerConfigurationContext().getAxisConfiguration();
-                    TransportOutDescription transportOut;
-                    if (isSSLEnabled) {
-                        transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_SECURED);
+                responseDTO = WebsocketUtil.validateDenyPolicies(responseDTO, inboundMessageContext, usageDataPublisher);
+                if (!responseDTO.isError()) {
+                    if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(inboundMessageContext.getTenantDomain())) {
+                        // carbon-mediation only support websocket invocation from super tenant APIs.
+                        // This is a workaround to mimic the the invocation came from super tenant.
+                        req.setUri(req.getUri().replaceFirst("/", "-"));
+                        String modifiedUri = inboundMessageContext.getUri().replaceFirst("/t/", "-t/");
+                        req.setUri(modifiedUri);
+                        msg = req;
                     } else {
-                        transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED);
+                        req.setUri(inboundMessageContext.getUri()); // Setting endpoint appended uri
                     }
-                    if (transportOut != null
-                            && transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
-                        prefix = String.valueOf(transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER)
-                                .getValue());
-                    }
-                    if (StringUtils.isNotEmpty(prefix)) {
-                        backendJwtHeader = prefix + backendJwtHeader;
-                    }
-                    ((FullHttpRequest) msg).headers().set(backendJwtHeader, inboundMessageContext.getToken());
-                }
-                ctx.fireChannelRead(msg);
+                    setApiPropertiesMapToChannel(ctx, inboundMessageContext);
 
-                // publish google analytics data
-                GoogleAnalyticsData.DataBuilder gaData = new GoogleAnalyticsData.DataBuilder(null, null, null,
-                        null).setDocumentPath(inboundMessageContext.getUri())
-                        .setDocumentHostName(DataPublisherUtil.getHostAddress()).setSessionControl("end")
-                        .setCacheBuster(APIMgtGoogleAnalyticsUtils.getCacheBusterId())
-                        .setIPOverride(ctx.channel().remoteAddress().toString());
-                APIMgtGoogleAnalyticsUtils gaUtils = new APIMgtGoogleAnalyticsUtils();
-                gaUtils.init(inboundMessageContext.getTenantDomain());
-                gaUtils.publishGATrackingData(gaData, req.headers().get(HttpHeaders.USER_AGENT),
-                        inboundMessageContext.getHeaders().get(HttpHeaders.AUTHORIZATION));
+                    if (StringUtils.isNotEmpty(inboundMessageContext.getToken())) {
+                        String backendJwtHeader = null;
+                        JWTConfigurationDto jwtConfigurationDto = ServiceReferenceHolder.getInstance().getAPIManagerConfiguration().getJwtConfigurationDto();
+                        if (jwtConfigurationDto != null) {
+                            backendJwtHeader = jwtConfigurationDto.getJwtHeader();
+                        }
+                        if (StringUtils.isEmpty(backendJwtHeader)) {
+                            backendJwtHeader = APIMgtGatewayConstants.WS_JWT_TOKEN_HEADER;
+                        }
+                        boolean isSSLEnabled = ctx.channel().pipeline().get("ssl") != null;
+                        String prefix = null;
+                        AxisConfiguration axisConfiguration = ServiceReferenceHolder.getInstance().getServerConfigurationContext().getAxisConfiguration();
+                        TransportOutDescription transportOut;
+                        if (isSSLEnabled) {
+                            transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_SECURED);
+                        } else {
+                            transportOut = axisConfiguration.getTransportOut(APIMgtGatewayConstants.WS_NOT_SECURED);
+                        }
+                        if (transportOut != null && transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER) != null) {
+                            prefix = String.valueOf(
+                                    transportOut.getParameter(APIMgtGatewayConstants.WS_CUSTOM_HEADER).getValue());
+                        }
+                        if (StringUtils.isNotEmpty(prefix)) {
+                            backendJwtHeader = prefix + backendJwtHeader;
+                        }
+                        ((FullHttpRequest) msg).headers().set(backendJwtHeader, inboundMessageContext.getToken());
+                    }
+                    ctx.fireChannelRead(msg);
+
+                    // publish google analytics data
+                    GoogleAnalyticsData.DataBuilder gaData = new GoogleAnalyticsData.DataBuilder(null, null, null, null)
+                            .setDocumentPath(inboundMessageContext.getUri()).setDocumentHostName(DataPublisherUtil.getHostAddress()).setSessionControl("end")
+                            .setCacheBuster(APIMgtGoogleAnalyticsUtils.getCacheBusterId())
+                            .setIPOverride(ctx.channel().remoteAddress().toString());
+                    APIMgtGoogleAnalyticsUtils gaUtils = new APIMgtGoogleAnalyticsUtils();
+                    gaUtils.init(inboundMessageContext.getTenantDomain());
+                    gaUtils.publishGATrackingData(gaData, req.headers().get(HttpHeaders.USER_AGENT),
+                            inboundMessageContext.getHeaders().get(HttpHeaders.AUTHORIZATION));
+                } else {
+                    ReferenceCountUtil.release(msg);
+                    InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
+                    if (StringUtils.isEmpty(responseDTO.getErrorMessage())) {
+                        responseDTO.setErrorMessage(APISecurityConstants.API_BLOCKED_MESSAGE);
+                    }
+                    responseDTO.setErrorCode(HttpResponseStatus.FORBIDDEN.code());
+                    WebsocketUtil.sendInvalidCredentialsMessage(ctx, inboundMessageContext, responseDTO);
+                }
             } else {
                 ReferenceCountUtil.release(msg);
                 InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
