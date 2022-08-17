@@ -350,17 +350,17 @@ public class WebsocketUtil extends GraphQLProcessor {
 	}
 
 	/**
-	 * Send authentication failure message
+	 * Send error messages in handshake phase for API request message
 	 *
 	 * @param ctx                   Channel handler context
 	 * @param inboundMessageContext InboundMessageContext
 	 * @param responseDTO           InboundProcessorResponseDTO
+	 * @param errorMessage          Error message
+	 * @param errorCode             Error code
 	 * @throws APISecurityException
 	 */
-	public static void sendInvalidCredentialsMessage(ChannelHandlerContext ctx,
-			InboundMessageContext inboundMessageContext, InboundProcessorResponseDTO responseDTO) throws APISecurityException {
-
-		String errorMessage = APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE;
+	public static void sendHandshakeErrorMessage(ChannelHandlerContext ctx, InboundMessageContext inboundMessageContext,
+			InboundProcessorResponseDTO responseDTO, String errorMessage, int errorCode) throws APISecurityException {
 		FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
 				HttpResponseStatus.valueOf(responseDTO.getErrorCode()),
 				Unpooled.copiedBuffer(errorMessage, CharsetUtil.UTF_8));
@@ -368,35 +368,10 @@ public class WebsocketUtil extends GraphQLProcessor {
 		httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpResponse.content().readableBytes());
 		ctx.writeAndFlush(httpResponse);
 		if (log.isDebugEnabled()) {
-			log.debug("Authentication Failure for the websocket context: " + inboundMessageContext.getApiContextUri());
+			log.debug("API request failed due to " + errorMessage + " for the websocket API: " + inboundMessageContext
+					.getApiContextUri());
 		}
-		throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS,
-				APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE);
-	}
-
-	/**
-	 * Send access blocked for API request message
-	 *
-	 * @param ctx                   Channel handler context
-	 * @param inboundMessageContext InboundMessageContext
-	 * @param responseDTO           InboundProcessorResponseDTO
-	 * @throws APISecurityException
-	 */
-	public static void sendBlockedAPIRequestMessage(ChannelHandlerContext ctx,
-			InboundMessageContext inboundMessageContext, InboundProcessorResponseDTO responseDTO) throws APISecurityException {
-
-		String errorMessage = APISecurityConstants.API_BLOCKED_MESSAGE;
-		FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-				HttpResponseStatus.valueOf(responseDTO.getErrorCode()),
-				Unpooled.copiedBuffer(errorMessage, CharsetUtil.UTF_8));
-		httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-		httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpResponse.content().readableBytes());
-		ctx.writeAndFlush(httpResponse);
-		if (log.isDebugEnabled()) {
-			log.debug("API request blocked for the websocket API: " + inboundMessageContext.getApiContextUri());
-		}
-		throw new APISecurityException(APISecurityConstants.API_BLOCKED,
-				APISecurityConstants.API_BLOCKED_MESSAGE);
+		throw new APISecurityException(errorCode, errorMessage);
 	}
 
 	/**
@@ -556,17 +531,18 @@ public class WebsocketUtil extends GraphQLProcessor {
 	 * Validates whether there any active deny policies and set error values in InboundProcessorResponseDTO.
 	 *
 	 * @param inboundMessageContext InboundMessageContext
-	 * @param responseDTO           InboundProcessorResponseDTO
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
 	 * @return InboundProcessorResponseDTO
 	 */
-	public static InboundProcessorResponseDTO validateDenyPolicies(InboundProcessorResponseDTO responseDTO,
-			InboundMessageContext inboundMessageContext, APIMgtUsageDataPublisher usageDataPublisher) {
+	public static InboundProcessorResponseDTO validateDenyPolicies(InboundMessageContext inboundMessageContext,
+			APIMgtUsageDataPublisher usageDataPublisher) {
 
 		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
 		String clientIp = inboundMessageContext.getUserIP();
 		String apiTenantDomain = inboundMessageContext.getTenantDomain();
 		String apiContext = inboundMessageContext.getApiContextUri();
 		String apiVersion = inboundMessageContext.getVersion();
+		InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
 		boolean isBlockedRequest = false;
 		String appLevelBlockingKey = "";
 		String subscriptionLevelBlockingKey = "";
@@ -585,7 +561,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 		}
 
 		if (isBlockedRequest) {
-			responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST,
+			responseDTO = getFrameErrorDTO(
+					GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST,
 					GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE, true);
 			if (APIUtil.isAnalyticsEnabled()) {
 				WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,

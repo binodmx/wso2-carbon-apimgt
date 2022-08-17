@@ -88,7 +88,7 @@ public class GraphQLRequestProcessor extends GraphQLProcessor {
             // Validate the deny policies are applied to the API when there are no authentication errors
             if (!responseDTO.isError()) {
                 responseDTO = WebsocketUtil
-                        .validateDenyPolicies(responseDTO, inboundMessageContext, usageDataPublisher);
+                        .validateDenyPolicies(inboundMessageContext, usageDataPublisher);
             }
 
             String msgText = ((TextWebSocketFrame) msg).text();
