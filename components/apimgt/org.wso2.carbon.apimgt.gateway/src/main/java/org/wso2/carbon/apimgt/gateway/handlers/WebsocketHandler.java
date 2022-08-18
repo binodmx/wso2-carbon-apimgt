@@ -45,9 +45,11 @@ import java.util.HashMap;
 public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInboundHandler, WebsocketOutboundHandler> {
 
     private static final Log log = LogFactory.getLog(WebsocketInboundHandler.class);
+
     public WebsocketHandler() {
         super(new WebsocketInboundHandler(), new WebsocketOutboundHandler());
     }
+
     private static GraphQLResponseProcessor graphQLResponseProcessor = new GraphQLResponseProcessor();
     private final String API_PROPERTIES = "API_PROPERTIES";
     private final String WEB_SC_API_UT = "api.ut.WS_SC";
@@ -74,6 +76,12 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         }
 
         if ((msg instanceof CloseWebSocketFrame) || (msg instanceof PongWebSocketFrame)) {
+            if (msg instanceof CloseWebSocketFrame && ((CloseWebSocketFrame) msg).statusCode() > 1001) {
+                log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
+                        ((CloseWebSocketFrame) msg).reasonText());
+                WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
+                        inboundHandler().getUsageDataPublisher());
+            }
 
             Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
             if (attributes != null) {
@@ -91,10 +99,12 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             if (APIConstants.APITransportType.GRAPHQL.toString()
                     .equals(inboundMessageContext.getElectedAPI().getApiType()) && msg instanceof TextWebSocketFrame) {
                 // Authenticate and handle GraphQL subscription responses
-               responseDTO = graphQLResponseProcessor.handleResponse((WebSocketFrame) msg,
+                responseDTO = graphQLResponseProcessor.handleResponse((WebSocketFrame) msg,
                         ctx, inboundMessageContext, inboundHandler().getUsageDataPublisher());
                 if (responseDTO.isError()) {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
@@ -126,6 +136,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     }
                 } else {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
                 }
             }
         } else {
@@ -175,7 +187,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
      * @throws Exception
      */
     private void handleWSResponseSuccess(ChannelHandlerContext ctx, Object msg, ChannelPromise promise,
-            InboundMessageContext inboundMessageContext) throws Exception {
+                                         InboundMessageContext inboundMessageContext) throws Exception {
         long endTime = System.currentTimeMillis();
         long startTime = (long) ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME))
                 .get();
