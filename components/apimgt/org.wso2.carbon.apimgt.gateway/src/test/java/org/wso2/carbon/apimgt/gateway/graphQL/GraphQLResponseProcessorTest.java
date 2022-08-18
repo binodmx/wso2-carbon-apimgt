@@ -103,6 +103,8 @@ public class GraphQLResponseProcessorTest {
 
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertFalse(processorResponseDTO.isError());
@@ -117,6 +119,8 @@ public class GraphQLResponseProcessorTest {
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertFalse(processorResponseDTO.isError());
@@ -139,6 +143,8 @@ public class GraphQLResponseProcessorTest {
         inboundProcessorResponseDTO.setErrorMessage("Missing mandatory id field in the message");
         PowerMockito.when(GraphQLProcessor.getBadRequestGraphQLFrameErrorDTO("Missing mandatory id field in"
                 + " the message", null)).thenReturn(inboundProcessorResponseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertTrue(processorResponseDTO.isError());
@@ -173,6 +179,8 @@ public class GraphQLResponseProcessorTest {
         throttleResponseDTO.setId("1");
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(throttleResponseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertTrue(processorResponseDTO.isError());
@@ -207,6 +215,8 @@ public class GraphQLResponseProcessorTest {
         graphQLProcessorResponseDTO.setId("1");
         PowerMockito.when(GraphQLProcessor.validateScopes(inboundMessageContext, "liftStatusChange", "1"))
                 .thenReturn(graphQLProcessorResponseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertTrue(processorResponseDTO.isError());
@@ -237,6 +247,8 @@ public class GraphQLResponseProcessorTest {
 
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLResponseProcessor.handleResponse(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertFalse(processorResponseDTO.isError());
