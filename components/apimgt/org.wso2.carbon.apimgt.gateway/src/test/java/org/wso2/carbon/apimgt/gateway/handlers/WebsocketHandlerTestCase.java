@@ -157,6 +157,8 @@ public class WebsocketHandlerTestCase {
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         PowerMockito.when(WebsocketUtil.authenticateOAuthToken(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         websocketHandler.write(channelHandlerContext, msg, channelPromise);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString))); // No error has occurred context exists in data-holder map.
@@ -187,6 +189,8 @@ public class WebsocketHandlerTestCase {
                 .thenReturn(responseDTO);
 
         PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         // happy path
         websocketHandler.write(channelHandlerContext, msg, channelPromise);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()

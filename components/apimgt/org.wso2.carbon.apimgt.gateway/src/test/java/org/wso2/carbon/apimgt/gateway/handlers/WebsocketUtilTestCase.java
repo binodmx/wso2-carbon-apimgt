@@ -159,4 +159,28 @@ public class WebsocketUtilTestCase {
     public void testIsRemoveOAuthHeadersFromOutMessage() {
         Assert.assertEquals("235erwytgtkyb:/ishara", WebsocketUtil.getAccessTokenCacheKey(cachedToken,apiContext ));
     }
+
+    @Test
+    public void testValidateDenyPolicies() {
+//        APIKeyValidationInfoDTO apiKeyValidationInfoDTO = new APIKeyValidationInfoDTO();
+        InboundMessageContext inboundMessageContext = createApiMessageContext(graphQLAPI);
+        ThrottleDataHolder throttleDataHolder = Mockito.mock(ThrottleDataHolder.class);
+        Mockito.when(serviceReferenceHolder.getThrottleDataHolder()).thenReturn(throttleDataHolder);
+        Mockito.when(serviceReferenceHolder.getThrottleDataHolder().isBlockingConditionsPresent()).thenReturn(true);
+        Mockito.when(serviceReferenceHolder.getThrottleDataHolder().isRequestBlocked(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(APIUtil.isAnalyticsEnabled()).thenReturn(false);
+        Assert.assertEquals(4006, WebsocketUtil.validateDenyPolicies(inboundMessageContext, usageDataPublisher).getErrorCode());
+    }
+
+    private InboundMessageContext createApiMessageContext(API api) {
+        InboundMessageContext inboundMessageContext = new InboundMessageContext();
+        inboundMessageContext.setTenantDomain("carbon.super");
+        inboundMessageContext.setElectedAPI(api);
+        inboundMessageContext.setToken("test-backend-jwt-token");
+        inboundMessageContext.setUserIP("127.0.0.1");
+        inboundMessageContext.setApiContextUri("/graphql/1.0.0");
+        inboundMessageContext.setVersion("1.0.0");
+
+        return inboundMessageContext;
+    }
 }

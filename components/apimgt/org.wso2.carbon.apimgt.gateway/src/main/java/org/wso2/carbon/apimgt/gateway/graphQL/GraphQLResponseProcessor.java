@@ -62,6 +62,11 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
                     WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
                     WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
                             inboundMessageContext);
+            // Validate the deny policies are applied to the API when there are no authentication errors
+            if (!responseDTO.isError()) {
+                responseDTO = WebsocketUtil
+                        .validateDenyPolicies(inboundMessageContext, usageDataPublisher);
+            }
 
             String msgText = ((TextWebSocketFrame) msg).text();
             JSONObject graphQLMsg = new JSONObject(msgText);

@@ -55,6 +55,7 @@ import org.wso2.carbon.apimgt.gateway.handlers.security.AuthenticationContext;
 import org.wso2.carbon.apimgt.gateway.handlers.security.jwt.JWTValidator;
 import org.wso2.carbon.apimgt.gateway.handlers.throttling.APIThrottleConstants;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
+import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
@@ -349,17 +350,17 @@ public class WebsocketUtil extends GraphQLProcessor {
 	}
 
 	/**
-	 * Send authentication failure message
+	 * Send error messages in handshake phase for API request message
 	 *
 	 * @param ctx                   Channel handler context
 	 * @param inboundMessageContext InboundMessageContext
 	 * @param responseDTO           InboundProcessorResponseDTO
+	 * @param errorMessage          Error message
+	 * @param errorCode             Error code
 	 * @throws APISecurityException
 	 */
-	public static void sendInvalidCredentialsMessage(ChannelHandlerContext ctx,
-			InboundMessageContext inboundMessageContext, InboundProcessorResponseDTO responseDTO) throws APISecurityException {
-
-		String errorMessage = APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE;
+	public static void sendHandshakeErrorMessage(ChannelHandlerContext ctx, InboundMessageContext inboundMessageContext,
+			InboundProcessorResponseDTO responseDTO, String errorMessage, int errorCode) throws APISecurityException {
 		FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
 				HttpResponseStatus.valueOf(responseDTO.getErrorCode()),
 				Unpooled.copiedBuffer(errorMessage, CharsetUtil.UTF_8));
@@ -367,10 +368,10 @@ public class WebsocketUtil extends GraphQLProcessor {
 		httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpResponse.content().readableBytes());
 		ctx.writeAndFlush(httpResponse);
 		if (log.isDebugEnabled()) {
-			log.debug("Authentication Failure for the websocket context: " + inboundMessageContext.getApiContextUri());
+			log.debug("API request failed due to " + errorMessage + " for the websocket API: " + inboundMessageContext
+					.getApiContextUri());
 		}
-		throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS,
-				APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE);
+		throw new APISecurityException(errorCode, errorMessage);
 	}
 
 	/**
@@ -524,6 +525,55 @@ public class WebsocketUtil extends GraphQLProcessor {
 		ServiceReferenceHolder.getInstance().getThrottleDataPublisher().getDataPublisher().tryPublish(event);
 		webSocketThrottleResponseDTO.setThrottled(false);
 		return webSocketThrottleResponseDTO;
+	}
+
+	/**
+	 * Validates whether there any active deny policies and set error values in InboundProcessorResponseDTO.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param usageDataPublisher    APIMgtUsageDataPublisher
+	 * @return InboundProcessorResponseDTO
+	 */
+	public static InboundProcessorResponseDTO validateDenyPolicies(InboundMessageContext inboundMessageContext,
+			APIMgtUsageDataPublisher usageDataPublisher) {
+
+		APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
+		String clientIp = inboundMessageContext.getUserIP();
+		String apiTenantDomain = inboundMessageContext.getTenantDomain();
+		String apiContext = inboundMessageContext.getApiContextUri();
+		String apiVersion = inboundMessageContext.getVersion();
+		InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+		boolean isBlockedRequest = false;
+		String appLevelBlockingKey = "";
+		String subscriptionLevelBlockingKey = "";
+		String authorizedUser;
+
+		if (getThrottleDataHolder().isBlockingConditionsPresent()) {
+			appLevelBlockingKey = infoDTO.getSubscriber() + ":" + infoDTO.getApplicationName();
+			subscriptionLevelBlockingKey =
+					apiContext + ":" + apiVersion + ":" + infoDTO.getSubscriber() + "-" + infoDTO.getApplicationName()
+							+ ":" + infoDTO.getType();
+			authorizedUser = infoDTO.getEndUserName();
+
+			isBlockedRequest = getThrottleDataHolder()
+					.isRequestBlocked(apiContext, appLevelBlockingKey, authorizedUser, clientIp, apiTenantDomain,
+							subscriptionLevelBlockingKey);
+		}
+
+		if (isBlockedRequest) {
+			responseDTO = getFrameErrorDTO(
+					GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST,
+					GraphQLConstants.FrameErrorConstants.BLOCKED_REQUEST_MESSAGE, true);
+			if (APIUtil.isAnalyticsEnabled()) {
+				WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,
+						APIThrottleConstants.REQUEST_BLOCKED);
+			}
+		}
+		return responseDTO;
+	}
+
+	protected static ThrottleDataHolder getThrottleDataHolder() {
+		return ServiceReferenceHolder.getInstance().getThrottleDataHolder();
 	}
 
 	public static String getRemoteIP(ChannelHandlerContext ctx) {

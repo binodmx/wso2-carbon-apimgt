@@ -108,7 +108,13 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                         WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
                                 inboundMessageContext);
                 if (!responseDTO.isError()) {
-                    if (isAllowed(ctx, (WebSocketFrame) msg, inboundMessageContext,
+                    // Validate the deny policies are applied to the API when there are no authentication errors
+                    responseDTO = WebsocketUtil.validateDenyPolicies(inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
+                    // Check whether the error is now present after deny policies validation
+                    if (responseDTO.isError()) {
+                        handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
+                    } else if (isAllowed(ctx, (WebSocketFrame) msg, inboundMessageContext,
                             inboundHandler().getUsageDataPublisher())) {
                         handleWSResponseSuccess(ctx, msg, promise, inboundMessageContext);
                     } else {

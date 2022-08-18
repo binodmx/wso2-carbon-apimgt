@@ -152,6 +152,8 @@ public class GraphQLRequestProcessorTest {
 
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertFalse(processorResponseDTO.isError());
@@ -171,6 +173,8 @@ public class GraphQLRequestProcessorTest {
         TextWebSocketFrame msg = new TextWebSocketFrame(msgText);
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
         PowerMockito.when(WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext)).thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -214,6 +218,8 @@ public class GraphQLRequestProcessorTest {
         inboundProcessorResponseDTO.setId("1");
         PowerMockito.when(GraphQLProcessor.getBadRequestGraphQLFrameErrorDTO("Invalid operation payload", "1"))
                 .thenReturn(inboundProcessorResponseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -293,6 +299,8 @@ public class GraphQLRequestProcessorTest {
         GraphQLSchemaDTO schemaDTO = new GraphQLSchemaDTO(schema, registry);
         PowerMockito.when(DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                 inboundMessageContext.getElectedAPI().getUuid())).thenReturn(schemaDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -361,6 +369,8 @@ public class GraphQLRequestProcessorTest {
                 .thenReturn(graphQLProcessorResponseDTO);
         PowerMockito.when(GraphQLProcessorUtil.getOperationList(Mockito.anyObject(), Mockito.anyObject(),
                 Mockito.anyString())).thenReturn("liftStatusChange");
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         InboundProcessorResponseDTO processorResponseDTO = graphQLRequestProcessor.handleRequest(msg,
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
@@ -427,6 +437,8 @@ public class GraphQLRequestProcessorTest {
         PowerMockito.when(APIUtil.getResourceInfoDTOCacheKey(inboundMessageContext.getElectedAPI().getContext(),
                 inboundMessageContext.getElectedAPI().getApiVersion(), "liftStatusChange",
                 GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME)).thenReturn("");
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(responseDTO);
@@ -465,6 +477,8 @@ public class GraphQLRequestProcessorTest {
         PowerMockito.when(DataHolder.getInstance().getGraphQLSchemaDTOForAPI(
                 inboundMessageContext.getElectedAPI().getUuid())).thenReturn(schemaDTO);
         PowerMockito.when(GraphQLProcessor.validateScopes(inboundMessageContext, "liftStatusChange", "1"))
+                .thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(responseDTO);
         PowerMockito.when(GraphQLProcessorUtil.getOperationList(Mockito.anyObject(), Mockito.anyObject(),
                 Mockito.anyString())).thenReturn("liftStatusChange");
@@ -552,6 +566,8 @@ public class GraphQLRequestProcessorTest {
         PowerMockito.when(APIUtil.getResourceInfoDTOCacheKey(inboundMessageContext.getElectedAPI().getContext(),
                 inboundMessageContext.getElectedAPI().getApiVersion(), "liftStatusChange",
                 GraphQLConstants.SubscriptionConstants.HTTP_METHOD_NAME)).thenReturn("");
+        PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
+                .thenReturn(responseDTO);
 
         InboundProcessorResponseDTO throttleResponseDTO = new InboundProcessorResponseDTO();
         throttleResponseDTO.setError(true);
