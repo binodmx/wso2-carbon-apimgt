@@ -77,8 +77,10 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
 
         if ((msg instanceof CloseWebSocketFrame) || (msg instanceof PongWebSocketFrame)) {
             if (msg instanceof CloseWebSocketFrame && ((CloseWebSocketFrame) msg).statusCode() > 1001) {
-                    WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
-                            inboundHandler().getUsageDataPublisher());
+                log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
+                        ((CloseWebSocketFrame) msg).reasonText());
+                WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
+                        inboundHandler().getUsageDataPublisher());
             }
 
             Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
@@ -179,7 +181,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
      * @throws Exception
      */
     private void handleWSResponseSuccess(ChannelHandlerContext ctx, Object msg, ChannelPromise promise,
-            InboundMessageContext inboundMessageContext) throws Exception {
+                                         InboundMessageContext inboundMessageContext) throws Exception {
         long endTime = System.currentTimeMillis();
         long startTime = (long) ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME))
                 .get();
