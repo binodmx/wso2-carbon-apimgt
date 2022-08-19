@@ -54,6 +54,8 @@ public class WSDLSOAPOperationExtractorImplTestCase {
                 wsdlReader);
 
         operations = processor.getWsdlInfo().getSoapBindingOperations();
+        System.setProperty("carbon.home",
+                WSDLSOAPOperationExtractorImplTestCase.class.getResource("/").getFile());
     }
     @Test
     public void testGetWsdlDefinition() throws Exception {
