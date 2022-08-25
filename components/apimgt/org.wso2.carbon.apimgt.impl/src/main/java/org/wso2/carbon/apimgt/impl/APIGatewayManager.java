@@ -1185,7 +1185,14 @@ public class APIGatewayManager {
                 "<sequence xmlns=\"http://ws.apache.org/ns/synapse\" name=\"" +
                 context.replace('/', '-') + "\">\n" +
                 "   <property name=\"OUT_ONLY\" value=\"true\"/>\n" +
-                "   <script language=\"js\">var sub_path = mc.getProperty(\"websocket.subscriber.path\");\t    \n" +
+                "   <script language=\"js\">var props = mc.getProperty(\"API_PROPERTIES\");\n" +
+                "            if(props != undefined) {\n" +
+                "                var pathParam = props.get(\"PATH_PARAM\");\n" +
+                "                if(pathParam != undefined) {\n" +
+                "                    mc.setProperty('pathParams', pathParam);\n" +
+                "                }\n" +
+                "            }\n" +
+                "          var sub_path = mc.getProperty(\"websocket.subscriber.path\");\t    \n" +
                 "        \tvar queryParamString = sub_path.split(\"\\\\?\")[1];\n" +
                 "                if(queryParamString != undefined) {\t    \n" +
                 "\t\tmc.setProperty('queryparams', \"?\" + queryParamString);\n" +
@@ -1196,11 +1203,15 @@ public class APIGatewayManager {
                 "             xmlns:ns3=\"http://org.apache.synapse/xsd\"\n" +
                 "             name=\"queryparams\"\n" +
                 "             expression=\"$ctx:queryparams\"/>\n" +
+                "    <property xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" " +
+                "xmlns:ns=\"http://org.apache.synapse/xsd\" xmlns:ns3=\"http://org.apache.synapse/xsd\" " +
+                "name=\"pathParams\" expression=\"$ctx:pathParams\"/>" +
                 "   <property name=\"urlVal\" value=\""+ url + "\"/>\n" +
                 "   <property xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"\n" +
                 "             xmlns:ns3=\"http://org.apache.synapse/xsd\"\n" +
                 "             name=\"fullUrl\"\n" +
-                "             expression=\"fn:concat(get-property('urlVal'), get-property('queryparams'))\"\n" +
+                "             expression=\"fn:concat(get-property('urlVal'), get-property('pathParams')," +
+                " get-property('queryparams'))\"\n" +
                 "             type=\"STRING\"/>\n" +
                 "   <header xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"\n" +
                 "           xmlns:ns3=\"http://org.apache.synapse/xsd\"\n" +
