@@ -637,13 +637,27 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void setApiPropertiesMapToChannel(ChannelHandlerContext ctx, InboundMessageContext inboundMessageContext) {
-
-        ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES)).set(createApiPropertiesMap(inboundMessageContext));
+        Map<String, Object> apiPropertiesMap = null;
+        if (ctx.channel().hasAttr(AttributeKey.valueOf(API_PROPERTIES))) {
+            Object propMap = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES)).get();
+            if (propMap instanceof Map) {
+                apiPropertiesMap = (Map<String, Object>) propMap;
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Ignoring previous property set as it is not of type Map");
+                }
+            }
+        }
+        ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES)).set(createApiPropertiesMap(inboundMessageContext
+                , apiPropertiesMap));
     }
 
-    private Map<String, Object> createApiPropertiesMap(InboundMessageContext inboundMessageContext) {
+    private Map<String, Object> createApiPropertiesMap(InboundMessageContext inboundMessageContext,
+                                                       Map<String, Object> apiPropertiesMap) {
 
-        Map<String, Object> apiPropertiesMap = new HashMap<>();
+        if (apiPropertiesMap == null) {
+            apiPropertiesMap = new HashMap<>();
+        }
         AuthenticationContext authenticationContext = inboundMessageContext.getAuthContext();
         if (authenticationContext != null) {
             String apiName = authenticationContext.getApiName();
