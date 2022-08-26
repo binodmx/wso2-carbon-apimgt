@@ -662,6 +662,21 @@ public class RestApiUtil {
     }
 
     /**
+     * Check if the specified throwable e is happened due to parsing an invalid Open API Specification
+     *
+     * @param e throwable to check
+     * @return true if the specified throwable e is happened due to parsing an invalid Open API Specification
+     * false otherwise
+     */
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+    public static boolean isDueToInvalidOpenAPIDefinition(Throwable e) {
+        if (e.getMessage().contains(ExceptionCodes.OPENAPI_PARSE_EXCEPTION.getErrorMessage())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Check if the message of the root cause message of 'e' matches with the specified message
      *
      * @param e throwable to check

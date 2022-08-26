@@ -116,6 +116,8 @@ public class ImportApiServiceImpl implements ImportApiService {
             } else if (RestApiUtil.isDueToMetaInfoIsCorrupted(e)) {
                 RestApiUtil.handleMetaInformationFailureError("Error while reading API meta information from path.",
                         e, log);
+            } else if (RestApiUtil.isDueToInvalidOpenAPIDefinition(e)) {
+                RestApiUtil.handleInternalServerError(e.getMessage(), e, log);
             }
             RestApiUtil.handleInternalServerError("Error while importing API", e, log);
         }

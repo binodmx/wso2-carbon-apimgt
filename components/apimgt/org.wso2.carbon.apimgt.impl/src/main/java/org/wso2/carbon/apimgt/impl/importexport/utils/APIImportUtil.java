@@ -30,11 +30,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.api.APIDefinition;
+import org.wso2.carbon.apimgt.api.APIDefinitionValidationResponse;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.APIMgtAuthorizationFailedException;
 import org.wso2.carbon.apimgt.api.APIMgtResourceAlreadyExistsException;
 import org.wso2.carbon.apimgt.api.APIMgtResourceNotFoundException;
 import org.wso2.carbon.apimgt.api.APIProvider;
+import org.wso2.carbon.apimgt.api.ErrorHandler;
+import org.wso2.carbon.apimgt.api.ExceptionCodes;
 import org.wso2.carbon.apimgt.api.FaultGatewaysException;
 import org.wso2.carbon.apimgt.api.doc.model.APIResource;
 import org.wso2.carbon.apimgt.api.model.API;
@@ -131,6 +134,7 @@ public final class APIImportUtil {
         String targetStatus;
         // Map to store the target life cycle state as key and life cycle action as the value
         Map<String, String> lifecycleActions = new LinkedHashMap<>();
+        String swaggerContent = null;
         UserRegistry registry;
         int tenantId = APIUtil.getTenantId(currentUser);
 
@@ -190,6 +194,21 @@ public final class APIImportUtil {
                 //Replace context to match with current provider
                 apiTypeWrapper = new ApiTypeWrapper(importedApi);
                 APIAndAPIProductCommonUtil.setCurrentProviderToAPIProperties(apiTypeWrapper, currentTenantDomain, prevTenantDomain);
+            }
+
+            // Validate the swagger definition if the API type is not Web Socket.
+            if (!APIConstants.APITransportType.WS.toString().equalsIgnoreCase(importedApi.getType())) {
+                swaggerContent = APIAndAPIProductCommonUtil.loadSwaggerFile(pathToArchive);
+                APIDefinitionValidationResponse response = OASParserUtil.validateAPIDefinition(swaggerContent, true);
+                if (!response.isValid()) {
+                    String errorDescription = ExceptionCodes.OPENAPI_PARSE_EXCEPTION.getErrorMessage();
+                    if (response.getErrorItems().size() > 0) {
+                        for (ErrorHandler errorHandler : response.getErrorItems()) {
+                            errorDescription = errorDescription.concat(". " + errorHandler.getErrorDescription());
+                        }
+                    }
+                    throw new APIImportExportException(errorDescription);
+                }
             }
 
             handleEndpointSecurityConfigs(importedApi);
@@ -280,9 +299,8 @@ public final class APIImportUtil {
             }
 
             //Swagger definition will only be available of API type HTTP. Web socket API does not have it.
-            if (!APIConstants.APITransportType.WS.toString().equalsIgnoreCase(importedApi.getType())) {
-                String swaggerContent = APIAndAPIProductCommonUtil.loadSwaggerFile(pathToArchive);
-
+            if (!APIConstants.APITransportType.WS.toString().equalsIgnoreCase(importedApi.getType())
+                    && !StringUtils.isBlank(swaggerContent)) {
                 //preProcess swagger definition
                 swaggerContent = OASParserUtil.preProcess(swaggerContent);
 
