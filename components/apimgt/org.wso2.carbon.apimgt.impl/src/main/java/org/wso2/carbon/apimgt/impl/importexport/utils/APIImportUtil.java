@@ -73,7 +73,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -127,7 +129,8 @@ public final class APIImportUtil {
         String currentTenantDomain;
         String currentStatus;
         String targetStatus;
-        String lifecycleAction = null;
+        // Map to store the target life cycle state as key and life cycle action as the value
+        Map<String, String> lifecycleActions = new LinkedHashMap<>();
         UserRegistry registry;
         int tenantId = APIUtil.getTenantId(currentUser);
 
@@ -250,14 +253,9 @@ public final class APIImportUtil {
                 }
             }
 
-            // check whether targetStatus is reachable from current status, if not throw an exception
             if (!currentStatus.equals(targetStatus)) {
-                lifecycleAction = APIAndAPIProductCommonUtil.getLifeCycleAction(currentTenantDomain, currentStatus, targetStatus, apiProvider);
-                if (lifecycleAction == null) {
-                    String errMsg = "Error occurred while importing the API. " + targetStatus + " is not reachable from "
-                            + currentStatus;
-                    throw new APIImportExportException(errMsg);
-                }
+                lifecycleActions = retrieveLifeCycleActions(currentTenantDomain, currentStatus, targetStatus,
+                        apiProvider);
             }
 
             Set<Tier> allowedTiers;
@@ -355,16 +353,9 @@ public final class APIImportUtil {
             // This is required to make url templates and scopes get effected
             apiProvider.updateAPI(importedApi);
 
-            // Change API lifecycle if state transition is required
-            if (StringUtils.isNotEmpty(lifecycleAction)) {
-                log.info("Changing lifecycle from " + currentStatus + " to " + targetStatus);
-                if (StringUtils.equals(lifecycleAction, APIConstants.LC_PUBLISH_LC_STATE)) {
-                    apiProvider.changeAPILCCheckListItems(importedApi.getId(),
-                            APIImportExportConstants.REFER_REQUIRE_RE_SUBSCRIPTION_CHECK_ITEM, true);
-                }
-                apiProvider.changeLifeCycleStatus(importedApi.getId(), lifecycleAction);
-                //Change the status of the imported API to targetStatus
-                importedApi.setStatus(targetStatus);
+            // Change the API life cycle if state transition is required
+            if (!currentStatus.equals(targetStatus)) {
+                changeLifeCycleStatus(lifecycleActions, currentStatus, importedApi, apiProvider);
             }
         } catch (IOException e) {
             //Error is logged and APIImportExportException is thrown because adding API and swagger are mandatory steps
@@ -389,6 +380,87 @@ public final class APIImportUtil {
                         + ": " + importedApi.getId().getVersion();
             }
             throw new APIImportExportException(errorMessage, e);
+        }
+    }
+
+    /**
+     * This method retrieves the life cycle actions
+     *
+     * @param tenantDomain  tenant domain
+     * @param currentStatus Current lifecycle status
+     * @param targetStatus  Target lifecycle status
+     * @param apiProvider   API Provider
+     * @return Life Cycle actions
+     * @throws APIImportExportException if the target lifecycle state is not reachable from the current state
+     */
+    private static Map<String, String> retrieveLifeCycleActions(String tenantDomain, String currentStatus,
+            String targetStatus, APIProvider apiProvider) throws APIImportExportException {
+        Map<String, String> lifeCycleActions = new LinkedHashMap<>();
+        if (StringUtils.equals(targetStatus, APIStatus.BLOCKED.toString()) || StringUtils.equals(targetStatus,
+                APIStatus.DEPRECATED.toString()) || StringUtils.equals(targetStatus, APIStatus.RETIRED.toString())) {
+            lifeCycleActions.put(APIStatus.PUBLISHED.toString(),
+                    retrieveLifeCycleAction(tenantDomain, currentStatus, APIStatus.PUBLISHED.toString(), apiProvider));
+            currentStatus = APIStatus.PUBLISHED.toString();
+            if (StringUtils.equals(targetStatus, APIStatus.RETIRED.toString())) {
+                // The API should be Deprecated prior Retiring the API
+                lifeCycleActions.put(APIStatus.DEPRECATED.toString(),
+                        retrieveLifeCycleAction(tenantDomain, currentStatus, APIStatus.DEPRECATED.toString(),
+                                apiProvider));
+                currentStatus = APIStatus.DEPRECATED.toString();
+            }
+        }
+        lifeCycleActions.put(targetStatus,
+                retrieveLifeCycleAction(tenantDomain, currentStatus, targetStatus, apiProvider));
+        return lifeCycleActions;
+    }
+
+    /**
+     * @param tenantDomain  Tenant Domain
+     * @param currentStatus Current life cycle status
+     * @param targetStatus  Target life cycle status
+     * @param apiProvider   API Provider
+     * @return Life cycle action
+     * @throws APIImportExportException if the target life cycle status is not reachable from the current life cycle
+     *                                  status
+     */
+    private static String retrieveLifeCycleAction(String tenantDomain, String currentStatus, String targetStatus,
+            APIProvider apiProvider) throws APIImportExportException {
+        String lifecycleAction = APIAndAPIProductCommonUtil.getLifeCycleAction(tenantDomain, currentStatus,
+                targetStatus, apiProvider);
+        if (lifecycleAction == null) {
+            String errMsg =
+                    "Error occurred while importing the API. " + targetStatus + " is not reachable from "
+                            + currentStatus;
+            throw new APIImportExportException(errMsg);
+        }
+        return lifecycleAction;
+    }
+
+    /**
+     * This method changes the lifecycle status of an API
+     *
+     * @param lifecycleActions Life cycle actions map
+     * @param currentStatus    Current lifecycle status
+     * @param importedApi      Imported API
+     * @param apiProvider      API Provider
+     * @throws APIManagementException if an error occurs while changing the lifecycle status
+     * @throws FaultGatewaysException if an error occurs while changing the lifecycle status
+     */
+    private static void changeLifeCycleStatus(Map<String, String> lifecycleActions, String currentStatus,
+            API importedApi, APIProvider apiProvider) throws APIManagementException, FaultGatewaysException {
+        if (!lifecycleActions.isEmpty()) {
+            for (Map.Entry<String, String> lifeCycleAction : lifecycleActions.entrySet()) {
+                // Change API the life cycle if the state transition is required
+                if (StringUtils.isNotEmpty(lifeCycleAction.getValue())) {
+                    log.info("Changing lifecycle from " + currentStatus + " to " + lifeCycleAction.getKey());
+                    if (StringUtils.equals(lifeCycleAction.getValue(), APIConstants.LC_PUBLISH_LC_STATE)) {
+                        apiProvider.changeAPILCCheckListItems(importedApi.getId(),
+                                APIImportExportConstants.REFER_REQUIRE_RE_SUBSCRIPTION_CHECK_ITEM, true);
+                    }
+                    apiProvider.changeLifeCycleStatus(importedApi.getId(), lifeCycleAction.getValue());
+                    currentStatus = lifeCycleAction.getKey();
+                }
+            }
         }
     }
 
