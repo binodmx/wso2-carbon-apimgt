@@ -199,6 +199,7 @@ public class WebsocketHandlerTestCase {
         // close connection error
         responseDTO.setError(true);
         responseDTO.setCloseConnection(true);
+        responseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.INTERNAL_SERVER_ERROR);
         websocketHandler.write(channelHandlerContext, msg.retain(), channelPromise);
         Assert.assertFalse(InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString));  // Closing connection error has occurred

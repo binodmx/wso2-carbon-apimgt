@@ -79,8 +79,10 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             if (msg instanceof CloseWebSocketFrame && ((CloseWebSocketFrame) msg).statusCode() > 1001) {
                 log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
                         ((CloseWebSocketFrame) msg).reasonText());
-                WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
-                        inboundHandler().getUsageDataPublisher());
+                if (APIUtil.isAnalyticsEnabled()) {
+                    WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
+                            inboundHandler().getUsageDataPublisher());
+                }
             }
 
             Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
@@ -103,8 +105,10 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                         ctx, inboundMessageContext, inboundHandler().getUsageDataPublisher());
                 if (responseDTO.isError()) {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
-                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
-                            inboundHandler().getUsageDataPublisher());
+                    if (APIUtil.isAnalyticsEnabled()) {
+                        WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                                inboundHandler().getUsageDataPublisher());
+                    }
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
@@ -136,8 +140,10 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     }
                 } else {
                     handleWebsocketFrameRequestError(responseDTO, channelId, ctx, promise, msg);
-                    WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
-                            inboundHandler().getUsageDataPublisher());
+                    if (APIUtil.isAnalyticsEnabled()) {
+                        WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext,
+                                inboundHandler().getUsageDataPublisher());
+                    }
                 }
             }
         } else {

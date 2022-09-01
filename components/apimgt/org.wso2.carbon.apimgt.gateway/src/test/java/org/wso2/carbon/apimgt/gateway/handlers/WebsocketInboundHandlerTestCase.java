@@ -28,7 +28,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.CorruptedWebSocketFrameException;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -69,6 +71,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.net.SocketAddress;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -365,6 +368,7 @@ public class WebsocketInboundHandlerTestCase {
         // error response (connection is not closing scenario)
         inboundProcessorResponseDTO.setError(true);
         inboundProcessorResponseDTO.setCloseConnection(false);
+        inboundProcessorResponseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.INTERNAL_SERVER_ERROR);
         websocketInboundHandler.channelRead(channelHandlerContext, msg);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString)));
@@ -411,6 +415,19 @@ public class WebsocketInboundHandlerTestCase {
         websocketInboundHandler.channelRead(channelHandlerContext, msg);
         Assert.assertFalse((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(
                 channelIdString)));//Error should occur due to the context does not exist in data-holder map
+    }
+
+    @Test
+    public void exceptionCaughtTest() throws Exception {
+        Throwable cause = new CorruptedWebSocketFrameException(WebSocketCloseStatus.MESSAGE_TOO_BIG,
+                "Max frame length of 65536 has been exceeded.");
+        Attribute<Object> attributes = Mockito.mock(Attribute.class);
+        Mockito.when(channelHandlerContext.channel().attr(AttributeKey.valueOf("API_PROPERTIES")))
+                .thenReturn(attributes);
+        HashMap apiProperties = new HashMap();
+        Mockito.when((HashMap)attributes.get()).thenReturn(apiProperties);
+        websocketInboundHandler.exceptionCaught(channelHandlerContext, cause);
+        Assert.assertEquals(apiProperties.get("api.ut.WS_SC"), 1009);
     }
 
     @Test
