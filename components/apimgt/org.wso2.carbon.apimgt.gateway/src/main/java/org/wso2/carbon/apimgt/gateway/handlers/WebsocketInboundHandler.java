@@ -688,12 +688,10 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         Attribute<Object> attributes = ctx.channel().attr(AttributeKey.valueOf(API_PROPERTIES));
-        if (cause instanceof CorruptedWebSocketFrameException) {
-            if (attributes != null) {
-                HashMap apiProperties = (HashMap) attributes.get();
-                CorruptedWebSocketFrameException corruptedWebSocketFrameException = ((CorruptedWebSocketFrameException) cause);
-                apiProperties.put(WEB_SC_API_UT, corruptedWebSocketFrameException.closeStatus().code());
-            }
+        if (cause instanceof CorruptedWebSocketFrameException && attributes != null) {
+            HashMap apiProperties = (HashMap) attributes.get();
+            CorruptedWebSocketFrameException corruptedWebSocketFrameException = ((CorruptedWebSocketFrameException) cause);
+            apiProperties.put(WEB_SC_API_UT, corruptedWebSocketFrameException.closeStatus().code());
         }
         super.exceptionCaught(ctx, cause);
     }
