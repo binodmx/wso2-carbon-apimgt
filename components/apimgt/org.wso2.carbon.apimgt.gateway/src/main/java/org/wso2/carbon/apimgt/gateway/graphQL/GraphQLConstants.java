@@ -29,6 +29,7 @@ public class GraphQLConstants {
     public static class FrameErrorConstants {
         public static final int API_AUTH_INVALID_CREDENTIALS = 4001;
         public static final String API_AUTH_INVALID_CREDENTIALS_MESSAGE = "Invalid Credentials";
+        public static final String API_AUTH_INVALID_TOKEN_MESSAGE = "Invalid Token";
         public static final int RESOURCE_FORBIDDEN_ERROR = 4002;
         public static final String RESOURCE_FORBIDDEN_ERROR_MESSAGE = "User NOT authorized to access the resource";
         public static final int THROTTLED_OUT_ERROR = 4003;

@@ -947,8 +947,13 @@ public class WebsocketUtil extends GraphQLProcessor {
 				responseDTO.setError(true);
 				return responseDTO;
 			}
-			if (info == null || !info.isAuthorized()) {
+			if (info == null) {
 				responseDTO.setError(true);
+				return responseDTO;
+			}
+			if (!info.isAuthorized()) {
+				responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+						GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_TOKEN_MESSAGE, true);
 				return responseDTO;
 			}
 			if (info.getApiName() != null && info.getApiName().contains("*")) {
