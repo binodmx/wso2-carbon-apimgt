@@ -81,7 +81,8 @@ public class GraphQLResponseProcessor extends GraphQLProcessor {
                     subscriptionOperation = graphQLOperationDTO.getOperation();
                     // validate scopes based on subscription payload when security is enabled
                     String authType = graphQLOperationDTO.getVerbInfoDTO().getAuthType();
-                    if (!StringUtils.capitalize(APIConstants.AUTH_TYPE_NONE.toLowerCase()).equals(authType)) {
+                    if (!StringUtils.capitalize(APIConstants.AUTH_TYPE_NONE.toLowerCase()).equals(authType)
+                            && inboundMessageContext.isJWTToken()) {
                         responseDTO = validateScopes(inboundMessageContext, graphQLOperationDTO.getOperation(),
                                 operationId);
                     }
