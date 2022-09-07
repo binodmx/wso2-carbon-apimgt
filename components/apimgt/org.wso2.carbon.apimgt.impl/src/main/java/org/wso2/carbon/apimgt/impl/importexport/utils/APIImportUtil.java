@@ -416,9 +416,11 @@ public final class APIImportUtil {
         Map<String, String> lifeCycleActions = new LinkedHashMap<>();
         if (StringUtils.equals(targetStatus, APIStatus.BLOCKED.toString()) || StringUtils.equals(targetStatus,
                 APIStatus.DEPRECATED.toString()) || StringUtils.equals(targetStatus, APIStatus.RETIRED.toString())) {
-            lifeCycleActions.put(APIStatus.PUBLISHED.toString(),
-                    retrieveLifeCycleAction(tenantDomain, currentStatus, APIStatus.PUBLISHED.toString(), apiProvider));
-            currentStatus = APIStatus.PUBLISHED.toString();
+            if (StringUtils.equals(currentStatus, APIStatus.CREATED.toString())) {
+                lifeCycleActions.put(APIStatus.PUBLISHED.toString(),
+                        retrieveLifeCycleAction(tenantDomain, currentStatus, APIStatus.PUBLISHED.toString(), apiProvider));
+                currentStatus = APIStatus.PUBLISHED.toString();
+            }
             if (StringUtils.equals(targetStatus, APIStatus.RETIRED.toString())) {
                 // The API should be Deprecated prior Retiring the API
                 lifeCycleActions.put(APIStatus.DEPRECATED.toString(),
