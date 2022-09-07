@@ -866,12 +866,12 @@ public class WebsocketUtil extends GraphQLProcessor {
 				isDefaultVersion = true;
 			}
 			if (!WebsocketUtil.validateAuthenticationContext(inboundMessageContext, isDefaultVersion)) {
-				responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+				responseDTO = getFrameErrorDTO(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
 						APISecurityConstants.API_AUTH_INVALID_CREDENTIALS_MESSAGE, true);
 			}
 		} catch (APISecurityException e) {
-			log.error(String.valueOf(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS), e);
-			responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+			log.error(String.valueOf(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS), e);
+			responseDTO = getFrameErrorDTO(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
 					e.getMessage(), true);
 		} finally {
 			PrivilegedCarbonContext.endTenantFlow();
@@ -944,16 +944,18 @@ public class WebsocketUtil extends GraphQLProcessor {
 				info = getApiKeyDataForWSClient(apiKey, inboundMessageContext.getTenantDomain(),
 						inboundMessageContext.getApiContextUri(), inboundMessageContext.getVersion());
 			} else {
-				responseDTO.setError(true);
+				responseDTO = getFrameErrorDTO(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_ERROR,
+						WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_MESSAGE, true);
 				return responseDTO;
 			}
 			if (info == null) {
-				responseDTO.setError(true);
+				responseDTO = getFrameErrorDTO(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_ERROR,
+						WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_MESSAGE, true);
 				return responseDTO;
 			}
 			if (!info.isAuthorized()) {
-				responseDTO = getFrameErrorDTO(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
-						GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_TOKEN_MESSAGE, true);
+				responseDTO = getFrameErrorDTO(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+						WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_TOKEN_MESSAGE, true);
 				return responseDTO;
 			}
 			if (info.getApiName() != null && info.getApiName().contains("*")) {

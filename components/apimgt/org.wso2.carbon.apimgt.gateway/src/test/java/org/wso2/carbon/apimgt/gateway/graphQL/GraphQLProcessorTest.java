@@ -34,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
+import org.wso2.carbon.apimgt.gateway.handlers.WebSocketApiConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
@@ -103,9 +104,9 @@ public class GraphQLProcessorTest {
                 channelHandlerContext, verbInfoDTO, inboundMessageContext, operationId, usageDataPublisher);
         Assert.assertTrue(inboundProcessorResponseDTO.isError());
         Assert.assertEquals(inboundProcessorResponseDTO.getErrorMessage(),
-                GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
+                WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
         Assert.assertEquals(inboundProcessorResponseDTO.getErrorCode(),
-                GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
+                WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
         Assert.assertFalse(inboundProcessorResponseDTO.isCloseConnection());
 
         JSONParser jsonParser = new JSONParser();
@@ -115,9 +116,9 @@ public class GraphQLProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertEquals(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE),
-                GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
-                String.valueOf(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR));
+        Assert.assertEquals(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE),
+                WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
+                String.valueOf(WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR));
     }
 }

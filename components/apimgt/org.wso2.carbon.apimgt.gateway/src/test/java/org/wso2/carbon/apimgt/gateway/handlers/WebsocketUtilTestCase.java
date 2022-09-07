@@ -30,6 +30,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLProcessor;
+import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityUtils;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.impl.APIConstants;
@@ -56,7 +57,7 @@ import java.util.UUID;
         PrivilegedCarbonContext.class, MultitenantUtils.class,
         org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder.class, Caching.class,
         Cache.class, APIManagerConfigurationService.class, CacheProvider.class, WebsocketUtil.class,
-        GraphQLProcessor.class })
+        GraphQLProcessor.class, APISecurityUtils.class })
 public class WebsocketUtilTestCase {
     private String apiKey = "abc";
     private String apiContext = "/ishara";
@@ -179,7 +180,7 @@ public class WebsocketUtilTestCase {
     }
     
     @Test
-    public void testOauthTokenExpired() throws Exception {
+    public void testOauthAuthenticationFailure() throws Exception {
         InboundMessageContext inboundMessageContext = createApiMessageContext(websocketAPI);
         inboundMessageContext.setJWTToken(false);
         WebsocketWSClient websocketWSClient = Mockito.mock(WebsocketWSClient.class);
@@ -194,11 +195,38 @@ public class WebsocketUtilTestCase {
         Mockito.when(apiManagerConfiguration.getFirstProperty(APIConstants.GATEWAY_TOKEN_CACHE_ENABLED))
                 .thenReturn("false");
 
+        // When the OAuth token is expired
         WebsocketUtil.initParams();
         responseDTO = WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(), inboundMessageContext);
-        Assert.assertEquals(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_CREDENTIALS,
                 responseDTO.getErrorCode());
-        Assert.assertEquals(GraphQLConstants.FrameErrorConstants.API_AUTH_INVALID_TOKEN_MESSAGE,
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_INVALID_TOKEN_MESSAGE,
+                responseDTO.getErrorMessage());
+        Assert.assertTrue(responseDTO.isCloseConnection());
+
+        // When APISecurityUtils.getKeyValidatorClientType() returns an invalid type
+        responseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.whenNew(InboundProcessorResponseDTO.class).withAnyArguments().thenReturn(responseDTO);
+        PowerMockito.mockStatic(APISecurityUtils.class);
+        PowerMockito.when(APISecurityUtils.getKeyValidatorClientType()).thenReturn("Undefined");
+        responseDTO = WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(), inboundMessageContext);
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_ERROR,
+                responseDTO.getErrorCode());
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_MESSAGE,
+                responseDTO.getErrorMessage());
+        Assert.assertTrue(responseDTO.isCloseConnection());
+
+        // When getApiKeyDataForWSClient() returns null
+        responseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.whenNew(InboundProcessorResponseDTO.class).withAnyArguments().thenReturn(responseDTO);
+        PowerMockito.mock(APISecurityUtils.class);
+        Mockito.when(websocketWSClient.getAPIKeyData(inboundMessageContext.getApiContextUri(),
+                inboundMessageContext.getVersion(), inboundMessageContext.getApiKey(),
+                inboundMessageContext.getTenantDomain())).thenReturn(null);
+        responseDTO = WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(), inboundMessageContext);
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_ERROR,
+                responseDTO.getErrorCode());
+        Assert.assertEquals(WebSocketApiConstants.FrameErrorConstants.API_AUTH_GENERAL_MESSAGE,
                 responseDTO.getErrorMessage());
         Assert.assertTrue(responseDTO.isCloseConnection());
     }

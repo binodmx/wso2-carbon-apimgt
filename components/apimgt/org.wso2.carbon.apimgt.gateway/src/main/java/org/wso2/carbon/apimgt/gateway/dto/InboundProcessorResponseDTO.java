@@ -20,6 +20,7 @@ package org.wso2.carbon.apimgt.gateway.dto;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
+import org.wso2.carbon.apimgt.gateway.handlers.WebSocketApiConstants;
 
 /**
  * DTO class to hold response information during execution of Inbound processors.
@@ -81,8 +82,8 @@ public class InboundProcessorResponseDTO {
         jsonObject.put(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_TYPE,
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_TYPE_ERROR);
         JSONObject payload = new JSONObject();
-        payload.put(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE, errorMessage);
-        payload.put(GraphQLConstants.FrameErrorConstants.ERROR_CODE, errorCode);
+        payload.put(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE, errorMessage);
+        payload.put(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE, errorCode);
         JSONArray errorPayloads = new JSONArray();
         errorPayloads.put(payload);
         jsonObject.put(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD, errorPayloads);
