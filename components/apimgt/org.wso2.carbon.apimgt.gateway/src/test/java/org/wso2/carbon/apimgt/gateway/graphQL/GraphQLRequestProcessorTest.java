@@ -39,6 +39,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.wso2.carbon.apimgt.api.gateway.GraphQLSchemaDTO;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
+import org.wso2.carbon.apimgt.gateway.handlers.WebSocketApiConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.WebsocketUtil;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
 import org.wso2.carbon.apimgt.gateway.internal.DataHolder;
@@ -238,11 +239,11 @@ public class GraphQLRequestProcessorTest {
         Assert.assertTrue(errorJson.containsKey(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD));
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertTrue(payload.containsKey(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE));
-        Assert.assertTrue(payload.containsKey(GraphQLConstants.FrameErrorConstants.ERROR_CODE));
-        Assert.assertEquals(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE),
+        Assert.assertTrue(payload.containsKey(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE));
+        Assert.assertTrue(payload.containsKey(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE));
+        Assert.assertEquals(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE),
                 "Invalid operation payload");
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.BAD_REQUEST));
 
         msgText = "{\"id\":\"1\",\"type\":\"start\",\"payload\":{\"variables\":{},\"extensions\":{},"
@@ -271,9 +272,9 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         payload =
                 (JSONObject) ((JSONArray) errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertEquals(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE),
+        Assert.assertEquals(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE),
                 "Invalid operation. Only allowed Subscription type operations");
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.BAD_REQUEST));
     }
 
@@ -317,9 +318,9 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertTrue(((String) payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE)).contains(
+        Assert.assertTrue(((String) payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE)).contains(
                 GraphQLConstants.FrameErrorConstants.GRAPHQL_INVALID_QUERY_MESSAGE));
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.GRAPHQL_INVALID_QUERY));
         Assert.assertFalse(processorResponseDTO.isCloseConnection());
     }
@@ -386,9 +387,9 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertEquals(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE),
+        Assert.assertEquals(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE),
                 "User is NOT authorized to access the Resource");
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.RESOURCE_FORBIDDEN_ERROR));
         Assert.assertFalse(processorResponseDTO.isCloseConnection());
     }
@@ -517,9 +518,9 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertTrue(((String) payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE))
+        Assert.assertTrue(((String) payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE))
                 .contains(GraphQLConstants.FrameErrorConstants.GRAPHQL_QUERY_TOO_DEEP_MESSAGE));
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
                 String.valueOf(GraphQLConstants.FrameErrorConstants.GRAPHQL_QUERY_TOO_DEEP));
         Assert.assertFalse(processorResponseDTO.isCloseConnection());
     }
@@ -571,8 +572,8 @@ public class GraphQLRequestProcessorTest {
 
         InboundProcessorResponseDTO throttleResponseDTO = new InboundProcessorResponseDTO();
         throttleResponseDTO.setError(true);
-        throttleResponseDTO.setErrorCode(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
-        throttleResponseDTO.setErrorMessage(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
+        throttleResponseDTO.setErrorCode(WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
+        throttleResponseDTO.setErrorMessage(WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE);
         throttleResponseDTO.setId("1");
         PowerMockito.when(GraphQLProcessor.doThrottleForGraphQL(msg, channelHandlerContext, verbInfoDTO,
                 inboundMessageContext, "1", usageDataPublisher)).thenReturn(throttleResponseDTO);
@@ -580,9 +581,9 @@ public class GraphQLRequestProcessorTest {
                 channelHandlerContext, inboundMessageContext, usageDataPublisher);
         Assert.assertTrue(processorResponseDTO.isError());
         Assert.assertTrue(processorResponseDTO.getErrorMessage().contains(
-                GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE));
+                WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE));
         Assert.assertEquals(processorResponseDTO.getErrorCode(),
-                GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
+                WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR);
         Assert.assertNotNull(processorResponseDTO.getErrorResponseString());
         JSONParser jsonParser = new JSONParser();
         JSONObject errorJson = (JSONObject) jsonParser.parse(processorResponseDTO.getErrorResponseString());
@@ -591,10 +592,10 @@ public class GraphQLRequestProcessorTest {
         Assert.assertEquals(errorJson.get(GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_ID), "1");
         JSONObject payload = (JSONObject) ((JSONArray) errorJson.get(
                 GraphQLConstants.SubscriptionConstants.PAYLOAD_FIELD_NAME_PAYLOAD)).get(0);
-        Assert.assertTrue(((String) payload.get(GraphQLConstants.FrameErrorConstants.ERROR_MESSAGE))
-                .contains(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE));
-        Assert.assertEquals(String.valueOf(payload.get(GraphQLConstants.FrameErrorConstants.ERROR_CODE)),
-                String.valueOf(GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR));
+        Assert.assertTrue(((String) payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_MESSAGE))
+                .contains(WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR_MESSAGE));
+        Assert.assertEquals(String.valueOf(payload.get(WebSocketApiConstants.FrameErrorConstants.ERROR_CODE)),
+                String.valueOf(WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR));
         Assert.assertFalse(processorResponseDTO.isCloseConnection());
     }
 

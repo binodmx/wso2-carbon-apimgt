@@ -176,7 +176,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         } else {
             String errorMessage = responseDTO.getErrorResponseString();
             outboundHandler().write(ctx, new TextWebSocketFrame(errorMessage), promise);
-            if (responseDTO.getErrorCode() == GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
+            if (responseDTO.getErrorCode() == WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
                 if (log.isDebugEnabled()) {
                     log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
                 }

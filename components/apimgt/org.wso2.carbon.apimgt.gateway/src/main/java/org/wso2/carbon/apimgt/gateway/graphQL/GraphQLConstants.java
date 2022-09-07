@@ -27,12 +27,8 @@ public class GraphQLConstants {
             Arrays.asList("first", "last", "limit"));
 
     public static class FrameErrorConstants {
-        public static final int API_AUTH_INVALID_CREDENTIALS = 4001;
-        public static final String API_AUTH_INVALID_CREDENTIALS_MESSAGE = "Invalid Credentials";
         public static final int RESOURCE_FORBIDDEN_ERROR = 4002;
         public static final String RESOURCE_FORBIDDEN_ERROR_MESSAGE = "User NOT authorized to access the resource";
-        public static final int THROTTLED_OUT_ERROR = 4003;
-        public static final String THROTTLED_OUT_ERROR_MESSAGE = "Websocket frame throttled out";
         public static final int INTERNAL_SERVER_ERROR = 4004;
         public static final int BAD_REQUEST = 4005;
         public static final int BLOCKED_REQUEST = 4006;
@@ -43,8 +39,6 @@ public class GraphQLConstants {
         public static final String GRAPHQL_QUERY_TOO_COMPLEX_MESSAGE = "QUERY TOO COMPLEX";
         public static final int GRAPHQL_INVALID_QUERY = 4022;
         public static final String GRAPHQL_INVALID_QUERY_MESSAGE = "INVALID QUERY";
-        public static final String ERROR_CODE = "code";
-        public static final String ERROR_MESSAGE = "message";
     }
 
     // GraphQL Constants related to GraphQL Subscription operations
