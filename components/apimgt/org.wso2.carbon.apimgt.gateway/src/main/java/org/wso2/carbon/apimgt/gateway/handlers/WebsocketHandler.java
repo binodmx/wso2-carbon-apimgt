@@ -107,7 +107,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                             inboundHandler().getUsageDataPublisher());
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug("Sending Outbound Websocket frame." + ctx.channel().toString());
+                        log.debug("Websocket API request OUT flow : Sending Outbound Websocket frame." + ctx.channel().toString());
                     }
                     outboundHandler().write(ctx, msg, promise);
                 }
@@ -131,7 +131,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                         ReferenceCountUtil.release(msg);
                         ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
                         if (log.isDebugEnabled()) {
-                            log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
+                            log.debug("Websocket API request OUT flow : Outbound Websocket frame is throttled. " + ctx.channel().toString());
                         }
                     }
                 } else {
@@ -160,7 +160,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             // remove inbound message context from data holder
             InboundMessageContextDataHolder.getInstance().removeInboundMessageContextForConnection(channelId);
             if (log.isDebugEnabled()) {
-                log.debug("Error while handling Outbound Websocket frame. Closing connection for "
+                log.debug("Websocket API request OUT flow : Error while handling Outbound Websocket frame. Closing connection for "
                         + ctx.channel().toString());
             }
             outboundHandler().write(ctx, new CloseWebSocketFrame(responseDTO.getErrorCode(),
@@ -172,7 +172,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             outboundHandler().write(ctx, new TextWebSocketFrame(errorMessage), promise);
             if (responseDTO.getErrorCode() == GraphQLConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Outbound Websocket frame is throttled. " + ctx.channel().toString());
+                    log.debug("Websocket API request OUT flow : Outbound Websocket frame is throttled. " + ctx.channel().toString());
                 }
             }
         }
@@ -192,6 +192,9 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         long startTime = (long) ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME))
                 .get();
         long serviceTime = endTime - startTime;
+        if (log.isDebugEnabled()) {
+            log.debug("Websocket API request OUT flow : Sending Outbound Websocket frame." + ctx.channel().toString());
+        }
         outboundHandler().write(ctx, msg, promise);
         // publish analytics events if analytics is enabled
         if (APIUtil.isAnalyticsEnabled()) {
