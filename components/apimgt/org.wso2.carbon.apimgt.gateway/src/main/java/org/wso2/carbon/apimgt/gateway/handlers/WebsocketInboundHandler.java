@@ -48,21 +48,21 @@ import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
 import org.wso2.carbon.apimgt.gateway.dto.InboundProcessorResponseDTO;
 import org.wso2.carbon.apimgt.gateway.dto.WebSocketThrottleResponseDTO;
-import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLConstants;
 import org.wso2.carbon.apimgt.gateway.graphQL.GraphQLRequestProcessor;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityConstants;
 import org.wso2.carbon.apimgt.gateway.handlers.security.APISecurityException;
-import org.wso2.carbon.apimgt.gateway.handlers.security.AuthenticationContext;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.utils.APIMgtGoogleAnalyticsUtils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerAnalyticsConfiguration;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
+import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.JWTConfigurationDto;
 import org.wso2.carbon.apimgt.impl.dto.ResourceInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
 import org.wso2.carbon.apimgt.impl.jwt.SignedJWTInfo;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.apimgt.usage.publisher.DataPublisherUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -661,22 +661,24 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         if (apiPropertiesMap == null) {
             apiPropertiesMap = new HashMap<>();
         }
-        AuthenticationContext authenticationContext = inboundMessageContext.getAuthContext();
-        if (authenticationContext != null) {
-            String apiName = authenticationContext.getApiName();
-            String apiVersion = authenticationContext.getApiVersion();
-            apiPropertiesMap.put(APIMgtGatewayConstants.CONSUMER_KEY, authenticationContext.getConsumerKey());
-            apiPropertiesMap.put(APIMgtGatewayConstants.USER_ID, authenticationContext.getUsername());
-            apiPropertiesMap.put(APIMgtGatewayConstants.CONTEXT, inboundMessageContext.getApiContextUri());
-            apiPropertiesMap.put(APIMgtGatewayConstants.API, apiName);
-            apiPropertiesMap.put(APIMgtGatewayConstants.VERSION, apiVersion);
-            apiPropertiesMap.put(APIMgtGatewayConstants.API_TYPE, String.valueOf(APIConstants.ApiTypes.API));
-            apiPropertiesMap.put(APIMgtGatewayConstants.HOST_NAME, APIUtil.getHostAddress());
-            apiPropertiesMap.put(APIMgtGatewayConstants.API_PUBLISHER, authenticationContext.getApiPublisher());
-            apiPropertiesMap.put(APIMgtGatewayConstants.END_USER_NAME, authenticationContext.getUsername());
-            apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_NAME, authenticationContext.getApplicationName());
-            apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_ID, authenticationContext.getApplicationId());
-            apiPropertiesMap.put(APIMgtGatewayConstants.API_VERSION, apiName + ":v" + apiVersion);
+        API api = inboundMessageContext.getElectedAPI();
+        String apiName = api.getApiName();
+        String apiVersion = api.getApiVersion();
+        apiPropertiesMap.put(APIMgtGatewayConstants.API, apiName);
+        apiPropertiesMap.put(APIMgtGatewayConstants.VERSION, apiVersion);
+        apiPropertiesMap.put(APIMgtGatewayConstants.API_VERSION, apiName + ":v" + apiVersion);
+        apiPropertiesMap.put(APIMgtGatewayConstants.CONTEXT, inboundMessageContext.getApiContextUri());
+        apiPropertiesMap.put(APIMgtGatewayConstants.API_TYPE, String.valueOf(APIConstants.ApiTypes.API));
+        apiPropertiesMap.put(APIMgtGatewayConstants.HOST_NAME, APIUtil.getHostAddress());
+
+        APIKeyValidationInfoDTO infoDTO = inboundMessageContext.getInfoDTO();
+        if (infoDTO != null) {
+            apiPropertiesMap.put(APIMgtGatewayConstants.CONSUMER_KEY, infoDTO.getConsumerKey());
+            apiPropertiesMap.put(APIMgtGatewayConstants.USER_ID, infoDTO.getEndUserName());
+            apiPropertiesMap.put(APIMgtGatewayConstants.API_PUBLISHER, infoDTO.getApiPublisher());
+            apiPropertiesMap.put(APIMgtGatewayConstants.END_USER_NAME, infoDTO.getEndUserName());
+            apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_NAME, infoDTO.getApplicationName());
+            apiPropertiesMap.put(APIMgtGatewayConstants.APPLICATION_ID, infoDTO.getApplicationId());
         }
         return apiPropertiesMap;
     }
