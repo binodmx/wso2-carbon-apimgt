@@ -22,6 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -34,6 +35,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketCloseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.engine.AxisConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +62,7 @@ import org.wso2.carbon.apimgt.gateway.throttling.publisher.ThrottleDataPublisher
 import org.wso2.carbon.apimgt.gateway.utils.APIMgtGoogleAnalyticsUtils;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
+import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.jwt.JWTValidationService;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import org.wso2.carbon.apimgt.keymgt.model.entity.API;
@@ -95,6 +99,12 @@ public class WebsocketInboundHandlerTestCase {
 
     private static final String channelIdString = "11111";
     private static final String remoteIP = "192.168.0.100";
+    private static final String APPLICATION_TIER = "ApplicationTier";
+    private static final String APPLICATION_NAME = "ApplicationName";
+    private static final String APPLICATION_ID = "1";
+    private static final String TIER = "Tier";
+    private static final String SUBSCRIBER = "subscriber";
+    private static final String APPLICATION_CONSUMER_KEY = "NdYZFnAfUa7uST1giZrmIq8he8Ya";
     private String SUPER_TENANT_DOMAIN = "carbon.super";
     private ChannelHandlerContext channelHandlerContext;
     private API websocketAPI;
@@ -116,6 +126,8 @@ public class WebsocketInboundHandlerTestCase {
     private String TOKEN_CACHE_EXPIRY = "900";
     private WebsocketInboundHandler websocketInboundHandler;
     private APIManagerConfiguration apiManagerConfiguration;
+    private AxisConfiguration axisConfiguration;
+    private ConfigurationContext configurationContext;
     private Cache gatewayCache;
     ServiceReferenceHolder serviceReferenceHolder;
     private GraphQLRequestProcessor graphQLRequestProcessor;
@@ -126,6 +138,8 @@ public class WebsocketInboundHandlerTestCase {
     public void setup() throws Exception {
         System.setProperty("carbon.home", "test");
         channelHandlerContext = Mockito.mock(ChannelHandlerContext.class);
+        fullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
+                "ws://localhost:8080/graphql");
         Channel channel = Mockito.mock(Channel.class);
         Attribute attribute = Mockito.mock(Attribute.class);
         ChannelId channelId = Mockito.mock(ChannelId.class);
@@ -154,8 +168,12 @@ public class WebsocketInboundHandlerTestCase {
         PowerMockito.mockStatic(Caching.class);
         serviceReferenceHolder = Mockito.mock(ServiceReferenceHolder.class);
         apiManagerConfiguration = Mockito.mock(APIManagerConfiguration.class);
+        configurationContext = Mockito.mock(ConfigurationContext.class);
+        axisConfiguration = Mockito.mock(AxisConfiguration.class);
         PowerMockito.when(ServiceReferenceHolder.getInstance()).thenReturn(serviceReferenceHolder);
         PowerMockito.when(serviceReferenceHolder.getAPIManagerConfiguration()).thenReturn(apiManagerConfiguration);
+        PowerMockito.when(serviceReferenceHolder.getServerConfigurationContext()).thenReturn(configurationContext);
+        PowerMockito.when(configurationContext.getAxisConfiguration()).thenReturn(axisConfiguration);
         PowerMockito.mockStatic(APIUtil.class);
         PowerMockito.mockStatic(WebsocketUtil.class);
         PowerMockito.when(WebsocketUtil.getRemoteIP(channelHandlerContext)).thenReturn(remoteIP);
@@ -206,13 +224,20 @@ public class WebsocketInboundHandlerTestCase {
     public void testWSHandshakeResponse() throws Exception {
 
         // For Web Socket APIs
+        APIKeyValidationInfoDTO infoDTO = createAPIKeyValidationInfo(websocketAPI);
         InboundMessageContext inboundMessageContext = createApiMessageContext(websocketAPI);
         InboundMessageContextDataHolder.getInstance()
                 .addInboundMessageContextForConnection(channelIdString, inboundMessageContext);
-        FullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                "ws://localhost:8080/graphql");
+        inboundMessageContext.setInfoDTO(infoDTO);
+        inboundMessageContext.setJWTToken(true);
+        ChannelPipeline channelPipeline = Mockito.mock(ChannelPipeline.class);
+        Mockito.when(channelHandlerContext.channel().pipeline()).thenReturn(channelPipeline);
+        Mockito.when(channelPipeline.get("ssl")).thenReturn(null);
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION);
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.UPGRADE, UPGRADE);
+        HashMap<String, Object> apiProperties = new HashMap<>();
+        PowerMockito.whenNew(HashMap.class).withAnyArguments().thenReturn(apiProperties);
+        PowerMockito.when(APIUtil.getHostAddress()).thenReturn("localhost");
         PowerMockito.when(WebsocketUtil.getApi(fullHttpRequest.uri(), SUPER_TENANT_DOMAIN)).thenReturn(websocketAPI);
         JWTValidator jwtValidator = Mockito.mock(JWTValidator.class);
         PowerMockito.whenNew(JWTValidator.class).withAnyArguments().thenReturn(jwtValidator);
@@ -229,6 +254,7 @@ public class WebsocketInboundHandlerTestCase {
         PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(responseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, fullHttpRequest);
+        validateApiProperties(apiProperties, infoDTO, inboundMessageContext);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString)));// No error has occurred context exists in data-holder map
         Assert.assertEquals(inboundMessageContext.getHeaders().get(org.apache.http.HttpHeaders.AUTHORIZATION),
@@ -299,8 +325,6 @@ public class WebsocketInboundHandlerTestCase {
         InboundMessageContext inboundMessageContext = createApiMessageContext(graphQLAPI);
         InboundMessageContextDataHolder.getInstance()
                 .addInboundMessageContextForConnection(channelIdString, inboundMessageContext);
-        FullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                "ws://localhost:8080/graphql");
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION);
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.UPGRADE, UPGRADE);
         PowerMockito.when(WebsocketUtil.getApi(fullHttpRequest.uri(), SUPER_TENANT_DOMAIN)).thenReturn(graphQLAPI);
@@ -437,8 +461,6 @@ public class WebsocketInboundHandlerTestCase {
         InboundMessageContext inboundMessageContext = createApiMessageContext(graphQLAPI);
         InboundMessageContextDataHolder.getInstance()
                 .addInboundMessageContextForConnection(channelIdString, inboundMessageContext);
-        FullHttpRequest fullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET,
-                "ws://localhost:8080/graphql");
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION);
         fullHttpRequest.headers().set(org.apache.http.HttpHeaders.UPGRADE, UPGRADE);
         PowerMockito.when(WebsocketUtil.getApi(fullHttpRequest.uri(), SUPER_TENANT_DOMAIN)).thenReturn(graphQLAPI);
@@ -502,11 +524,53 @@ public class WebsocketInboundHandlerTestCase {
                 channelIdString)));//Error should occur due to the context does not exist in data-holder map
     }
 
+    private void validateApiProperties(HashMap apiPropertiesMap, APIKeyValidationInfoDTO infoDTO, InboundMessageContext inboundMessageContext) {
+        API electedAPI = inboundMessageContext.getElectedAPI();
+        Assert.assertEquals(electedAPI.getApiName(), apiPropertiesMap.get(APIMgtGatewayConstants.API));
+        Assert.assertEquals(electedAPI.getApiVersion(), apiPropertiesMap.get(APIMgtGatewayConstants.VERSION));
+        Assert.assertEquals(electedAPI.getApiName() + ":v" + electedAPI.getApiVersion(),
+                apiPropertiesMap.get(APIMgtGatewayConstants.API_VERSION));
+        Assert.assertEquals(inboundMessageContext.getApiContextUri(),
+                apiPropertiesMap.get(APIMgtGatewayConstants.CONTEXT));
+        Assert.assertEquals(String.valueOf(APIConstants.ApiTypes.API),
+                apiPropertiesMap.get(APIMgtGatewayConstants.API_TYPE));
+        Assert.assertEquals(APIUtil.getHostAddress(), apiPropertiesMap.get(APIMgtGatewayConstants.HOST_NAME));
+        Assert.assertEquals(infoDTO.getConsumerKey(), apiPropertiesMap.get(APIMgtGatewayConstants.CONSUMER_KEY));
+        Assert.assertEquals(infoDTO.getEndUserName(), apiPropertiesMap.get(APIMgtGatewayConstants.USER_ID));
+        Assert.assertEquals(infoDTO.getApiPublisher(), apiPropertiesMap.get(APIMgtGatewayConstants.API_PUBLISHER));
+        Assert.assertEquals(infoDTO.getEndUserName(), apiPropertiesMap.get(APIMgtGatewayConstants.END_USER_NAME));
+        Assert.assertEquals(infoDTO.getApplicationName(),
+                apiPropertiesMap.get(APIMgtGatewayConstants.APPLICATION_NAME));
+        Assert.assertEquals(infoDTO.getApplicationId(), apiPropertiesMap.get(APIMgtGatewayConstants.APPLICATION_ID));
+    }
+
     private InboundMessageContext createApiMessageContext(API api) {
         InboundMessageContext inboundMessageContext = new InboundMessageContext();
-        inboundMessageContext.setTenantDomain("carbon.super");
+        inboundMessageContext.setTenantDomain(SUPER_TENANT_DOMAIN);
         inboundMessageContext.setElectedAPI(api);
         inboundMessageContext.setToken("test-backend-jwt-token");
         return inboundMessageContext;
+    }
+
+    private APIKeyValidationInfoDTO createAPIKeyValidationInfo(API api) {
+        APIKeyValidationInfoDTO info = new APIKeyValidationInfoDTO();
+        info.setAuthorized(true);
+        info.setApplicationTier(APPLICATION_TIER);
+        info.setTier(TIER);
+        info.setSubscriberTenantDomain(SUPER_TENANT_DOMAIN);
+        info.setSubscriber(SUBSCRIBER);
+        info.setStopOnQuotaReach(true);
+        info.setApiName(api.getApiName());
+        info.setApplicationId(APPLICATION_ID);
+        info.setType("PRODUCTION");
+        info.setApiPublisher(api.getApiProvider());
+        info.setApplicationName(APPLICATION_NAME);
+        info.setConsumerKey(APPLICATION_CONSUMER_KEY);
+        info.setEndUserName(SUBSCRIBER + "@" + SUPER_TENANT_DOMAIN);
+        info.setApiTier(api.getApiTier());
+        info.setEndUserToken("callerToken");
+        info.setGraphQLMaxDepth(5);
+        info.setGraphQLMaxComplexity(5);
+        return info;
     }
 }
