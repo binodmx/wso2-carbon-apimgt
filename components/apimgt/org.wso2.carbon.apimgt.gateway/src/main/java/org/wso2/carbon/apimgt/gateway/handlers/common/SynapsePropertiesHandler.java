@@ -108,7 +108,7 @@ public class SynapsePropertiesHandler extends AbstractHandler {
                             .getAxis2MessageContext().getProperty(APIMgtGatewayConstants.TRANSPORT_HEADERS);
                     try {
                         URI locationURI = new URI(headers.get(APIMgtGatewayConstants.LOCATION));
-                        log.debug("Location URI before rewrite " + locationURI.toString());
+                        log.debug("Location URI before rewrite : " + locationURI.toString());
                         String hostHeader = (String) messageContext.getProperty(APIMgtGatewayConstants.HOST_HEADER);
                         String kmHostName = (String) messageContext.getProperty("keyManager.hostname");
                         String kmHostPort = (String) messageContext.getProperty("keyManager.port");
@@ -119,18 +119,18 @@ public class SynapsePropertiesHandler extends AbstractHandler {
                             locationURIString = locationURIString.replaceFirst(kmHostName + ":" + kmHostPort,
                                     hostHeader);
                         }
+                        log.debug("Location URI after re-writing KM host to GW : " + locationURIString);
                         ((Axis2MessageContext) messageContext).getAxis2MessageContext()
                                 .setProperty("PRE_LOCATION_HEADER", locationURI);
-                        log.debug("Location URI after rewrite KM host to GW " + locationURIString);
                         if (messageContext.getProperty(RESTConstants.REST_API_CONTEXT)
                                 .equals(APIMgtGatewayConstants.COMMON_AUTH_CONTEXT)) {
                             // Commonauth endpoints return location header /oauth2/authorize. Since GW has /authorize
                             // we have to omit the /oauth2 portion from the location header value
                             locationURIString =
                                     locationURIString.replaceFirst(APIMgtGatewayConstants.OAUTH2_CONTEXT, "");
+                            log.debug("Location URI after re-writing by removing /oauth2 : " + locationURIString);
                         }
                         // Inserting modified headers to the message context
-                        log.debug("Location URI after rewrite removing /oauth2 " + locationURIString);
                         headers.put(APIMgtGatewayConstants.LOCATION, locationURIString);
                         ((Axis2MessageContext) messageContext).getAxis2MessageContext().
                                 setProperty(APIMgtGatewayConstants.TRANSPORT_HEADERS, headers);
