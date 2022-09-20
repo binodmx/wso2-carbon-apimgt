@@ -187,7 +187,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             inboundMessageContext.setApiContextUri(apiContextUri);
 
             if (log.isDebugEnabled()) {
-                log.debug("Websocket API apiContextUri = " + apiContextUri);
+                log.debug(channelId + " -- Websocket API request [inbound]: " + req.method() + " " + apiContextUri + " " + req.protocolVersion());
+                log.debug(channelId + " -- Websocket API request [inbound] : Host: " + req.headers().get(APIConstants.SWAGGER_HOST));
             }
             if (req.getUri().contains("/t/")) {
                 inboundMessageContext.setTenantDomain(MultitenantUtils.getTenantDomainFromUrl(req.getUri()));
@@ -316,7 +317,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                             }
                             ctx.writeAndFlush(new TextWebSocketFrame("Websocket frame throttled out"));
                             if (log.isDebugEnabled()) {
-                                log.debug("Inbound Websocket frame is throttled. " + ctx.channel().toString());
+                                log.debug(channelId + " -- Websocket API request [inbound] : Inbound Websocket frame is throttled. " + ctx.channel().toString());
                             }
                         } else {
                             handleWSRequestSuccess(ctx, msg, inboundMessageContext, usageDataPublisher);
@@ -467,7 +468,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
                 if (isJwtToken) {
-                    log.debug("The token was identified as a JWT token");
+                    log.debug("Websocket API request [inbound] : The token was identified as a JWT token");
                     responseDTO = WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext);
                 } else {
                     responseDTO = WebsocketUtil.authenticateOAuthToken(responseDTO, apiKey, inboundMessageContext);
@@ -602,7 +603,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             // remove inbound message context from data holder
             InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().remove(channelId);
             if (log.isDebugEnabled()) {
-                log.debug("Error while handling Outbound Websocket frame. Closing connection for " + ctx.channel()
+                log.debug(channelId + " -- Websocket API request [inbound] : Error while handling Outbound Websocket frame. Closing connection for " + ctx.channel()
                         .toString());
             }
             ctx.writeAndFlush(new CloseWebSocketFrame(responseDTO.getErrorCode(),
@@ -613,7 +614,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             ctx.writeAndFlush(new TextWebSocketFrame(errorMessage));
             if (responseDTO.getErrorCode() == WebSocketApiConstants.FrameErrorConstants.THROTTLED_OUT_ERROR) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Inbound Websocket frame is throttled. " + ctx.channel().toString());
+                    log.debug(channelId + " -- Websocket API request [inbound] : Inbound Websocket frame is throttled. " + ctx.channel().toString());
                 }
             }
         }
