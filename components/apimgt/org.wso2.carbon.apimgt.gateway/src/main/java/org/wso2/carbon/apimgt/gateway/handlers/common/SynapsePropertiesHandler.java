@@ -18,8 +18,11 @@ package org.wso2.carbon.apimgt.gateway.handlers.common;
 import org.apache.axis2.Constants;
 import org.apache.http.HttpHeaders;
 import org.apache.synapse.MessageContext;
+import org.apache.synapse.SynapseConstants;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.rest.AbstractHandler;
+import org.apache.synapse.rest.RESTConstants;
+import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 
 import javax.ws.rs.core.MediaType;
@@ -47,11 +50,12 @@ public class SynapsePropertiesHandler extends AbstractHandler{
         boolean isContentTypeNotSet = false;
         if (headers != null) {
             isContentTypeNotSet = headers.get("Content-Type") == null || headers.get("Content-Type").equals("");
-            if (headers.get("Host") != null || !("").equals(headers.get("Host"))) {
+            if (headers.get(APIMgtGatewayConstants.HOST) != null || !("")
+                    .equals(headers.get(APIMgtGatewayConstants.HOST))) {
                 // Derive the outward facing host and port from host header
-                String hostHeader = (String) headers.get("Host");
+                String hostHeader = (String) headers.get(APIMgtGatewayConstants.HOST);
                 // Set it as a message context property to retrieve in HandleResponse method
-                messageContext.setProperty("HostHeader", hostHeader);
+                messageContext.setProperty(APIMgtGatewayConstants.HOST_HEADER, hostHeader);
             }
         }
         if (isContentTypeNotSet && (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
@@ -69,42 +73,46 @@ public class SynapsePropertiesHandler extends AbstractHandler{
 
     public boolean handleResponse(MessageContext messageContext) {
         // The logic is related if the API context is "/authorize", "/commonauth" or "/oidc" while status code is 302
-        if (messageContext.getProperty("REST_API_CONTEXT").equals("/authorize") ||
-                messageContext.getProperty("REST_API_CONTEXT").equals("/commonauth") ||
-                messageContext.getProperty("REST_API_CONTEXT").equals("/oidc")) {
+        if (messageContext.getProperty(RESTConstants.REST_API_CONTEXT).equals(APIMgtGatewayConstants.AUTHORIZE_CONTEXT)
+                || messageContext.getProperty(RESTConstants.REST_API_CONTEXT)
+                .equals(APIMgtGatewayConstants.COMMON_AUTH_CONTEXT) || messageContext
+                .getProperty(RESTConstants.REST_API_CONTEXT).equals(APIMgtGatewayConstants.OIDC_CONTEXT)) {
             if (302 == (Integer) ((Axis2MessageContext) messageContext).getAxis2MessageContext()
-                    .getProperty("HTTP_SC")) {
+                    .getProperty(SynapseConstants.HTTP_SC)) {
                 // Retrieve the transport headers in the response and identify the location header
                 TreeMap<String, String> headers = (TreeMap) ((Axis2MessageContext) messageContext)
-                        .getAxis2MessageContext().getProperty("TRANSPORT_HEADERS");
-                String locationURI = headers.get("Location");
+                        .getAxis2MessageContext().getProperty(APIMgtGatewayConstants.TRANSPORT_HEADERS);
+                String locationURI = headers.get(APIMgtGatewayConstants.LOCATION);
                 // KM host and port which is included in the location header value
                 String kmHost = messageContext.getProperty("keyManager.hostname") + ":" + messageContext
                         .getProperty("keyManager.port");
-                String hostHeader = (String) messageContext.getProperty("HostHeader");
+                String hostHeader = (String) messageContext.getProperty(APIMgtGatewayConstants.HOST_HEADER);
 
                 // This check to change the location header is done to make sure that only location headers of the
                 // appropriate endpoints which have been proxied are changed. Without this check condition to change
                 // the location header, any endpoint which is having KM host as part of the URL will be redirected
                 // which could lead to wrong endpoints.
-                if (locationURI.contains("/authenticationendpoint") || locationURI.contains("/oauth2/authorize")
-                        || locationURI.contains("/commonauth") || locationURI.contains("/logincontext") || locationURI
-                        .contains("/oidc")) {
+                if (locationURI.contains(APIMgtGatewayConstants.AUTHENTICATION_ENDPOINT_CONTEXT) || locationURI
+                        .contains(APIMgtGatewayConstants.OAUTH2_CONTEXT + APIMgtGatewayConstants.AUTHORIZE_CONTEXT)
+                        || locationURI.contains(APIMgtGatewayConstants.COMMON_AUTH_CONTEXT) || locationURI
+                        .contains(APIMgtGatewayConstants.LOGIN_CONTEXT) || locationURI
+                        .contains(APIMgtGatewayConstants.OIDC_CONTEXT)) {
                     // Replacing KM host with Gateway host
                     locationURI = locationURI.replaceFirst(kmHost, hostHeader);
                 }
 
                 ((Axis2MessageContext) messageContext).getAxis2MessageContext()
                         .setProperty("PRE_LOCATION_HEADER", locationURI);
-                if (messageContext.getProperty("REST_API_CONTEXT").equals("/commonauth")) {
+                if (messageContext.getProperty(RESTConstants.REST_API_CONTEXT)
+                        .equals(APIMgtGatewayConstants.COMMON_AUTH_CONTEXT)) {
                     // Commonauth endpoints return location header /oauth2/authorize. Since GW has /authorize we have to
                     // omit the /oauth2 portion from the location header value
-                    locationURI = locationURI.replaceFirst("/oauth2", "");
+                    locationURI = locationURI.replaceFirst(APIMgtGatewayConstants.OAUTH2_CONTEXT, "");
                 }
                 // Inserting modified headers to the message context
-                headers.put("Location", locationURI);
+                headers.put(APIMgtGatewayConstants.LOCATION, locationURI);
                 ((Axis2MessageContext) messageContext).getAxis2MessageContext().
-                        setProperty("TRANSPORT_HEADERS", headers);
+                        setProperty(APIMgtGatewayConstants.TRANSPORT_HEADERS, headers);
             }
         }
         return true;
