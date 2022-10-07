@@ -328,6 +328,22 @@ public class ApplicationsApiServiceImpl implements ApplicationsApiService {
 
             apiConsumer.updateApplication(application);
 
+            //If application name is renamed, need to update SP app as well
+            if (!application.getName().equals(oldApplication.getName())) {
+                //Fetch Application Keys
+                Set<APIKey> applicationKeys = getApplicationKeys(applicationId, apiConsumer.getRequestedTenant());
+                //Check what application JSON params are
+                for (APIKey key : applicationKeys) {
+                     JsonObject jsonParams = new JsonObject();
+                     String grantTypes = StringUtils.join(key.getGrantTypes(), ',');
+                     jsonParams.addProperty(APIConstants.JSON_GRANT_TYPES, grantTypes);
+                     jsonParams.addProperty(APIConstants.JSON_USERNAME, username);
+                     apiConsumer.updateAuthClient(username, application.getName(),
+                             key.getType(), key.getCallbackUrl(), null, null, null,
+                             application.getGroupId(), new Gson().toJson(jsonParams), key.getKeyManager());
+                }
+            }
+
             //retrieves the updated application and send as the response
             Application updatedApplication = apiConsumer.getApplicationByUUID(applicationId);
             ApplicationDTO updatedApplicationDTO = ApplicationMappingUtil
