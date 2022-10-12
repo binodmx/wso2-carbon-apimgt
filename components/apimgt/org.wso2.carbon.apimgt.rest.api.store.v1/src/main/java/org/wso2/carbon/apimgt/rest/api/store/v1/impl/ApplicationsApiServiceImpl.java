@@ -334,13 +334,15 @@ public class ApplicationsApiServiceImpl implements ApplicationsApiService {
                 Set<APIKey> applicationKeys = getApplicationKeys(applicationId, apiConsumer.getRequestedTenant());
                 //Check what application JSON params are
                 for (APIKey key : applicationKeys) {
-                     JsonObject jsonParams = new JsonObject();
-                     String grantTypes = StringUtils.join(key.getGrantTypes(), ',');
-                     jsonParams.addProperty(APIConstants.JSON_GRANT_TYPES, grantTypes);
-                     jsonParams.addProperty(APIConstants.JSON_USERNAME, username);
-                     apiConsumer.updateAuthClient(username, application.getName(),
-                             key.getType(), key.getCallbackUrl(), null, null, null,
-                             application.getGroupId(), new Gson().toJson(jsonParams), key.getKeyManager());
+                    if (!APIConstants.OAuthAppMode.MAPPED.name().equals(key.getCreateMode())) {
+                        JsonObject jsonParams = new JsonObject();
+                        String grantTypes = StringUtils.join(key.getGrantTypes(), ',');
+                        jsonParams.addProperty(APIConstants.JSON_GRANT_TYPES, grantTypes);
+                        jsonParams.addProperty(APIConstants.JSON_USERNAME, username);
+                        apiConsumer.updateAuthClient(username, application.getName(),
+                                key.getType(), key.getCallbackUrl(), null, null, null,
+                                application.getGroupId(), new Gson().toJson(jsonParams), key.getKeyManager());
+                    }
                 }
             }
 
