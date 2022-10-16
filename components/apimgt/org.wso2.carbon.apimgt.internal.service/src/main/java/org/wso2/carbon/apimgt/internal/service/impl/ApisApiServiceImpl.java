@@ -23,6 +23,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.wso2.carbon.apimgt.api.APIManagementException;
+import org.wso2.carbon.apimgt.api.APIProvider;
+import org.wso2.carbon.apimgt.api.model.APIIdentifier;
 import org.wso2.carbon.apimgt.api.model.subscription.API;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.GZIPUtils;
@@ -33,6 +35,8 @@ import org.wso2.carbon.apimgt.internal.service.utils.SubscriptionValidationDataU
 import org.wso2.carbon.apimgt.rest.api.util.utils.RestApiUtil;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.Response;
 
 public class ApisApiServiceImpl implements ApisApiService {
@@ -45,23 +49,21 @@ public class ApisApiServiceImpl implements ApisApiService {
 
         SubscriptionValidationDAO subscriptionValidationDAO = new SubscriptionValidationDAO();
         xWSO2Tenant = SubscriptionValidationDataUtil.validateTenantDomain(xWSO2Tenant, messageContext);
+        List<API> apiList = new ArrayList<>();
 
         if (StringUtils.isNotEmpty(context) && StringUtils.isNotEmpty(version)) {
             API api = subscriptionValidationDAO.getApi(version, context);
-            return Response.ok().entity(SubscriptionValidationDataUtil.fromAPIToAPIListDTO(api, xWSO2Tenant)).build();
-        }
-
-        APIListDTO apiListDTO;
-        if (StringUtils.isNotEmpty(xWSO2Tenant)) {
-            apiListDTO = SubscriptionValidationDataUtil.fromAPIListToAPIListDTO(
-                    subscriptionValidationDAO.getAllApis(xWSO2Tenant), xWSO2Tenant);
+            apiList.add(api);
         } else {
-            apiListDTO =
-                    SubscriptionValidationDataUtil.fromAPIListToAPIListDTO(subscriptionValidationDAO.getAllApis(),
-                            xWSO2Tenant);
+            if (StringUtils.isNotEmpty(xWSO2Tenant)) {
+                apiList = subscriptionValidationDAO.getAllApis(xWSO2Tenant);
+            } else {
+                apiList = subscriptionValidationDAO.getAllApis();
+            }
         }
+        APIListDTO apiListDTO = SubscriptionValidationDataUtil.fromAPIListToAPIListDTO(apiList, xWSO2Tenant);
 
-        if (APIConstants.APPLICATION_GZIP.equals(accept)) {
+        if (APIConstants.APPLICATION_GZIP.equals(accept) && apiList.size() > 1) {
             try {
                 File zippedResponse = GZIPUtils.constructZippedResponse(apiListDTO);
                 return Response.ok().entity(zippedResponse)

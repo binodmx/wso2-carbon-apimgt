@@ -28,6 +28,7 @@ public class APIDTO   {
     private String apiType = null;
     private Boolean isDefaultVersion = null;
     private List<URLMappingDTO> urlMappings = new ArrayList<>();
+    private Object corsConfiguration = null;
 
   /**
    **/
@@ -206,6 +207,23 @@ public class APIDTO   {
     this.urlMappings = urlMappings;
   }
 
+  /**
+   **/
+  public APIDTO corsConfiguration(Object corsConfiguration) {
+    this.corsConfiguration = corsConfiguration;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "")
+  @JsonProperty("corsConfiguration")
+  public Object getCorsConfiguration() {
+    return corsConfiguration;
+  }
+  public void setCorsConfiguration(Object corsConfiguration) {
+    this.corsConfiguration = corsConfiguration;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -225,12 +243,13 @@ public class APIDTO   {
         Objects.equals(policy, API.policy) &&
         Objects.equals(apiType, API.apiType) &&
         Objects.equals(isDefaultVersion, API.isDefaultVersion) &&
-        Objects.equals(urlMappings, API.urlMappings);
+        Objects.equals(urlMappings, API.urlMappings) &&
+        Objects.equals(corsConfiguration, API.corsConfiguration);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, apiId, provider, name, version, context, policy, apiType, isDefaultVersion, urlMappings);
+    return Objects.hash(uuid, apiId, provider, name, version, context, policy, apiType, isDefaultVersion, urlMappings, corsConfiguration);
   }
 
   @Override
@@ -248,6 +267,7 @@ public class APIDTO   {
     sb.append("    apiType: ").append(toIndentedString(apiType)).append("\n");
     sb.append("    isDefaultVersion: ").append(toIndentedString(isDefaultVersion)).append("\n");
     sb.append("    urlMappings: ").append(toIndentedString(urlMappings)).append("\n");
+    sb.append("    corsConfiguration: ").append(toIndentedString(corsConfiguration)).append("\n");
     sb.append("}");
     return sb.toString();
   }

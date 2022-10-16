@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.apimgt.api.model.subscription;
 
+import org.wso2.carbon.apimgt.api.model.CORSConfiguration;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +36,8 @@ public class API implements CacheableEntity<String> {
     private String policy = null;
     private String apiType = null;
     private Boolean isDefaultVersion = false;
+
+    private CORSConfiguration corsConfiguration;
 
     private Map<String, URLMapping> resources = new HashMap<>();
 
@@ -124,6 +128,14 @@ public class API implements CacheableEntity<String> {
     public void setApiType(String apiType) {
 
         this.apiType = apiType;
+    }
+
+    public CORSConfiguration getCORSConfiguration() {
+        return corsConfiguration;
+    }
+
+    public void setCORSConfiguration(CORSConfiguration corsConfiguration) {
+        this.corsConfiguration = corsConfiguration;
     }
 
     public URLMapping getResource(String urlPattern, String httpMethod) {

@@ -91,7 +91,7 @@ public class WebsocketUtil extends GraphQLProcessor {
 	private static Logger log = LoggerFactory.getLogger(WebsocketUtil.class);
 	private static boolean removeOAuthHeadersFromOutMessage = true;
 	private static boolean gatewayTokenCacheEnabled = false;
-	public static Set<String> allowedOriginsConfigured = new HashSet<>();
+	private static Set<String> allowedOriginsConfigured = new HashSet<>();
 	public static String authorizationHeader = null;
 	public static final String EMPTY_PROPERTY = "-";
 	public static final String WEBSOCKET_KEYWORD = "WebSocket";
@@ -275,6 +275,10 @@ public class WebsocketUtil extends GraphQLProcessor {
 
 	public static String getAccessTokenCacheKey(String accessToken, String apiContext) {
 		return accessToken + ':' + apiContext;
+	}
+
+	public static Set<String> getAllowedOriginsConfigured() {
+		return allowedOriginsConfigured;
 	}
 
 	/**
