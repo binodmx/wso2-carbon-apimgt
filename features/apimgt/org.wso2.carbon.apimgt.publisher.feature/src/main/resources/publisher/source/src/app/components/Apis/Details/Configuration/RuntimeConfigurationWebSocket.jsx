@@ -30,6 +30,7 @@ import Alert from 'AppComponents/Shared/Alert';
 import ArrowForwardIcon from '@material-ui/icons/SettingsEthernet';
 import { APIContext } from 'AppComponents/Apis/Details/components/ApiContext';
 import { isRestricted } from 'AppData/AuthManager';
+import { useAppContext } from 'AppComponents/Shared/AppContext';
 import CORSConfigurationWebSocket from './components/CORSConfigurationWebSocket';
 import Endpoints from './components/Endpoints';
 import KeyManager from './components/KeyManager';
@@ -198,6 +199,7 @@ export default function RuntimeConfiguration() {
     const [isUpdating, setIsUpdating] = useState(false);
     const [apiConfig, configDispatcher] = useReducer(configReducer, copyAPIConfig(api));
     const classes = useStyles();
+    const { settings } = useAppContext();
 
 
     /**
@@ -257,16 +259,18 @@ export default function RuntimeConfiguration() {
                                             </Box>
                                         </Grid>
                                     </Grid>
-                                    <Grid container direction='row'>
-                                        <Grid item xs={12}>
-                                            <Box pt={3}>
-                                                <CORSConfigurationWebSocket
-                                                    api={apiConfig}
-                                                    configDispatcher={configDispatcher}
-                                                />
-                                            </Box>
+                                    {settings.validationForWSEnabled && (
+                                        <Grid container direction='row'>
+                                            <Grid item xs={12}>
+                                                <Box pt={3}>
+                                                    <CORSConfigurationWebSocket
+                                                        api={apiConfig}
+                                                        configDispatcher={configDispatcher}
+                                                    />
+                                                </Box>
+                                            </Grid>
                                         </Grid>
-                                    </Grid>
+                                    )}
                                 </Grid>
                             </Paper>
                             <ArrowForwardIcon className={classes.arrowForwardIcon} />
