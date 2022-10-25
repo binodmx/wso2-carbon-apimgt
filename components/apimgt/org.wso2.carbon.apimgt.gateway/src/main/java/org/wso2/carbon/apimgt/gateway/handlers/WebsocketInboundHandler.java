@@ -43,6 +43,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHeaders;
 import org.wso2.carbon.apimgt.api.APIManagementException;
+import org.wso2.carbon.apimgt.api.model.CORSConfiguration;
 import org.wso2.carbon.apimgt.api.model.subscription.URLMapping;
 import org.wso2.carbon.apimgt.gateway.APIMgtGatewayConstants;
 import org.wso2.carbon.apimgt.gateway.InboundMessageContextDataHolder;
@@ -62,6 +63,8 @@ import org.wso2.carbon.apimgt.impl.dto.ResourceInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
 import org.wso2.carbon.apimgt.impl.jwt.SignedJWTInfo;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.SubscriptionDataHolder;
+import org.wso2.carbon.apimgt.keymgt.model.SubscriptionDataStore;
 import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.apimgt.usage.publisher.DataPublisherUtil;
@@ -73,14 +76,15 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.cache.Cache;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.cache.Cache;
 
 /**
  * This is a handler which is actually embedded to the netty pipeline which does operations such as
@@ -175,8 +179,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            validateCorsHeaders(ctx, req);
-
             inboundMessageContext.setUri(req.getUri());
             URI uriTemp = new URI(inboundMessageContext.getUri());
             String apiContextUri = new URI(uriTemp.getScheme(), uriTemp.getAuthority(), uriTemp.getPath(), null,
@@ -185,6 +187,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     apiContextUri.substring(0, apiContextUri.length() - 1) :
                     apiContextUri;
             inboundMessageContext.setApiContextUri(apiContextUri);
+            inboundMessageContext.setVersion(getVersionFromUrl(inboundMessageContext.getUri()));
 
             if (log.isDebugEnabled()) {
                 log.debug(channelId + " -- Websocket API request [inbound]: " + req.method() + " " + apiContextUri + " " + req.protocolVersion());
@@ -195,6 +198,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             } else {
                 inboundMessageContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             }
+            validateCorsHeaders(ctx, req, inboundMessageContext);
 
             inboundMessageContext.setElectedAPI(
                     WebsocketUtil.getApi(req.uri(), inboundMessageContext.getTenantDomain()));
@@ -354,35 +358,85 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         WebsocketUtil.sendHandshakeErrorMessage(ctx, inboundMessageContext, responseDTO, errorMessage, errorCode);
     }
 
-    private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req) throws APISecurityException {
+    private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req,
+                                     InboundMessageContext inboundMessageContext) throws APISecurityException {
         // Current implementation supports validating only the 'origin' header
-
-        if (!APIUtil.isCORSValidationEnabledForWS()) {
-            return;
-        }
         String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
         // Don't validate the 'origin' header if it's not present in the request
         if (requestOrigin == null) {
             return;
         }
-        String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin);
+        CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
+        if (corsConfiguration == null || !corsConfiguration.isCorsConfigurationEnabled()) {
+            return;
+        }
+        String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin,
+                    corsConfiguration.getAccessControlAllowOrigins());
         if (allowedOrigin == null) {
-            FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
-            ctx.writeAndFlush(httpResponse);
-            ctx.close();
-            log.warn("Validation of CORS origin header failed for WS request on: " + req.uri());
-            throw new APISecurityException(APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED,
-                    APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED_MESSAGE);
+            handleCORSValidationFailure(ctx, req);
         }
     }
 
-    private String assessAndGetAllowedOrigin(String origin) {
-        if (WebsocketUtil.allowedOriginsConfigured.contains("*")) {
+    private CORSConfiguration getCORSConfiguration(ChannelHandlerContext ctx, FullHttpRequest req,
+                                                   InboundMessageContext inboundMessageContext)
+            throws APISecurityException {
+        if (!APIUtil.isCORSValidationEnabledForWS()) {
+            return new CORSConfiguration(false, null,false,null, null);
+        }
+        String errorMessage;
+        SubscriptionDataStore datastore = SubscriptionDataHolder.getInstance()
+                .getTenantSubscriptionStore(inboundMessageContext.getTenantDomain());
+        Set<String> allowedOriginsConfigured = WebsocketUtil.getAllowedOriginsConfigured();
+        if (datastore != null) {
+            API api = datastore.getApiByContextAndVersion(inboundMessageContext.getApiContextUri(),
+                    inboundMessageContext.getVersion());
+            if (api == null && APIConstants.DEFAULT_WEBSOCKET_VERSION.equals(inboundMessageContext.getVersion())) {
+                // for websocket default version.
+                api = datastore.getDefaultApiByContext(inboundMessageContext.getApiContextUri());
+            }
+            if (api != null) {
+                List<String> allowedOrigins = new ArrayList<>(allowedOriginsConfigured);
+                CORSConfiguration corsConfiguration = api.getCORSConfiguration();
+                if (corsConfiguration != null) {
+                    allowedOrigins.addAll(corsConfiguration.getAccessControlAllowOrigins());
+                    corsConfiguration.setAccessControlAllowOrigins(allowedOrigins);
+                    return corsConfiguration;
+                } else {
+                    return new CORSConfiguration(true, allowedOrigins, false, null, null);
+                }
+            } else {
+                errorMessage = "API with context: " + inboundMessageContext.getApiContextUri() + " and version: "
+                        + inboundMessageContext.getVersion() + " not found in Subscription datastore.";
+            }
+        } else {
+             errorMessage = "Subscription datastore is not initialized for tenant domain "
+                    + inboundMessageContext.getTenantDomain();
+        }
+        log.error(errorMessage);
+        handleHandshakeError(ctx.channel().id().asLongText(), new InboundProcessorResponseDTO(), ctx,
+                inboundMessageContext, req, errorMessage,
+                APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED,
+                HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        return null;
+    }
+
+    private void handleCORSValidationFailure(ChannelHandlerContext ctx,
+                                             FullHttpRequest req) throws APISecurityException {
+        FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
+        ctx.writeAndFlush(httpResponse);
+        ctx.close();
+        log.warn("Validation of CORS origin header failed for WS request on: " + req.uri());
+        throw new APISecurityException(APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED,
+                APISecurityConstants.CORS_ORIGIN_HEADER_VALIDATION_FAILED_MESSAGE);
+    }
+
+    private String assessAndGetAllowedOrigin(String origin, Collection<String> allowedOrigins) {
+        if (allowedOrigins.contains("*")) {
             return "*";
-        } else if (WebsocketUtil.allowedOriginsConfigured.contains(origin)) {
+        } else if (allowedOrigins.contains(origin)) {
             return origin;
         } else if (origin != null) {
-            for (String allowedOrigin : WebsocketUtil.allowedOriginsConfigured) {
+            for (String allowedOrigin : allowedOrigins) {
                 if (allowedOrigin.contains("*")) {
                     Pattern pattern = Pattern.compile(allowedOrigin.replace("*", ".*"));
                     Matcher matcher = pattern.matcher(origin);
@@ -410,7 +464,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(inboundMessageContext.getTenantDomain(), true);
-            inboundMessageContext.setVersion(getVersionFromUrl(inboundMessageContext.getUri()));
             if (!req.headers().contains(WebsocketUtil.authorizationHeader)) {
                 QueryStringDecoder decoder = new QueryStringDecoder(req.getUri());
                 Map<String, List<String>> requestMap = decoder.parameters();
