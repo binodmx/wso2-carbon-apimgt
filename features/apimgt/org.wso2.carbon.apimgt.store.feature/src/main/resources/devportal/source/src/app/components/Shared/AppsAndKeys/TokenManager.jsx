@@ -434,7 +434,7 @@ class TokenManager extends React.Component {
                 Alert.error(`${intl.formatMessage({
                     id: 'Shared.AppsAndKeys.TokenManager.key.generate.error',
                     defaultMessage: 'Error occurred when generating application keys',
-                })},${error.response.body.message}`);
+                })}, ${error.response.body.message}`);
             }).finally(() => this.setState({ isLoading: false }));
     }
 

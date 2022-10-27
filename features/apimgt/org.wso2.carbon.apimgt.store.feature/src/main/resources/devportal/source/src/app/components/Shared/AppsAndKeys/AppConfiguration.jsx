@@ -185,13 +185,9 @@ const AppConfiguration = (props) => {
                             fullWidth
                             variant='outlined'
                             id="multi-input-outlined"
-                            helperText={<Typography variant='caption'>
-                            {config.tooltip}
-                            </Typography>
-                            }
                             label={config.label}
                             onAdd={(tag) => {
-                                const e = {target:{name:"default_scopes",value:[...selectedValue, tag]}}
+                                const e = {target:{name:config.name,value:[...selectedValue, tag]}}
                                 handleAppRequestChange(e)
                             }
                             }
@@ -201,7 +197,7 @@ const AppConfiguration = (props) => {
                                     size='small'
                                     label={value}
                                     onDelete={() => {
-                                        const e = {target:{name:"default_scopes",value:selectedValue.filter(
+                                        const e = {target:{name:config.name,value:selectedValue.filter(
                                         (oldScope)=> oldScope !== value)}}
                                         handleAppRequestChange(e);
                                     }}
@@ -213,6 +209,9 @@ const AppConfiguration = (props) => {
                             )}
                             style={{ display: 'flex' }}
                         />
+                        <Typography variant='caption'>
+                                {config.tooltip}
+                            </Typography>
                         </>
                     ) : (config.type === 'input') ? (
                         <TextField
