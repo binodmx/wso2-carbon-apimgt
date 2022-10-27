@@ -21,6 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.CombinedChannelDuplexHandler;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -75,8 +76,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     .addInboundMessageContextForConnection(channelId, inboundMessageContext);
         }
 
-        if ((msg instanceof CloseWebSocketFrame) || (msg instanceof PongWebSocketFrame)) {
-            if (msg instanceof CloseWebSocketFrame && ((CloseWebSocketFrame) msg).statusCode() > 1001) {
+        if (msg instanceof CloseWebSocketFrame) {
+            if (((CloseWebSocketFrame) msg).statusCode() > 1001) {
                 log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
                         ((CloseWebSocketFrame) msg).reasonText());
                 if (APIUtil.isAnalyticsEnabled()) {
@@ -96,6 +97,9 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
             //if the inbound frame is a closed frame, throttling, analytics will not be published.
             outboundHandler().write(ctx, msg, promise);
 
+        } else if (msg instanceof PongWebSocketFrame || msg instanceof PingWebSocketFrame) {
+            //if the inbound frame is a ping/pong frame, throttling, analytics will not be published.
+            outboundHandler().write(ctx, msg, promise);
         } else if (msg instanceof WebSocketFrame) {
             InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
             if (APIConstants.APITransportType.GRAPHQL.toString()
