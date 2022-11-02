@@ -884,7 +884,7 @@ public class OASParserUtil {
         APIDefinitionValidationResponse validationResponse = new APIDefinitionValidationResponse();
         try {
             JSONParser parser = new JSONParser();
-            parser.parse(apiDefinitionProcessed);
+            parser.parse(apiDefinitionProcessed); // Parsing the json content to validating for parsing errors
             apiDefinitionProcessed = removeUnsupportedBlocksFromResources(apiDefinitionProcessed);
             if (apiDefinitionProcessed != null) {
                 apiDefinition = apiDefinitionProcessed;
@@ -899,7 +899,7 @@ public class OASParserUtil {
                 }
             }
         } catch (Exception e) {
-            //catching a generic exception as there can be runtime exceptions
+            //catching a generic exception as there can be runtime exceptions when parsing happens
             addErrorToValidationResponse(validationResponse, e);
         }
         return validationResponse;
@@ -979,12 +979,12 @@ public class OASParserUtil {
      * @return added ErrorItem object
      */
     public static ErrorItem addErrorToValidationResponse(APIDefinitionValidationResponse validationResponse,
-                                                         Exception err) {
+                                                         Exception e) {
         validationResponse.setValid(false);
         ErrorItem errorItem = new ErrorItem();
         errorItem.setErrorCode(ExceptionCodes.OPENAPI_PARSE_EXCEPTION.getErrorCode());
         errorItem.setMessage(ExceptionCodes.OPENAPI_PARSE_EXCEPTION.getErrorMessage());
-        errorItem.setDescription(err.toString());
+        errorItem.setDescription(e.toString());
         validationResponse.getErrorItems().add(errorItem);
         return errorItem;
     }
