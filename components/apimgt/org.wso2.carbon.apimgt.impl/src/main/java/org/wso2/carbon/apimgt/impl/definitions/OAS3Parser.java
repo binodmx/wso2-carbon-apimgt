@@ -57,6 +57,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.wso2.carbon.apimgt.api.APIDefinition;
 import org.wso2.carbon.apimgt.api.APIDefinitionValidationResponse;
 import org.wso2.carbon.apimgt.api.APIManagementException;
@@ -71,6 +73,10 @@ import org.wso2.carbon.apimgt.api.model.SwaggerData;
 import org.wso2.carbon.apimgt.api.model.URITemplate;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.registry.api.RegistryException;
+import org.wso2.carbon.registry.api.Resource;
+
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,6 +93,7 @@ import java.util.stream.Stream;
 
 import static org.wso2.carbon.apimgt.impl.APIConstants.APPLICATION_JSON_MEDIA_TYPE;
 import static org.wso2.carbon.apimgt.impl.APIConstants.APPLICATION_XML_MEDIA_TYPE;
+import static org.wso2.carbon.apimgt.impl.utils.APIUtil.handleException;
 
 /**
  * Models API definition using OAS (OpenAPI 3.0) parser
@@ -677,37 +684,44 @@ public class OAS3Parser extends APIDefinition {
         OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
-        SwaggerParseResult parseAttemptForV3 = openAPIV3Parser.readContents(apiDefinition, null, options);
-        if (CollectionUtils.isNotEmpty(parseAttemptForV3.getMessages())) {
-            validationResponse.setValid(false);
-            for (String message : parseAttemptForV3.getMessages()) {
-                OASParserUtil.addErrorToValidationResponse(validationResponse, message);
-                if (message.contains(APIConstants.OPENAPI_IS_MISSING_MSG)) {
-                    ErrorItem errorItem = new ErrorItem();
-                    errorItem.setErrorCode(ExceptionCodes.INVALID_OAS3_FOUND.getErrorCode());
-                    errorItem.setMessage(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
-                    errorItem.setDescription(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
-                    validationResponse.getErrorItems().add(errorItem);
+        JSONParser parser = new JSONParser();
+        try {
+            // Parsing the json content to verify whether there are json parsing exceptions in the swagger
+            parser.parse(apiDefinition);
+            SwaggerParseResult parseAttemptForV3 = openAPIV3Parser.readContents(apiDefinition, null, options);
+            if (CollectionUtils.isNotEmpty(parseAttemptForV3.getMessages())) {
+                validationResponse.setValid(false);
+                for (String message : parseAttemptForV3.getMessages()) {
+                    OASParserUtil.addErrorToValidationResponse(validationResponse, message);
+                    if (message.contains(APIConstants.OPENAPI_IS_MISSING_MSG)) {
+                        ErrorItem errorItem = new ErrorItem();
+                        errorItem.setErrorCode(ExceptionCodes.INVALID_OAS3_FOUND.getErrorCode());
+                        errorItem.setMessage(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
+                        errorItem.setDescription(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
+                        validationResponse.getErrorItems().add(errorItem);
+                    }
+                }
+            } else {
+                OpenAPI openAPI = parseAttemptForV3.getOpenAPI();
+                io.swagger.v3.oas.models.info.Info info = openAPI.getInfo();
+                OASParserUtil.updateValidationResponseAsSuccess(
+                        validationResponse, apiDefinition, openAPI.getOpenapi(),
+                        info.getTitle(), info.getVersion(), null, info.getDescription(),
+                        (openAPI.getServers()==null || openAPI.getServers().isEmpty() ) ? null :
+                                openAPI.getServers().stream().map(url -> url.getUrl()).collect(Collectors.toList())
+                );
+                validationResponse.setParser(this);
+                if (returnJsonContent) {
+                    if (!apiDefinition.trim().startsWith("{")) { // not a json (it is yaml)
+                        JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
+                        validationResponse.setJsonContent(jsonNode.toString());
+                    } else {
+                        validationResponse.setJsonContent(apiDefinition);
+                    }
                 }
             }
-        } else {
-            OpenAPI openAPI = parseAttemptForV3.getOpenAPI();
-            io.swagger.v3.oas.models.info.Info info = openAPI.getInfo();
-            OASParserUtil.updateValidationResponseAsSuccess(
-                    validationResponse, apiDefinition, openAPI.getOpenapi(),
-                    info.getTitle(), info.getVersion(), null, info.getDescription(),
-                    (openAPI.getServers()==null || openAPI.getServers().isEmpty() ) ? null :
-                            openAPI.getServers().stream().map(url -> url.getUrl()).collect(Collectors.toList())
-            );
-            validationResponse.setParser(this);
-            if (returnJsonContent) {
-                if (!apiDefinition.trim().startsWith("{")) { // not a json (it is yaml)
-                    JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
-                    validationResponse.setJsonContent(jsonNode.toString());
-                } else {
-                    validationResponse.setJsonContent(apiDefinition);
-                }
-            }
+        } catch (ParseException e) {
+            OASParserUtil.addErrorToValidationResponse(validationResponse, e);
         }
         return validationResponse;
     }
