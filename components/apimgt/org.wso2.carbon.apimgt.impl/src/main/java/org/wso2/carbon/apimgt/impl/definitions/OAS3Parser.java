@@ -684,44 +684,37 @@ public class OAS3Parser extends APIDefinition {
         OpenAPIV3Parser openAPIV3Parser = new OpenAPIV3Parser();
         ParseOptions options = new ParseOptions();
         options.setResolve(true);
-        JSONParser parser = new JSONParser();
-        try {
-            // Parsing the json content to verify whether there are json parsing exceptions in the swagger
-            parser.parse(apiDefinition);
-            SwaggerParseResult parseAttemptForV3 = openAPIV3Parser.readContents(apiDefinition, null, options);
-            if (CollectionUtils.isNotEmpty(parseAttemptForV3.getMessages())) {
-                validationResponse.setValid(false);
-                for (String message : parseAttemptForV3.getMessages()) {
-                    OASParserUtil.addErrorToValidationResponse(validationResponse, message);
-                    if (message.contains(APIConstants.OPENAPI_IS_MISSING_MSG)) {
-                        ErrorItem errorItem = new ErrorItem();
-                        errorItem.setErrorCode(ExceptionCodes.INVALID_OAS3_FOUND.getErrorCode());
-                        errorItem.setMessage(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
-                        errorItem.setDescription(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
-                        validationResponse.getErrorItems().add(errorItem);
-                    }
-                }
-            } else {
-                OpenAPI openAPI = parseAttemptForV3.getOpenAPI();
-                io.swagger.v3.oas.models.info.Info info = openAPI.getInfo();
-                OASParserUtil.updateValidationResponseAsSuccess(
-                        validationResponse, apiDefinition, openAPI.getOpenapi(),
-                        info.getTitle(), info.getVersion(), null, info.getDescription(),
-                        (openAPI.getServers()==null || openAPI.getServers().isEmpty() ) ? null :
-                                openAPI.getServers().stream().map(url -> url.getUrl()).collect(Collectors.toList())
-                );
-                validationResponse.setParser(this);
-                if (returnJsonContent) {
-                    if (!apiDefinition.trim().startsWith("{")) { // not a json (it is yaml)
-                        JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
-                        validationResponse.setJsonContent(jsonNode.toString());
-                    } else {
-                        validationResponse.setJsonContent(apiDefinition);
-                    }
+        SwaggerParseResult parseAttemptForV3 = openAPIV3Parser.readContents(apiDefinition, null, options);
+        if (CollectionUtils.isNotEmpty(parseAttemptForV3.getMessages())) {
+            validationResponse.setValid(false);
+            for (String message : parseAttemptForV3.getMessages()) {
+                OASParserUtil.addErrorToValidationResponse(validationResponse, message);
+                if (message.contains(APIConstants.OPENAPI_IS_MISSING_MSG)) {
+                    ErrorItem errorItem = new ErrorItem();
+                    errorItem.setErrorCode(ExceptionCodes.INVALID_OAS3_FOUND.getErrorCode());
+                    errorItem.setMessage(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
+                    errorItem.setDescription(ExceptionCodes.INVALID_OAS3_FOUND.getErrorMessage());
+                    validationResponse.getErrorItems().add(errorItem);
                 }
             }
-        } catch (ParseException e) {
-            OASParserUtil.addErrorToValidationResponse(validationResponse, e);
+        } else {
+            OpenAPI openAPI = parseAttemptForV3.getOpenAPI();
+            io.swagger.v3.oas.models.info.Info info = openAPI.getInfo();
+            OASParserUtil.updateValidationResponseAsSuccess(
+                    validationResponse, apiDefinition, openAPI.getOpenapi(),
+                    info.getTitle(), info.getVersion(), null, info.getDescription(),
+                    (openAPI.getServers() == null || openAPI.getServers().isEmpty()) ? null :
+                            openAPI.getServers().stream().map(url -> url.getUrl()).collect(Collectors.toList())
+            );
+            validationResponse.setParser(this);
+            if (returnJsonContent) {
+                if (!apiDefinition.trim().startsWith("{")) { // not a json (it is yaml)
+                    JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
+                    validationResponse.setJsonContent(jsonNode.toString());
+                } else {
+                    validationResponse.setJsonContent(apiDefinition);
+                }
+            }
         }
         return validationResponse;
     }

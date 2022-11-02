@@ -883,6 +883,8 @@ public class OASParserUtil {
         }
         APIDefinitionValidationResponse validationResponse = new APIDefinitionValidationResponse();
         try {
+            JSONParser parser = new JSONParser();
+            parser.parse(apiDefinitionProcessed);
             apiDefinitionProcessed = removeUnsupportedBlocksFromResources(apiDefinitionProcessed);
             if (apiDefinitionProcessed != null) {
                 apiDefinition = apiDefinitionProcessed;
