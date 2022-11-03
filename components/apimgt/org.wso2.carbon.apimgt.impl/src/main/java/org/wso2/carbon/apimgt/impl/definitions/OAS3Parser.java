@@ -696,7 +696,7 @@ public class OAS3Parser extends APIDefinition {
             OASParserUtil.updateValidationResponseAsSuccess(
                     validationResponse, apiDefinition, openAPI.getOpenapi(),
                     info.getTitle(), info.getVersion(), null, info.getDescription(),
-                    (openAPI.getServers()==null || openAPI.getServers().isEmpty() ) ? null :
+                    (openAPI.getServers() == null || openAPI.getServers().isEmpty()) ? null :
                             openAPI.getServers().stream().map(url -> url.getUrl()).collect(Collectors.toList())
             );
             validationResponse.setParser(this);
