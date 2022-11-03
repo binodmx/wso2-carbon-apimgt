@@ -9098,11 +9098,17 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
     @Override
     public boolean isValidContext(String providerName, String apiName, String contextTemplate, String userName)
             throws APIManagementException {
-        providerName = (StringUtils.isBlank(providerName)) ? userName : providerName;
         if (isApiNameExist(apiName)) {
             if (!contextTemplate.startsWith("/")) {
                 contextTemplate = "/" + contextTemplate;
             }
+            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)
+                    && !contextTemplate.startsWith("/t/")) {
+                //Create tenant aware context for API
+                contextTemplate = "/t/" + tenantDomain + contextTemplate;
+            }
+            providerName = (StringUtils.isBlank(providerName)) ? userName : providerName;
+            providerName = APIUtil.replaceEmailDomainBack(providerName);
             List<String> versions = getApiVersionsMatchingApiName(apiName, providerName);
             for (String version : versions) {
                 String currentContextTemplate = getAPI(
