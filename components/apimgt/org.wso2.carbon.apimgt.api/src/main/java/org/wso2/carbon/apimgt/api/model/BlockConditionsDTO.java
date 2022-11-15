@@ -24,6 +24,8 @@ public class BlockConditionsDTO {
     private int conditionId;
     private String tenantDomain;
     private String uuid;
+    private String ownerName;
+    private String appName;
 
     public int getConditionId() {
         return conditionId;
@@ -71,5 +73,21 @@ public class BlockConditionsDTO {
 
     public String getTenantDomain() {
         return tenantDomain;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 }

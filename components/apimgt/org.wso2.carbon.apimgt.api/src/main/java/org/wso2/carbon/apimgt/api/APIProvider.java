@@ -1039,6 +1039,19 @@ public interface APIProvider extends APIManager {
     String addBlockCondition(String conditionType, String conditionValue) throws APIManagementException;
 
     /**
+     *  Add a block condition with ownerName and appName
+     *
+     * @param conditionType type of the condition (IP, Context .. )
+     * @param conditionValue value of the condition
+     * @param ownerName name of the subscription owner
+     * @param appName name of the Application
+     * @return UUID of the new Block Condition
+     * @throws APIManagementException
+     */
+    String addBlockCondition(String conditionType, String conditionValue, String ownerName, String appName)
+            throws APIManagementException;
+
+    /**
      *  Add a block condition with condition status
      *
      * @param conditionType type of the condition (IP, Context .. )
