@@ -6928,6 +6928,12 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
 
     @Override
     public String addBlockCondition(String conditionType, String conditionValue) throws APIManagementException {
+        return addBlockCondition(conditionType, conditionValue, null, null);
+    }
+
+    @Override
+    public String addBlockCondition(String conditionType, String conditionValue, String ownerName, String appName)
+            throws APIManagementException {
 
         if (APIConstants.BLOCKING_CONDITIONS_USER.equals(conditionType)) {
             conditionValue = MultitenantUtils.getTenantAwareUsername(conditionValue);
@@ -6939,6 +6945,8 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         blockConditionsDTO.setTenantDomain(tenantDomain);
         blockConditionsDTO.setEnabled(true);
         blockConditionsDTO.setUUID(UUID.randomUUID().toString());
+        blockConditionsDTO.setOwnerName(ownerName);
+        blockConditionsDTO.setAppName(appName);
         BlockConditionsDTO createdBlockConditionsDto = apiMgtDAO.addBlockConditions(blockConditionsDTO);
 
         if (createdBlockConditionsDto != null) {

@@ -12610,10 +12610,21 @@ public class ApiMgtDAO {
                 if (conditionsArray.length > 0) {
                     String apiContext = conditionsArray[0];
                     String applicationIdentifier = conditionsArray[2];
-
-                    String[] app = applicationIdentifier.split("-", 2);
-                    String appOwner = app[0];
-                    String appName = app[1];
+                    String appOwner;
+                    String appName;
+                    // Set app owner and app name from blockConditionDTO if data presents,
+                    // otherwise set it using conditionValue.
+                    if (blockConditionsDTO.getOwnerName() != null &&
+                            blockConditionsDTO.getAppName() != null &&
+                            !blockConditionsDTO.getOwnerName().equals("") &&
+                            !blockConditionsDTO.getAppName().equals("")) {
+                        appOwner = blockConditionsDTO.getOwnerName();
+                        appName = blockConditionsDTO.getAppName();
+                    } else {
+                        String[] app = applicationIdentifier.split("-", 2);
+                        appOwner = app[0];
+                        appName = app[1];
+                    }
 
                     // Check whether the given api context exists in tenant
                     String extractedTenantDomain = MultitenantUtils.getTenantDomainFromRequestURL(apiContext);

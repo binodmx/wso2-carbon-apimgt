@@ -115,13 +115,14 @@ public class SubscriptionsApiServiceImpl implements SubscriptionsApiService {
                     /*In case all subscriptions blocked, add block conditions for both sandbox and production
                     key types*/
                     apiProvider.addBlockCondition(APIConstants.BLOCKING_CONDITIONS_SUBSCRIPTION,
-                            productionBlockConditionKey);
+                            productionBlockConditionKey, subscribedApp.getOwner(), subscribedApp.getName());
                     apiProvider
-                            .addBlockCondition(APIConstants.BLOCKING_CONDITIONS_SUBSCRIPTION, sandboxBlockConditionKey);
+                            .addBlockCondition(APIConstants.BLOCKING_CONDITIONS_SUBSCRIPTION, sandboxBlockConditionKey,
+                                    subscribedApp.getOwner(), subscribedApp.getName());
                 } else {
                     /*In case production only blocked add a blocking condition only for production type*/
                     apiProvider.addBlockCondition(APIConstants.BLOCKING_CONDITIONS_SUBSCRIPTION,
-                            productionBlockConditionKey);
+                            productionBlockConditionKey, subscribedApp.getOwner(), subscribedApp.getName());
                 }
             }
 
