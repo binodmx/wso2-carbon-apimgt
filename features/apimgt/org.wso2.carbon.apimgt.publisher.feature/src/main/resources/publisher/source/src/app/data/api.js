@@ -1287,10 +1287,12 @@ class API extends Resource {
     }
 
     getDocuments(api_id, callback) {
+        const limit = Configurations.app.documentCount || 80;
         const promise_get_all = this.client.then(client => {
             return client.apis['API Documents'].get_apis__apiId__documents(
                 {
                     apiId: api_id,
+                    limit: limit,
                 },
                 this._requestMetaData(),
             );
