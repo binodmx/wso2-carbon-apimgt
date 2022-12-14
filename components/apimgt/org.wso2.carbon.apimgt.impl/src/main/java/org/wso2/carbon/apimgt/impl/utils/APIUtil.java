@@ -5589,6 +5589,32 @@ public final class APIUtil {
     }
 
     /**
+     * Build OMElement from input stream with securely configured parser.
+     * @param inputStream Input Stream
+     * @return
+     * @throws Exception
+     */
+    public static OMElement buildSecuredOMElement(InputStream inputStream) throws Exception {
+
+        XMLStreamReader parser;
+        StAXOMBuilder builder;
+
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            parser = factory.createXMLStreamReader(inputStream);
+            builder = new StAXOMBuilder(parser);
+        } catch (XMLStreamException e) {
+            String msg = "Error in initializing the parser.";
+            log.error(msg, e);
+            throw new Exception(msg, e);
+        }
+        return builder.getDocumentElement();
+    }
+
+    /**
      * Get stored in sequences, out sequences and fault sequences from the governanceSystem registry
      *
      * @param sequenceName -The sequence to be retrieved
