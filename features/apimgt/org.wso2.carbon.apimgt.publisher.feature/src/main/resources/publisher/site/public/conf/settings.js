@@ -28,6 +28,7 @@ const AppConfig = {
             timeout: 4000, // Defines the timeout for the above periodical session status check
         },
         mediationPolicyCount: 500,
+        documentCount: 1000,
         propertyDisplaySuffix: '__display',
         markdown: {
             skipHtml: true,
