@@ -102,11 +102,9 @@ const Alerts = (props) => {
             displayName: 'AbnormalResponseTime',
             description: intl.formatMessage({
                 id: 'Apis.Settings.Alerts.Alerts.abnormal.request.time.description',
-                defaultMessage: 'This alert gets triggered if the backend time'
-                    + ' corresponding to a particular API is higher than the predefined value. '
-                    + 'These alerts could be treated as an indication of a slow '
-                    + 'backend. In technical terms, if the backend time of a particular API of a tenant lies '
-                    + 'outside the predefined value, an alert will be sent out.',
+                defaultMessage: 'This alert gets triggered if the response time of a particular API is higher '
+                    + 'than the predefined value. These alerts could be treated as an indication of a slow '
+                    + 'WSO2 API Manager runtime or a slow backend.',
             }),
         },
         2: {
@@ -117,9 +115,11 @@ const Alerts = (props) => {
             displayName: 'AbnormalBackendTime',
             description: intl.formatMessage({
                 id: 'Apis.Settings.Alerts.Alerts.abnormal.backend.time.description',
-                defaultMessage: 'This alert gets triggered if the response time of a particular API is higher '
-                    + 'than the predefined value. These alerts could be treated as an indication of a slow '
-                    + 'WSO2 API Manager runtime or a slow backend.',
+                defaultMessage: 'This alert gets triggered if the backend time'
+                    + ' corresponding to a particular API is higher than the predefined value. '
+                    + 'These alerts could be treated as an indication of a slow '
+                    + 'backend. In technical terms, if the backend time of a particular API of a tenant lies '
+                    + 'outside the predefined value, an alert will be sent out.',
             }),
         },
         7: {
