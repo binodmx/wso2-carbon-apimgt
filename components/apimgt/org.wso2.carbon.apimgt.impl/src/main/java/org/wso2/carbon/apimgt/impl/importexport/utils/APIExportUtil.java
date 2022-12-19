@@ -419,7 +419,7 @@ public class APIExportUtil {
                 String[] childPaths = seqCollection.getChildren();
                 for (String childPath : childPaths) {
                     Resource sequence = registry.get(childPath);
-                    OMElement seqElement = APIUtil.buildOMElement(sequence.getContentStream());
+                    OMElement seqElement = APIUtil.buildSecuredOMElement(sequence.getContentStream());
                     if (sequenceName.equals(seqElement.getAttributeValue(new QName("name")))) {
                         String sequenceFileName = sequenceName + APIConstants.XML_EXTENSION;
                         sequenceDetails = new AbstractMap.SimpleEntry<>(sequenceFileName, seqElement);

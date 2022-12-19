@@ -458,7 +458,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomOutSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -512,7 +512,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomOutSequences();
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -553,7 +553,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomFaultSequences();
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -623,7 +623,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomApiInSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -666,7 +666,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomApiOutSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -709,7 +709,7 @@ public class APIProviderImplTest {
         Assert.assertEquals(1, sequenceList.size());
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomApiFaultSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -1871,8 +1871,8 @@ public class APIProviderImplTest {
 
         Mockito.when(apiProvider.registry.get(inSeqChildPaths[0])).thenReturn(apiSourceArtifact);
         InputStream responseStream = IOUtils.toInputStream("<sequence name=\"in-seq\"></sequence>", "UTF-8");
-        OMElement seqElment = buildOMElement(responseStream);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream)).thenReturn(seqElment);
+        OMElement seqElment = buildSecuredOMElement(responseStream);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream)).thenReturn(seqElment);
         Mockito.when(apiSourceArtifact.getContentStream()).thenReturn(responseStream);
 
         //Mocking Out sequence retrieval
@@ -1887,8 +1887,8 @@ public class APIProviderImplTest {
 
         Mockito.when(apiProvider.registry.get(outSeqChildPaths[0])).thenReturn(apiSourceArtifact1);
         InputStream responseStream2 = IOUtils.toInputStream("<sequence name=\"in-seq\"></sequence>", "UTF-8");
-        OMElement seqElment2 = buildOMElement(responseStream2);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream2)).thenReturn(seqElment2);
+        OMElement seqElment2 = buildSecuredOMElement(responseStream2);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream2)).thenReturn(seqElment2);
         Mockito.when(apiSourceArtifact1.getContentStream()).thenReturn(responseStream2);
 
         //Mock Adding new API artifact with new version
@@ -4052,7 +4052,7 @@ public class APIProviderImplTest {
         Assert.assertTrue(sequenceList.contains("custom-fault-seq"));
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomFaultSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -4095,7 +4095,7 @@ public class APIProviderImplTest {
         Assert.assertTrue(sequenceList.contains("custom-fault-seq"));
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomInSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -4137,7 +4137,7 @@ public class APIProviderImplTest {
         Assert.assertTrue(sequenceList.contains("custom-fault-seq"));
 
         // OMException when building OMElement
-        PowerMockito.when(APIUtil.buildOMElement(any(InputStream.class))).thenThrow(new OMException());
+        PowerMockito.when(APIUtil.buildSecuredOMElement(any(InputStream.class))).thenThrow(new OMException());
         apiProvider.getCustomOutSequences(apiId);
 
         //org.wso2.carbon.registry.api.RegistryException
@@ -4219,8 +4219,8 @@ public class APIProviderImplTest {
         Resource sequence = Mockito.mock(Resource.class);
         Mockito.when(registry.get(seqChildPaths[0])).thenReturn(sequence);
         InputStream responseStream = IOUtils.toInputStream("<sequence name=\"fault-seq\"></sequence>", "UTF-8");
-        OMElement seqElment = buildOMElement(responseStream);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream)).thenReturn(seqElment);
+        OMElement seqElment = buildSecuredOMElement(responseStream);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream)).thenReturn(seqElment);
         Mockito.when(sequence.getContentStream()).thenReturn(responseStream);
         String customSeqFileLocation = "/custom/fault";
         Mockito.when(APIUtil.getSequencePath(apiId, apiSeqLoc)).thenReturn(
@@ -4234,8 +4234,8 @@ public class APIProviderImplTest {
         Resource customSequence = Mockito.mock(Resource.class);
         Mockito.when(registry.get(customSeqChildPaths[0])).thenReturn(customSequence);
         InputStream responseStream1 = IOUtils.toInputStream("<sequence name=\"custom-fault-seq\"></sequence>", "UTF-8");
-        OMElement seqElment1 = buildOMElement(responseStream1);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream1)).thenReturn(seqElment1);
+        OMElement seqElment1 = buildSecuredOMElement(responseStream1);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream1)).thenReturn(seqElment1);
         Mockito.when(customSequence.getContentStream()).thenReturn(responseStream1);
     }
 
@@ -4260,10 +4260,10 @@ public class APIProviderImplTest {
         Mockito.when(registry.get(seqChildPaths[1])).thenReturn(sequence2);
         InputStream responseStream2 = IOUtils.toInputStream("<sequence name=\"abc\"></sequence>", "UTF-8");
 
-        OMElement seqElment = buildOMElement(responseStream);
-        OMElement seqElment2 = buildOMElement(responseStream2);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream)).thenReturn(seqElment);
-        PowerMockito.when(APIUtil.buildOMElement(responseStream2)).thenReturn(seqElment2);
+        OMElement seqElment = buildSecuredOMElement(responseStream);
+        OMElement seqElment2 = buildSecuredOMElement(responseStream2);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream)).thenReturn(seqElment);
+        PowerMockito.when(APIUtil.buildSecuredOMElement(responseStream2)).thenReturn(seqElment2);
 
         Mockito.when(sequence.getContentStream()).thenReturn(responseStream);
         Mockito.when(sequence2.getContentStream()).thenReturn(responseStream2);
@@ -4359,11 +4359,13 @@ public class APIProviderImplTest {
         return policy;
     }
 
-    private static OMElement buildOMElement(InputStream inputStream) throws APIManagementException {
+    private static OMElement buildSecuredOMElement(InputStream inputStream) throws APIManagementException {
         XMLStreamReader parser;
         StAXOMBuilder builder;
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             parser = factory.createXMLStreamReader(inputStream);
             builder = new StAXOMBuilder(parser);
