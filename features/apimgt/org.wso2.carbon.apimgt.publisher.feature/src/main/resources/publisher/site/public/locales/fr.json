@@ -113,6 +113,7 @@
   "Apis.Details.APIDefinition.AuditApi.tooltip.severity": "",
   "Apis.Details.APIDefinition.ImportDefinition.WSDL.updated.successfully": "",
   "Apis.Details.APIDefinition.ImportDefinition.error.updating.WSDL": "",
+  "Apis.Details.APIDefinition.SwaggerEditorDrawer.title": "",
   "Apis.Details.APIDefinition.WSDL.download.definition": "",
   "Apis.Details.APIDefinition.WSDL.download.error": "",
   "Apis.Details.APIDefinition.WSDL.error.loading.wsdl": "",
