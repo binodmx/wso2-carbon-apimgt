@@ -113,6 +113,7 @@
   "Apis.Details.APIDefinition.AuditApi.tooltip.severity": "Severity ranges from:",
   "Apis.Details.APIDefinition.ImportDefinition.WSDL.updated.successfully": "WSDL Updated Successfully",
   "Apis.Details.APIDefinition.ImportDefinition.error.updating.WSDL": "Error while updating WSDL",
+  "Apis.Details.APIDefinition.SwaggerEditorDrawer.title": "Failed to Validate OpenAPI File",
   "Apis.Details.APIDefinition.WSDL.download.definition": "Download WSDL",
   "Apis.Details.APIDefinition.WSDL.download.error": "Error downloading WSDL ZIP file",
   "Apis.Details.APIDefinition.WSDL.error.loading.wsdl": "Error loading WSDL",
