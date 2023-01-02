@@ -86,6 +86,7 @@ public class OAuthAuthenticator implements Authenticator {
     private boolean removeOAuthHeadersFromOutMessage = true;
     private boolean removeDefaultAPIHeaderFromOutMessage = true;
     private String clientDomainHeader = "referer";
+    private String backslashDot = "\\.";
     private String requestOrigin;
     private String remainingAuthHeader;
     private boolean isMandatory;
@@ -233,7 +234,7 @@ public class OAuthAuthenticator implements Authenticator {
                 //Initial guess of a JWT token using the presence of a DOT.
                 if (StringUtils.isNotEmpty(accessToken) && accessToken.contains(APIConstants.DOT)) {
                     try {
-                        String[] JWTElements = accessToken.split("\\.");
+                        String[] JWTElements = accessToken.split(backslashDot);
                         if (JWTElements.length != 3){
                             log.debug("Invalid JWT token. The expected token format is <header.payload.signature>");
                             throw new APISecurityException(APISecurityConstants.API_AUTH_INVALID_CREDENTIALS,
@@ -559,7 +560,7 @@ public class OAuthAuthenticator implements Authenticator {
 
     private SignedJWTInfo getSignedJwt(String accessToken) throws ParseException {
 
-        String signature = accessToken.split("\\.")[2];
+        String signature = accessToken.split(backslashDot)[2];
         SignedJWTInfo signedJWTInfo = null;
         Cache gatewaySignedJWTParseCache = CacheProvider.getGatewaySignedJWTParseCache();
         if (gatewaySignedJWTParseCache != null) {
