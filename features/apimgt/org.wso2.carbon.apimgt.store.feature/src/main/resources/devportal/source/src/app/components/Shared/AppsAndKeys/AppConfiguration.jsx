@@ -184,7 +184,7 @@ const AppConfiguration = (props) => {
                             value={selectedValue}
                             fullWidth
                             variant='outlined'
-                            id="multi-input-outlined"
+                            id='multi-input-outlined'
                             label={config.label}
                             onAdd={(tag) => {
                                 const e = {target:{name:config.name,value:[...selectedValue, tag]}}
