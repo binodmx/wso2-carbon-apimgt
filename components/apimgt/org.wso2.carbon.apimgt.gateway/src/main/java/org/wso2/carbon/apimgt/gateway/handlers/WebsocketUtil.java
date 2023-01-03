@@ -63,6 +63,7 @@ import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
 import org.wso2.carbon.apimgt.impl.dto.VerbInfoDTO;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
+import org.wso2.carbon.apimgt.keymgt.SubscriptionDataHolder;
 import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.apimgt.usage.publisher.DataPublisherUtil;
@@ -575,6 +576,35 @@ public class WebsocketUtil extends GraphQLProcessor {
 			if (APIUtil.isAnalyticsEnabled()) {
 				WebsocketUtil.publishWSThrottleEvent(inboundMessageContext, usageDataPublisher,
 						APIThrottleConstants.REQUEST_BLOCKED);
+			}
+		}
+		return responseDTO;
+	}
+
+	/**
+	 * Validates whether there are any matching contexts and set error values in InboundProcessorResponseDTO.
+	 *
+	 * @param inboundMessageContext InboundMessageContext
+	 * @param apiContext    String
+	 * @return InboundProcessorResponseDTO
+	 */
+	public static InboundProcessorResponseDTO validateAPIContext(
+			InboundMessageContext inboundMessageContext,
+			String apiContext,
+			APIMgtUsageDataPublisher usageDataPublisher) {
+
+		InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
+
+		boolean isValidContext = SubscriptionDataHolder.getInstance()
+							.getTenantSubscriptionStore(inboundMessageContext.getTenantDomain())
+							.getAllAPIsByContextList().containsKey(apiContext);
+
+		if (!isValidContext) {
+			responseDTO = getFrameErrorDTO(
+					WebSocketApiConstants.FrameErrorConstants.BAD_REQUEST,
+					WebSocketApiConstants.FrameErrorConstants.BAD_REQUEST_MESSAGE, true);
+			if (APIUtil.isAnalyticsEnabled()) {
+				WebsocketUtil.publishFaultEvent(responseDTO, inboundMessageContext, usageDataPublisher);
 			}
 		}
 		return responseDTO;
