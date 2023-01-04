@@ -253,6 +253,8 @@ public class WebsocketInboundHandlerTestCase {
                 .thenReturn(responseDTO);
         PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(responseDTO);
+        PowerMockito.when(WebsocketUtil.validateAPIContext(Mockito.anyObject(), Mockito.anyObject(),
+                Mockito.anyObject())).thenReturn(responseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, fullHttpRequest);
         validateApiProperties(apiProperties, infoDTO, inboundMessageContext);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
@@ -342,6 +344,9 @@ public class WebsocketInboundHandlerTestCase {
                 .thenReturn(responseDTO);
         PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(responseDTO);
+        InboundProcessorResponseDTO validateAPIContextResponseDTO = new InboundProcessorResponseDTO();
+        PowerMockito.when(WebsocketUtil.validateAPIContext(Mockito.anyObject(), Mockito.anyObject(),
+                Mockito.anyObject())).thenReturn(validateAPIContextResponseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, fullHttpRequest);
         Assert.assertTrue((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap()
                 .containsKey(channelIdString)));// No error has occurred context exists in data-holder map.
@@ -483,6 +488,8 @@ public class WebsocketInboundHandlerTestCase {
         blockedAPIResponseDTO.setCloseConnection(true);
         PowerMockito.when(WebsocketUtil.validateDenyPolicies(Mockito.anyObject(), Mockito.anyObject()))
                 .thenReturn(blockedAPIResponseDTO);
+        PowerMockito.when(WebsocketUtil.validateAPIContext(Mockito.anyObject(), Mockito.anyObject(),
+                Mockito.anyObject())).thenReturn(responseDTO);
         websocketInboundHandler.channelRead(channelHandlerContext, fullHttpRequest);
         Assert.assertFalse((InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(
                 channelIdString)));//Error should occur due to the context does not exist in data-holder map
