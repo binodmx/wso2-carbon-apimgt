@@ -201,19 +201,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             }
             validateCorsHeaders(ctx, req, inboundMessageContext);
 
-            // This block is for the context check
-            InboundProcessorResponseDTO responseDTO =
-                    WebsocketUtil.validateAPIContext(inboundMessageContext, apiContextUri, usageDataPublisher);
-            if (!responseDTO.isError()) {
-                inboundMessageContext.setElectedAPI(
-                        WebsocketUtil.getApi(req.uri(), inboundMessageContext.getTenantDomain()));
-            }
-            else {
-                handleHandshakeError(channelId, responseDTO, ctx, inboundMessageContext, msg,
-                        APISecurityConstants.API_AUTH_INCORRECT_API_RESOURCE_MESSAGE,
-                        APISecurityConstants.API_AUTH_INCORRECT_API_RESOURCE,
-                        HttpResponseStatus.BAD_REQUEST.code());
-            }
+            inboundMessageContext.setElectedAPI(
+                    WebsocketUtil.getApi(req.uri(), inboundMessageContext.getTenantDomain()));
             setResourcesMapToContext(inboundMessageContext);
 
             String useragent = req.headers().get(HttpHeaders.USER_AGENT);
@@ -224,7 +213,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             useragent = useragent != null ? useragent : "-";
             inboundMessageContext.setHeaders(inboundMessageContext.getHeaders().add(HttpHeaders.USER_AGENT, useragent));
 
-            responseDTO = validateOAuthHeader(req, inboundMessageContext);
+            InboundProcessorResponseDTO responseDTO = validateOAuthHeader(req, inboundMessageContext);
             if (!responseDTO.isError()) {
                 responseDTO = WebsocketUtil.validateDenyPolicies(inboundMessageContext, usageDataPublisher);
                 if (!responseDTO.isError()) {
