@@ -33,5 +33,7 @@ public class WebSocketApiConstants {
         public static final String THROTTLED_OUT_ERROR_MESSAGE = "Websocket frame throttled out";
         public static final String ERROR_CODE = "code";
         public static final String ERROR_MESSAGE = "message";
+        public static final int BAD_REQUEST = 4005;
+        public static final String BAD_REQUEST_MESSAGE = "Bad request";
     }
 }
