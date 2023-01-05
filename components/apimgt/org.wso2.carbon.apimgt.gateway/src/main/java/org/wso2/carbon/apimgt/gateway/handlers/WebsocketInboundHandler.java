@@ -207,8 +207,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             if (!responseDTO.isError()) {
                 inboundMessageContext.setElectedAPI(
                         WebsocketUtil.getApi(req.uri(), inboundMessageContext.getTenantDomain()));
-            }
-            else {
+            } else {
                 handleHandshakeError(channelId, responseDTO, ctx, inboundMessageContext, msg,
                         APISecurityConstants.API_AUTH_INCORRECT_API_RESOURCE_MESSAGE,
                         APISecurityConstants.API_AUTH_INCORRECT_API_RESOURCE,
