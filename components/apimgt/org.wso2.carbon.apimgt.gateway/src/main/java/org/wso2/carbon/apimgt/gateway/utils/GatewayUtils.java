@@ -486,6 +486,7 @@ public class GatewayUtils {
                 } else {
                     payload = axis2MC.getEnvelope().getBody().getFirstElement().toString();
                     inputStreamXml = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
+                    inputStreamSchema = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
                 }
             }
         }
