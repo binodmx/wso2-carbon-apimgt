@@ -242,6 +242,7 @@ public class LogsHandler extends AbstractSynapseHandler {
                     String appIdHeader = (String) messageContext.getProperty(APP_ID_HEADER);
                     String uuidHeader = (String) messageContext.getProperty(UUID_HEADER);
                     String correlationIdHeader = (String) messageContext.getProperty(CORRELATION_ID_HEADER);
+                    MDC.put(APIConstants.CORRELATION_ID, correlationIdHeader);
 
                     // Log correlation related properties
                     correlationLog.info(beTotalLatency + "|HTTP|" + apiInfo.getApiName()
@@ -250,9 +251,6 @@ public class LogsHandler extends AbstractSynapseHandler {
                             + "|" + appIdHeader + "|" + uuidHeader + "|" + apiInfo.getRequestSize()
                             + "|" + responseSize + "|" + apiResponseSC + "|" + applicationName + "|" + apiConsumerKey
                             + "|" + responseTime);
-
-                    MDC.put(APIConstants.CORRELATION_ID, correlationIdHeader);
-                    MDC.remove(APIConstants.CORRELATION_ID);
                 } catch (Exception e) {
                     correlationLog.error(RESPONSE_EVENT_PUBLICATION_ERROR + e.getMessage(), e);
                     return false;
