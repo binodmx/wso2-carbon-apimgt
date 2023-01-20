@@ -34,19 +34,19 @@ const useStyles = makeStyles((theme) => ({
 
 const genericDisplayDialog = (props) => {
     const {
-        handleClick, heading, caption, buttonText,
+        handleClick, heading, caption, buttonText, showButton = true, dialogType = 'info',
     } = props;
     const classes = useStyles();
     return (
         <div className={classes.appContent}>
-            <InlineMessage type='info' className={classes.dialogContainer}>
+            <InlineMessage type={dialogType} className={classes.dialogContainer}>
                 <Typography variant='h5' component='h2'>
                     {heading}
                 </Typography>
                 <Typography variant="body2" gutterBottom>
                     {caption}
                 </Typography>
-                <ScopeValidation resourcePath={resourcePaths.APPLICATIONS} resourceMethod={resourceMethods.POST}>
+                {showButton && <ScopeValidation resourcePath={resourcePaths.APPLICATIONS} resourceMethod={resourceMethods.POST}>
                     <Button
                         variant='contained'
                         color='primary'
@@ -55,7 +55,7 @@ const genericDisplayDialog = (props) => {
                     >
                         {buttonText}
                     </Button>
-                </ScopeValidation>
+                </ScopeValidation>}
             </InlineMessage>
         </div>
     );

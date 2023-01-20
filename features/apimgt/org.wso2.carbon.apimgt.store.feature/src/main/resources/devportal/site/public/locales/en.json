@@ -53,6 +53,8 @@
   "Apis.Details.Credentials.Credentials.api.credentials.with.subscribe.message": "Subscribe to an application and generate credentials",
   "Apis.Details.Credentials.Credentials.api.credentials.with.wizard.message": "Use the Subscription and Key Generation Wizard. Create a new application -> Subscribe -> Generate keys and Access Token to invoke this API.",
   "Apis.Details.Credentials.Credentials.generate": "Subscribe",
+  "Apis.Details.Credentials.Credentials.insufficient.permissions": "Insufficient Permissions",
+  "Apis.Details.Credentials.Credentials.insufficient.permissions.msg": "You are not allowed to subscribe to this API",
   "Apis.Details.Credentials.Credentials.something.went.wrong.with.subscription": "Something went wrong while deleting the Subscription!",
   "Apis.Details.Credentials.Credentials.subscribe.to.application": "Subscribe",
   "Apis.Details.Credentials.Credentials.subscribe.to.application.msg": "You need to subscribe to an application to access this API",
