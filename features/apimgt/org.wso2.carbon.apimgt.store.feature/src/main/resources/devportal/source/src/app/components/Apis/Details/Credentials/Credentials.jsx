@@ -391,20 +391,20 @@ class Credentials extends React.Component {
                                 resourcePath={resourcePaths.SUBSCRIPTIONS}
                                 resourceMethod={resourceMethods.POST}
                             >
-                                <Typography variant='h5' component='h3'>
+                                {throttlingPolicyList.length > 0 && (<Typography variant='h5' component='h3'>
                                     <FormattedMessage
                                         id={'Apis.Details.Credentials.Credentials.' +
-                                        'subscribe.to.application'}
+                                            'subscribe.to.application'}
                                         defaultMessage='Subscribe'
                                     />
-                                </Typography>
+                                </Typography>)}
                                 <div className={classes.credentialBoxWrapper}>
                                     {applicationsAvailable.length === 0 && (
                                         <div className={classes.credentialBox}>
                                             <Typography variant='body2'>
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.Credentials.'
-                                                    + 'api.credentials.with.wizard.message'}
+                                                        + 'api.credentials.with.wizard.message'}
                                                     defaultMessage={
                                                         'Use the Subscription and Key Generation Wizard. '
                                                         + 'Create a new application -> '
@@ -417,7 +417,7 @@ class Credentials extends React.Component {
                                                 variant='contained'
                                                 color='primary'
                                                 className={classes.buttonElm}
-                                                disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL || 
+                                                disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL ||
                                                     isOnlyBasicAuth}
                                                 component={Link}
                                                 to={(isOnlyMutualSSL || isOnlyBasicAuth) ? null :
@@ -426,20 +426,20 @@ class Credentials extends React.Component {
                                             >
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.'
-                                                    + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
+                                                        + 'SubscibeButtonPanel.subscribe.wizard.with.new.app'}
                                                     defaultMessage='Subscription &amp; Key Generation Wizard'
                                                 />
                                             </Button>
                                         </div>
-                                    ) }
-                                    {applicationsAvailable.length > 0 && (
+                                    )}
+                                    {applicationsAvailable.length > 0 && throttlingPolicyList.length > 0 ? (
                                         <div className={classes.credentialBox}>
                                             <Typography variant='body2'>
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.Credentials'
-                                                    + '.api.credentials.with.subscribe.message'}
+                                                        + '.api.credentials.with.subscribe.message'}
                                                     defaultMessage={'Subscribe to an application'
-                                                    + ' and generate credentials'}
+                                                        + ' and generate credentials'}
                                                 />
                                             </Typography>
                                             <SubscribeToApi
@@ -461,12 +461,26 @@ class Credentials extends React.Component {
                                             >
                                                 <FormattedMessage
                                                     id={'Apis.Details.Credentials.'
-                                                    + 'SubscibeButtonPanel.subscribe.btn'}
+                                                        + 'SubscibeButtonPanel.subscribe.btn'}
                                                     defaultMessage='Subscribe'
                                                 />
                                                 {isSubscribing && <CircularProgress size={24} />}
                                             </Button>
                                         </div>
+                                    ) : (
+                                        <GenericDisplayDialog
+                                            heading={intl.formatMessage({
+                                                defaultMessage: 'Insufficient Permissions',
+                                                id: 'Apis.Details.Credentials.Credentials.insufficient.permissions',
+                                            })}
+                                            caption={intl.formatMessage({
+                                                defaultMessage: 'You are not allowed to subscribe to this API',
+                                                id:
+                                                    'Apis.Details.Credentials.Credentials.insufficient.permissions.msg',
+                                            })}
+                                            showButton={false}
+                                            dialogType={'warn'}
+                                        />
                                     )}
                                 </div>
                             </ScopeValidation>
@@ -554,7 +568,7 @@ class Credentials extends React.Component {
                                     id='Apis.Details.Credentials.Credentials.api.credentials'
                                     defaultMessage='Subscriptions'
                                 />
-                                {applicationsAvailable.length > 0 && (
+                                {applicationsAvailable.length > 0 && throttlingPolicyList.length > 0 && (
                                     <Button
                                         color='secondary'
                                         disabled={!api.isSubscriptionAvailable || isOnlyMutualSSL
