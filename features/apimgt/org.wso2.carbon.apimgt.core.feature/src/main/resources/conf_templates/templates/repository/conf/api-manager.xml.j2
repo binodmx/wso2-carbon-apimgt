@@ -1384,4 +1384,18 @@
         </OAuth>
       </MediatorConfigs>
      {% endif %}
+
+     <!-- Default Correlation Log Components -->
+     {% if apim.correlation_logs is defined %}
+     <CorrelationLogComponents>{{apim.correlation_logs.components}}</CorrelationLogComponents>
+     <CorrelationLogComponents>
+     {%for component in apim.correlation_logs.components%}
+         <CorrelationLogComponent>{{component}}</CorrelationLogComponent>
+     {% endfor %}
+     </CorrelationLogComponents>
+     {% endif %}
+
+     {% if enable_dynamic_correlation_logs is defined %}
+     <EnableDynamicCorrelationLogs>{{enable_dynamic_correlation_logs}}</EnableDynamicCorrelationLogs>
+     {% endif %}
 </APIManager>

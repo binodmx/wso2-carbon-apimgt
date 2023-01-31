@@ -45,6 +45,7 @@ import org.wso2.carbon.apimgt.impl.APIManagerFactory;
 import org.wso2.carbon.apimgt.impl.PasswordResolverFactory;
 import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.certificatemgt.reloader.CertificateReLoaderUtil;
+import org.wso2.carbon.apimgt.impl.correlation.CorrelationConfigManager;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
 import org.wso2.carbon.apimgt.impl.dto.EventHubConfigurationDto;
 import org.wso2.carbon.apimgt.impl.dto.GatewayArtifactSynchronizerProperties;
@@ -64,6 +65,7 @@ import org.wso2.carbon.apimgt.impl.migrator.ScopesMigrator;
 import org.wso2.carbon.apimgt.impl.notifier.ApisNotifier;
 import org.wso2.carbon.apimgt.impl.notifier.ApplicationNotifier;
 import org.wso2.carbon.apimgt.impl.notifier.ApplicationRegistrationNotifier;
+import org.wso2.carbon.apimgt.impl.notifier.CorrelationConfigNotifier;
 import org.wso2.carbon.apimgt.impl.notifier.DeployAPIInGatewayNotifier;
 import org.wso2.carbon.apimgt.impl.notifier.Notifier;
 import org.wso2.carbon.apimgt.impl.notifier.PolicyNotifier;
@@ -201,6 +203,7 @@ public class APIManagerComponent {
             bundleContext.registerService(Notifier.class.getName(), new PolicyNotifier(), null);
             bundleContext.registerService(Notifier.class.getName(), new DeployAPIInGatewayNotifier(), null);
             bundleContext.registerService(Notifier.class.getName(), new ScopesNotifier(), null);
+            bundleContext.registerService(Notifier.class.getName(), new CorrelationConfigNotifier(), null);
 
             APIManagerConfigurationServiceImpl configurationService = new APIManagerConfigurationServiceImpl(configuration);
             ServiceReferenceHolder.getInstance().setAPIManagerConfigurationService(configurationService);
@@ -251,6 +254,10 @@ public class APIManagerComponent {
             }
             // Adding default throttle policies
             addDefaultAdvancedThrottlePolicies();
+            if (configuration.isDynamicCorrelationLogsEnabled()) {
+                //Adding default correlation configs at initial server start up
+                APIUtil.addDefaultCorrelationConfigs();
+            }
             // Update all NULL THROTTLING_TIER values to Unlimited
             boolean isNullThrottlingTierConversionEnabled = APIUtil.updateNullThrottlingTierAtStartup();
             try {

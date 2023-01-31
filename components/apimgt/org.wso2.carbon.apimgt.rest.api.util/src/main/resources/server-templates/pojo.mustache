@@ -18,7 +18,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
 {{#vendorExtensions.x-otherScopes}}
     @Scope(name = "{{.}}", description="", value ="")
 {{/vendorExtensions.x-otherScopes}}
-    private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};{{/vars}}
+    private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^defaultValue}} = null{{/defaultValue}};{{/vars}}
 
   {{#vars}}
   /**

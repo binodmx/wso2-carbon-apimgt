@@ -151,6 +151,7 @@ import org.wso2.carbon.apimgt.impl.caching.CacheProvider;
 import org.wso2.carbon.apimgt.impl.clients.UserInformationRecoveryClient;
 import org.wso2.carbon.apimgt.impl.containermgt.ContainerBasedConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
+import org.wso2.carbon.apimgt.impl.dao.CorrelationConfigDAO;
 import org.wso2.carbon.apimgt.impl.dao.ScopesDAO;
 import org.wso2.carbon.apimgt.impl.definitions.OASParserUtil;
 import org.wso2.carbon.apimgt.impl.dto.APIKeyValidationInfoDTO;
@@ -12221,6 +12222,21 @@ public final class APIUtil {
             list = Arrays.asList(defaultType);
         }
         return list.contains(fileType.toLowerCase());
+    }
+
+    /**
+     * Add the default correlation configs to the database at the initial server start up.
+     */
+    public static void addDefaultCorrelationConfigs() throws APIManagementException {
+        CorrelationConfigDAO correlationConfigDAO = CorrelationConfigDAO.getInstance();
+        // If there are configs in the database already, we should not rewrite it
+        if (correlationConfigDAO.isConfigExist()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Default correlation configs are not written to the database again.");
+            }
+            return;
+        }
+        correlationConfigDAO.addDefaultCorrelationConfigs();
     }
 }
 
