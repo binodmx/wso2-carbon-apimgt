@@ -117,6 +117,10 @@ public class LogsHandler extends AbstractSynapseHandler {
 
     public boolean handleRequestInFlow(MessageContext messageContext) {
         if (isCorrelationEnabled()) {
+            if (messageContext.getProperty(APIMgtGatewayConstants.GLOBAL_REQUEST_EXECUTION_START_TIME) == null) {
+                messageContext.setProperty(APIMgtGatewayConstants.GLOBAL_REQUEST_EXECUTION_START_TIME,
+                        Long.toString(System.currentTimeMillis()));
+            }
             try {
                 APIInfo apiInfo = new APIInfo();
                 apiInfo.setApiTo(LogUtils.getTo(messageContext));
@@ -157,6 +161,9 @@ public class LogsHandler extends AbstractSynapseHandler {
 
     public boolean handleRequestOutFlow(MessageContext messageContext) {
         if (isCorrelationEnabled()) {
+            long requestTime = getExecutionStartTimeDiff(messageContext,
+                    APIMgtGatewayConstants.GLOBAL_REQUEST_EXECUTION_START_TIME);
+            correlationLog.info(requestTime + "|HTTP Request Time");
             try {
                 // Set API related information to API_INFO property in messageContext
                 APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
@@ -224,13 +231,18 @@ public class LogsHandler extends AbstractSynapseHandler {
 
     public boolean handleResponseInFlow(MessageContext messageContext) {
         if (isCorrelationEnabled()) {
+            if (messageContext.getProperty(APIMgtGatewayConstants.RESPONSE_EXECUTION_START_TIME) == null) {
+                messageContext.setProperty(APIMgtGatewayConstants.RESPONSE_EXECUTION_START_TIME, Long.toString(System
+                        .currentTimeMillis()));
+            }
             // default API would have the property LoggedResponse as true.
             String defaultAPI = (String) messageContext.getProperty("DefaultAPI");
             if (!"true".equals(defaultAPI)) {
                 try {
                     // Get properties to be logged
                     APIInfo apiInfo = (APIInfo) messageContext.getProperty(API_INFO);
-                    long responseTime = getResponseTime(messageContext);
+                    long responseTime = getExecutionStartTimeDiff(messageContext,
+                            APIMgtGatewayConstants.REQUEST_EXECUTION_START_TIME);
                     long beTotalLatency = getBackendLatency(messageContext);
                     long responseSize = getContentLength(messageContext);;
                     String apiResponseSC = LogUtils.getRestHttpResponseStatusCode(messageContext);
@@ -278,6 +290,14 @@ public class LogsHandler extends AbstractSynapseHandler {
     }
 
     public boolean handleResponseOutFlow(MessageContext messageContext) {
+
+        if (isCorrelationEnabled() &&
+                messageContext.getProperty(APIMgtGatewayConstants.RESPONSE_EXECUTION_START_TIME) != null) {
+                long responseTime = getExecutionStartTimeDiff(messageContext,
+                        APIMgtGatewayConstants.RESPONSE_EXECUTION_START_TIME);
+                correlationLog.info(responseTime + "|HTTP Response Time");
+        }
+
         // Track messages
         if (isMessageTrackingEnabled()) {
             try {
@@ -336,22 +356,24 @@ public class LogsHandler extends AbstractSynapseHandler {
         return beTotalLatency;
     }
 
-    /*
-     * getResponseTime
+    /**
+     * Calculates the time taken from the request execution start in the first handler.
+     * @param messageContext
+     * @return the time taken from the request execution start
      */
-    private long getResponseTime(org.apache.synapse.MessageContext messageContext) {
-        long responseTime = 0;
+    private long getExecutionStartTimeDiff(org.apache.synapse.MessageContext messageContext, String propertyName) {
+        long duration = 0;
         try {
             long rtStartTime = 0;
-            if (messageContext.getProperty(APIMgtGatewayConstants.REQUEST_EXECUTION_START_TIME) != null) {
-                Object objRtStartTime = messageContext.getProperty(APIMgtGatewayConstants.REQUEST_EXECUTION_START_TIME);
+            if (messageContext.getProperty(propertyName) != null) {
+                Object objRtStartTime = messageContext.getProperty(propertyName);
                 rtStartTime = (objRtStartTime == null ? 0 : Long.parseLong((String) objRtStartTime));
             }
-            responseTime = System.currentTimeMillis() - rtStartTime;
+            duration = System.currentTimeMillis() - rtStartTime;
         } catch (Exception e) {
-            correlationLog.error("Error getResponseTime -  " + e.getMessage(), e);
+            correlationLog.error("Error getRequestExecutionStartTimeDiff -  " + e.getMessage(), e);
         }
-        return responseTime;
+        return duration;
     }
 
     private long getContentLength(org.apache.synapse.MessageContext messageContext) {

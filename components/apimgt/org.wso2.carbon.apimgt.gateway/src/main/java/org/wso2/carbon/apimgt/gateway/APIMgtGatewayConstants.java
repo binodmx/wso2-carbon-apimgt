@@ -48,6 +48,8 @@ public class APIMgtGatewayConstants {
     public static final String DEACTIVATED_ACCESS_TOKEN = "DeactivatedAccessToken";
     public static final String SCOPES = "Scopes";
     public static final String REQUEST_EXECUTION_START_TIME = "request.execution.start.time";
+    public static final String GLOBAL_REQUEST_EXECUTION_START_TIME = "global.request.execution.start.time";
+    public static final String RESPONSE_EXECUTION_START_TIME = "response.execution.start.time";
     public static final String SYNAPSE_ENDPOINT_ADDRESS = "ENDPOINT_ADDRESS";
     public static final String DUMMY_ENDPOINT_ADDRESS = "dummy_endpoint_address";
 
