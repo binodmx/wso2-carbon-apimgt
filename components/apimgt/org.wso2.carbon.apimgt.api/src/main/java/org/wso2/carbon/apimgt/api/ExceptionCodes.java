@@ -229,6 +229,7 @@ ExceptionCodes implements ErrorHandler {
             "Please provide the Authorization : Bearer <> token to proceed."),
     MALFORMED_AUTHORIZATION_HEADER_BASIC(900913, "Malformed Authorization Header", 400,
             "Please provide the Authorization : Basic <> token to proceed."),
+    INVALID_PERMISSION(900915, "Invalid Permission", 403, " You are not authorized to access the resource."),
     OAUTH2_APP_CREATION_FAILED(900950, "Key Management Error", 500, "Error while creating the consumer application."),
     OAUTH2_APP_ALREADY_EXISTS(900951, "Key Management Error", 409, "OAuth2 application already created."),
     OAUTH2_APP_DELETION_FAILED(900952, "Key Management Error", 500, "Error while deleting the consumer application."),
@@ -383,8 +384,10 @@ ExceptionCodes implements ErrorHandler {
             "Log level should be either all,body or headers"),
 
     LOGGING_API_MISSING_DATA(901402,"Missing data",
-            400, "API context or log level is missing");
-
+            400, "API context or log level is missing"),
+    CORRELATION_CONFIG_PROPERTY_NOT_SUPPORTED(901403, "Bad Request", 400, "Requested component does not have a corresponding property"),
+    CORRELATION_CONFIG_BAD_REQUEST(901403, "Bad Request", 400, "Request body can not have empty elements"),
+    CORRELATION_CONFIG_BAD_REQUEST_INVALID_NAME(902021, "Bad Request", 400, "Request body contains invalid correlation component name");
 
 
     private final long errorCode;

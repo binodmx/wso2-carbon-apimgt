@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.stream.XMLStreamException;
+import org.wso2.carbon.apimgt.impl.correlation.MethodCallsCorrelationConfigDataHolder;
 
 /**
  * This Handler can be used to log all external calls done by the api manager via synapse
@@ -68,8 +69,6 @@ public class LogsHandler extends AbstractSynapseHandler {
     private String logLevel = null;
     private static Map<String, String> logProperties= new ConcurrentHashMap<>();
 
-    private static boolean isCorrelationEnabled = false;
-    private static boolean isCorrelationEnabledSystemPropertyRead = false;
     private static boolean isMessageTrackingEnabled = false;
     private static boolean isMessageTrackingEnabledSystemPropertyRead = false;
 
@@ -94,14 +93,7 @@ public class LogsHandler extends AbstractSynapseHandler {
     private static final String RESPONSE_OUT = "response-out";
 
     private boolean isCorrelationEnabled() {
-        if (!isCorrelationEnabledSystemPropertyRead) {
-            String config = System.getProperty(APIConstants.ENABLE_CORRELATION_LOGS);
-            if (config != null && !config.equals("")) {
-                isCorrelationEnabled = Boolean.parseBoolean(config);
-            }
-            isCorrelationEnabledSystemPropertyRead = true;
-        }
-        return isCorrelationEnabled;
+        return MethodCallsCorrelationConfigDataHolder.isEnable();
     }
 
     private boolean isMessageTrackingEnabled() {

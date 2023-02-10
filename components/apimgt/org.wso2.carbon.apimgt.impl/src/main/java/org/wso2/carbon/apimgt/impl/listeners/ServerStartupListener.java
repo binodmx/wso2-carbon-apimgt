@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
+import org.wso2.carbon.apimgt.impl.correlation.CorrelationConfigManager;
 import org.wso2.carbon.apimgt.impl.dto.TokenIssuerDto;
 import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
@@ -57,6 +58,9 @@ public class ServerStartupListener implements ServerStartupObserver {
             Map<String, TokenIssuerDto> tokenIssuerDtoMap =
                     apiManagerConfiguration.getJwtConfigurationDto().getTokenIssuerDtoMap();
             tokenIssuerDtoMap.forEach((issuer, tokenIssuer) -> KeyManagerHolder.addGlobalJWTValidators(tokenIssuer));
+            if (apiManagerConfiguration.isDynamicCorrelationLogsEnabled()) {
+                CorrelationConfigManager.getInstance().initializeCorrelationComponentList();
+            }
         }
     }
 

@@ -1841,4 +1841,12 @@ public class APIManagerConfiguration {
             containerMgtAttributes.add(containerMgt);
         }
     }
+
+    public boolean isDynamicCorrelationLogsEnabled() {
+        if (getProperty("EnableDynamicCorrelationLogs") != null) {
+            String config = getProperty("EnableDynamicCorrelationLogs").get(0);
+            return Boolean.parseBoolean(config);
+        }
+        return false;
+    }
 }

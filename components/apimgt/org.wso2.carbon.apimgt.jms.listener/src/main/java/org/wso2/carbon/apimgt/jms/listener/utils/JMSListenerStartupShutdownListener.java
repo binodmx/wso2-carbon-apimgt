@@ -62,8 +62,11 @@ public class JMSListenerStartupShutdownListener implements ServerStartupObserver
             if (JavaUtils.isTrueExplicitly(enableKeyManagerRetrieval)) {
                 jmsTransportHandlerForEventHub
                         .subscribeForJmsEvents(JMSConstants.TOPIC_KEY_MANAGER, new KeyManagerJMSMessageListener());
+                jmsTransportHandlerForEventHub
+                        .subscribeForJmsEvents(APIConstants.TopicNames.TOPIC_NOTIFICATION, new CorrelationConfigJMSMessageListener());
             }
         }
+
     }
 
     @Override

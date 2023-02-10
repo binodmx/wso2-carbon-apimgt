@@ -2065,6 +2065,7 @@ public final class APIConstants {
     public static final String CORRELATION_LOGGER = "correlation";
     public static final String LOG_ALL_METHODS = "logAllMethods";
     public static final String AM_ACTIVITY_ID = "activityid";
+    public static final String CORRELATION_LOG_COMPONENTS = "CorrelationLogComponents.CorrelationLogComponent";
 
     /**
      * Constants for message track logging
@@ -2443,7 +2444,8 @@ public final class APIConstants {
         APPLICATION_REGISTRATION,
         POLICY,
         SUBSCRIPTIONS,
-        SCOPE
+        SCOPE,
+        CORRELATION_CONFIG
     }
 
     // Supported Event Types
@@ -2467,7 +2469,8 @@ public final class APIConstants {
         REMOVE_APPLICATION_KEYMAPPING,
         SCOPE_CREATE,
         SCOPE_UPDATE,
-        SCOPE_DELETE
+        SCOPE_DELETE,
+        UPDATE_CORRELATION_CONFIGS
     }
 
     public static class GatewayArtifactSynchronizer {

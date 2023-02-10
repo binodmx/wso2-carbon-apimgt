@@ -51,4 +51,15 @@
         </ClientGeneration>
     </SwaggerCodegen>
 
+    <!-- Default Correlation Log Components -->
+    <CorrelationLogComponents>
+        <CorrelationLogComponent>http</CorrelationLogComponent>
+        <CorrelationLogComponent>jdbc</CorrelationLogComponent>
+        <CorrelationLogComponent>ldap</CorrelationLogComponent>
+        <CorrelationLogComponent>synapse</CorrelationLogComponent>
+        <CorrelationLogComponent>method-calls</CorrelationLogComponent>
+    </CorrelationLogComponents>
+
+    <EnableDynamicCorrelationLogs>true</EnableDynamicCorrelationLogs>
+
 </APIManager>
