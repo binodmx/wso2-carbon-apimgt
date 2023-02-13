@@ -749,6 +749,16 @@ public class ApisApiServiceImpl implements ApisApiService {
 
 
             LinkedHashMap endpointConfig = (LinkedHashMap) body.getEndpointConfig();
+            if(endpointConfig==null){
+                RestApiUtil.handleBadRequest("endpointConfig: must not be null", log);
+            }
+            if(endpointConfig.containsKey(APIConstants.ENDPOINT_SECURITY)){
+                JSONObject endpointSecurity =
+                        (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
+                if(endpointSecurity==null) {
+                    RestApiUtil.handleBadRequest("endpoint_security: must not be null", log);
+                }
+            }
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
 
             // OAuth 2.0 backend protection: API Key and API Secret encryption
@@ -798,6 +808,9 @@ public class ApisApiServiceImpl implements ApisApiService {
 
             // Validate API Security
             List<String> apiSecurity = body.getSecurityScheme();
+            if(apiSecurity == null){
+                RestApiUtil.handleBadRequest("securityScheme: must not be null.", log);
+            }
             if (!apiProvider.isClientCertificateBasedAuthenticationConfigured() && apiSecurity != null && apiSecurity
                     .contains(APIConstants.API_SECURITY_MUTUAL_SSL)) {
                 RestApiUtil.handleBadRequest("Mutual SSL based authentication is not supported in this server.", log);
