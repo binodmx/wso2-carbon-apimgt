@@ -722,7 +722,8 @@ public class ApisApiServiceImpl implements ApisApiService {
                 if ((oldEndpointConfig.containsKey(APIConstants.ENDPOINT_SECURITY))) {
                     JSONObject oldEndpointSecurity =
                             (JSONObject) oldEndpointConfig.get(APIConstants.ENDPOINT_SECURITY);
-                    if (oldEndpointSecurity.containsKey(APIConstants.OAuthConstants.ENDPOINT_SECURITY_PRODUCTION)) {
+
+                    if (oldEndpointSecurity != null && oldEndpointSecurity.containsKey(APIConstants.OAuthConstants.ENDPOINT_SECURITY_PRODUCTION)) {
                         JSONObject oldEndpointSecurityProduction = (JSONObject) oldEndpointSecurity
                                 .get(APIConstants.OAuthConstants.ENDPOINT_SECURITY_PRODUCTION);
 
@@ -733,7 +734,7 @@ public class ApisApiServiceImpl implements ApisApiService {
                                     .OAuthConstants.OAUTH_CLIENT_SECRET).toString();
                         }
                     }
-                    if (oldEndpointSecurity.containsKey(APIConstants.OAuthConstants.ENDPOINT_SECURITY_SANDBOX)) {
+                    if (oldEndpointSecurity != null && oldEndpointSecurity.containsKey(APIConstants.OAuthConstants.ENDPOINT_SECURITY_SANDBOX)) {
                         JSONObject oldEndpointSecuritySandbox = (JSONObject) oldEndpointSecurity
                                 .get(APIConstants.OAuthConstants.ENDPOINT_SECURITY_SANDBOX);
 
@@ -749,16 +750,13 @@ public class ApisApiServiceImpl implements ApisApiService {
 
 
             LinkedHashMap endpointConfig = (LinkedHashMap) body.getEndpointConfig();
-            if(endpointConfig==null){
-                RestApiUtil.handleBadRequest("endpointConfig: must not be null", log);
-            }
-            if(endpointConfig.containsKey(APIConstants.ENDPOINT_SECURITY)){
-                JSONObject endpointSecurity =
-                        (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
-                if(endpointSecurity==null) {
-                    RestApiUtil.handleBadRequest("endpoint_security: must not be null", log);
-                }
-            }
+//            if(endpointConfig != null && endpointConfig.containsKey(APIConstants.ENDPOINT_SECURITY)){
+//                JSONObject endpointSecurity =
+//                        (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
+//                if(endpointSecurity==null) {
+//                    RestApiUtil.handleBadRequest("endpoint_security: must not be null", log);
+//                }
+//            }
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
 
             // OAuth 2.0 backend protection: API Key and API Secret encryption
@@ -808,9 +806,7 @@ public class ApisApiServiceImpl implements ApisApiService {
 
             // Validate API Security
             List<String> apiSecurity = body.getSecurityScheme();
-            if(apiSecurity == null){
-                RestApiUtil.handleBadRequest("securityScheme: must not be null.", log);
-            }
+
             if (!apiProvider.isClientCertificateBasedAuthenticationConfigured() && apiSecurity != null && apiSecurity
                     .contains(APIConstants.API_SECURITY_MUTUAL_SSL)) {
                 RestApiUtil.handleBadRequest("Mutual SSL based authentication is not supported in this server.", log);
@@ -830,7 +826,7 @@ public class ApisApiServiceImpl implements ApisApiService {
                 }
             }
             String originalStatus = originalAPI.getStatus();
-            if (apiSecurity.contains(APIConstants.DEFAULT_API_SECURITY_OAUTH2) ||
+            if (apiSecurity != null && apiSecurity.contains(APIConstants.DEFAULT_API_SECURITY_OAUTH2) ||
                     apiSecurity.contains(APIConstants.API_SECURITY_API_KEY)) {
                 if (tiersFromDTO == null || tiersFromDTO.isEmpty() &&
                         !(APIConstants.CREATED.equals(originalStatus) ||
