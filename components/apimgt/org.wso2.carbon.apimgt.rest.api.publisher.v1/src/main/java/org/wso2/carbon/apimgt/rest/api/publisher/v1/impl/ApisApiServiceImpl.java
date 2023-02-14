@@ -748,15 +748,7 @@ public class ApisApiServiceImpl implements ApisApiService {
                 }
             }
 
-
             LinkedHashMap endpointConfig = (LinkedHashMap) body.getEndpointConfig();
-//            if(endpointConfig != null && endpointConfig.containsKey(APIConstants.ENDPOINT_SECURITY)){
-//                JSONObject endpointSecurity =
-//                        (JSONObject) endpointConfig.get(APIConstants.ENDPOINT_SECURITY);
-//                if(endpointSecurity==null) {
-//                    RestApiUtil.handleBadRequest("endpoint_security: must not be null", log);
-//                }
-//            }
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
 
             // OAuth 2.0 backend protection: API Key and API Secret encryption
@@ -826,16 +818,17 @@ public class ApisApiServiceImpl implements ApisApiService {
                 }
             }
             String originalStatus = originalAPI.getStatus();
-            if (apiSecurity != null && apiSecurity.contains(APIConstants.DEFAULT_API_SECURITY_OAUTH2) ||
-                    apiSecurity.contains(APIConstants.API_SECURITY_API_KEY)) {
-                if (tiersFromDTO == null || tiersFromDTO.isEmpty() &&
-                        !(APIConstants.CREATED.equals(originalStatus) ||
-                                APIConstants.PROTOTYPED.equals(originalStatus))) {
-                    RestApiUtil.handleBadRequest("A tier should be defined " +
-                            "if the API is not in CREATED or PROTOTYPED state", log);
+            if(apiSecurity != null){
+                if (apiSecurity.contains(APIConstants.DEFAULT_API_SECURITY_OAUTH2) ||
+                        apiSecurity.contains(APIConstants.API_SECURITY_API_KEY)) {
+                    if (tiersFromDTO == null || tiersFromDTO.isEmpty() &&
+                            !(APIConstants.CREATED.equals(originalStatus) ||
+                                    APIConstants.PROTOTYPED.equals(originalStatus))) {
+                        RestApiUtil.handleBadRequest("A tier should be defined " +
+                                "if the API is not in CREATED or PROTOTYPED state", log);
+                    }
                 }
             }
-
             if (tiersFromDTO != null && !tiersFromDTO.isEmpty()) {
                 //check whether the added API's tiers are all valid
                 Set<Tier> definedTiers = apiProvider.getTiers();
