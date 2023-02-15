@@ -1849,4 +1849,12 @@ public class APIManagerConfiguration {
         }
         return false;
     }
+
+    public boolean isPopulateDefaultCorrelationConfigsEnabled() {
+        if (getProperty("PopulateDefaultCorrelationConfigs") != null) {
+            String config = getProperty("PopulateDefaultCorrelationConfigs").get(0);
+            return Boolean.parseBoolean(config);
+        }
+        return false;
+    }
 }
