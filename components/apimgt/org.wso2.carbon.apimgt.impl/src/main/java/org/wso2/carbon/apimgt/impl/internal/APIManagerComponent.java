@@ -254,7 +254,7 @@ public class APIManagerComponent {
             }
             // Adding default throttle policies
             addDefaultAdvancedThrottlePolicies();
-            if (configuration.isDynamicCorrelationLogsEnabled()) {
+            if (configuration.isPopulateDefaultCorrelationConfigsEnabled()) {
                 //Adding default correlation configs at initial server start up
                 APIUtil.addDefaultCorrelationConfigs();
             }
