@@ -37,12 +37,24 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.axiom.soap.SOAPFactory;
+import org.apache.axiom.util.UIDGenerator;
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.context.OperationContext;
+import org.apache.axis2.context.ServiceContext;
+import org.apache.axis2.description.InOutAxisOperation;
 import org.apache.axis2.description.TransportOutDescription;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHeaders;
+import org.apache.synapse.Mediator;
+import org.apache.synapse.MessageContext;
+import org.apache.synapse.core.axis2.MessageContextCreatorForAxis2;
 import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.model.CORSConfiguration;
 import org.wso2.carbon.apimgt.api.model.subscription.URLMapping;
@@ -70,6 +82,7 @@ import org.wso2.carbon.apimgt.keymgt.model.entity.API;
 import org.wso2.carbon.apimgt.usage.publisher.APIMgtUsageDataPublisher;
 import org.wso2.carbon.apimgt.usage.publisher.DataPublisherUtil;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.ganalytics.publisher.GoogleAnalyticsData;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -194,12 +207,15 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 log.debug(channelId + " -- Websocket API request [inbound]: " + req.method() + " " + apiContextUri + " " + req.protocolVersion());
                 log.debug(channelId + " -- Websocket API request [inbound] : Host: " + req.headers().get(APIConstants.SWAGGER_HOST));
             }
+            String tenantDomain;
             if (req.getUri().contains("/t/")) {
-                inboundMessageContext.setTenantDomain(MultitenantUtils.getTenantDomainFromUrl(req.getUri()));
+                tenantDomain = MultitenantUtils.getTenantDomainFromUrl(req.getUri());
             } else {
-                inboundMessageContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
-            validateCorsHeaders(ctx, req, inboundMessageContext);
+            inboundMessageContext.setTenantDomain(tenantDomain);
+            MessageContext messageContext = createSynapseMessageContext(tenantDomain);
+            validateCorsHeaders(ctx, req, inboundMessageContext, messageContext);
 
             // This block is for the context check
             InboundProcessorResponseDTO responseDTO =
@@ -373,13 +389,19 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req,
-                                     InboundMessageContext inboundMessageContext) throws APISecurityException {
+                                     InboundMessageContext inboundMessageContext, MessageContext messageContext) throws APISecurityException, AxisFault {
         // Current implementation supports validating only the 'origin' header
         String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
         // Don't validate the 'origin' header if it's not present in the request
         if (requestOrigin == null) {
             return;
         }
+        messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
+        //Setting origin from the request to the message context
+        messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
+        //Introducing the boolean property handle origin validation in the sequence level
+        messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_FAILURE,false);
+        Mediator corsSequence = getCorsSequence(messageContext);
         CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
         if (corsConfiguration == null || !corsConfiguration.isCorsConfigurationEnabled()) {
             return;
@@ -387,7 +409,17 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin,
                     corsConfiguration.getAccessControlAllowOrigins());
         if (allowedOrigin == null) {
-            handleCORSValidationFailure(ctx, req);
+            //For additional cors validation corsSequence will be mediated once the default cors validation is failed
+            if (corsSequence != null) {
+                corsSequence.mediate(messageContext);
+                boolean wsCorsOrginFailure = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_FAILURE);
+                if(wsCorsOrginFailure){
+                    handleCORSValidationFailure(ctx, req);
+                }
+                else {
+                    return;
+                }
+            }
         }
     }
 
@@ -777,6 +809,45 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             apiProperties.put(WEB_SC_API_UT, corruptedWebSocketFrameException.closeStatus().code());
         }
         super.exceptionCaught(ctx, cause);
+    }
+    private static org.apache.synapse.MessageContext createSynapseMessageContext(String tenantDomain) throws AxisFault {
+        org.apache.axis2.context.MessageContext axis2MsgCtx = createAxis2MessageContext();
+        ServiceContext svcCtx = new ServiceContext();
+        OperationContext opCtx = new OperationContext(new InOutAxisOperation(), svcCtx);
+        axis2MsgCtx.setServiceContext(svcCtx);
+        axis2MsgCtx.setOperationContext(opCtx);
+        if (!tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
+            ConfigurationContext tenantConfigCtx =
+                    TenantAxisUtils.getTenantConfigurationContext(tenantDomain,
+                            axis2MsgCtx.getConfigurationContext());
+            axis2MsgCtx.setConfigurationContext(tenantConfigCtx);
+            axis2MsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
+        } else {
+            axis2MsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN,
+                    MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        }
+        SOAPFactory fac = OMAbstractFactory.getSOAP11Factory();
+        SOAPEnvelope envelope = fac.getDefaultEnvelope();
+        axis2MsgCtx.setEnvelope(envelope);
+        return MessageContextCreatorForAxis2.getSynapseMessageContext(axis2MsgCtx);
+    }
+    private static org.apache.axis2.context.MessageContext createAxis2MessageContext() {
+        org.apache.axis2.context.MessageContext axis2MsgCtx = new org.apache.axis2.context.MessageContext();
+        axis2MsgCtx.setMessageID(UIDGenerator.generateURNString());
+        axis2MsgCtx.setConfigurationContext(org.wso2.carbon.inbound.endpoint.osgi.service.ServiceReferenceHolder.getInstance().getConfigurationContextService()
+                .getServerConfigContext());
+        axis2MsgCtx.setProperty(org.apache.axis2.context.MessageContext.CLIENT_API_NON_BLOCKING,
+                Boolean.TRUE);
+        axis2MsgCtx.setServerSide(true);
+        return axis2MsgCtx;
+    }
+    private Mediator getCorsSequence(MessageContext messageContext) throws AxisFault {
+        Mediator corsSequence = messageContext.getSequence(APIConstants.CORS_SEQUENCE_NAME);
+        return corsSequence;
+
+    }
+    protected boolean isCorsEnabled() {
+        return APIUtil.isCORSEnabled();
     }
 }
 
