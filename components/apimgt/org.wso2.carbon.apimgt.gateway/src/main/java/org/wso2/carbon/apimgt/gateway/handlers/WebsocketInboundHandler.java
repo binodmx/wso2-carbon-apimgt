@@ -400,7 +400,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         //Setting origin from the request to the message context
         messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
         //Introducing the boolean property handle origin validation in the sequence level
-        messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_FAILURE,false);
+        messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS,false);
         Mediator corsSequence = getCorsSequence(messageContext);
         CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
         if (corsConfiguration == null || !corsConfiguration.isCorsConfigurationEnabled()) {
@@ -412,12 +412,12 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             //For additional cors validation corsSequence will be mediated once the default cors validation is failed
             if (corsSequence != null) {
                 corsSequence.mediate(messageContext);
-                boolean wsCorsOrginFailure = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_FAILURE);
-                if(wsCorsOrginFailure){
-                    handleCORSValidationFailure(ctx, req);
+                boolean wsCorsOriginSuccess = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
+                if(wsCorsOriginSuccess){
+                    return;
                 }
                 else {
-                    return;
+                    handleCORSValidationFailure(ctx, req);
                 }
             }
         }
