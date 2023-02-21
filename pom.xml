@@ -1888,10 +1888,10 @@
         <slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>
         <spring-web.version>5.1.13.RELEASE</spring-web.version>
         <hibernate-validator.version>6.0.23.Final</hibernate-validator.version>
-        <swagger-jaxrs.version>1.6.9</swagger-jaxrs.version>
+        <swagger-jaxrs.version>1.6.1</swagger-jaxrs.version>
         <junit.version>4.12</junit.version>
         <opensaml3.version>3.3.1</opensaml3.version>
-        <openapi.generator.version>4.3.1.wso2v2</openapi.generator.version>
+        <openapi.generator.version>4.3.1.wso2v1</openapi.generator.version>
         <caffeine.version>2.8.1</caffeine.version>
         <cal10n.version>0.8.1</cal10n.version>
 
@@ -1917,20 +1917,20 @@
 
         <event.processor.stub.version>2.2.14</event.processor.stub.version>
         <swagger.codegen.version>2.3.1.wso2v2</swagger.codegen.version>
-        <swagger.inflector.version>1.0.16.wso2v2</swagger.inflector.version>
+        <swagger.inflector.version>1.0.16.wso2v1</swagger.inflector.version>
         <swagger.inflector.oas3.version>2.0.5.wso2v1</swagger.inflector.oas3.version>
         <swagger.parser.version>1.0.51.wso2v1</swagger.parser.version>
-        <swagger.parser.v3.version>2.0.20.wso2v2</swagger.parser.v3.version>
-        <swagger.core.version>1.6.9</swagger.core.version>
-        <swagger.models.version>1.6.9</swagger.models.version>
-        <swagger.annotations.version>1.6.9</swagger.annotations.version>
+        <swagger.parser.v3.version>2.0.20.wso2v1</swagger.parser.v3.version>
+        <swagger.core.version>1.6.1</swagger.core.version>
+        <swagger.models.version>1.6.1</swagger.models.version>
+        <swagger.annotations.version>1.6.1</swagger.annotations.version>
         <servicemix.bundles.jedis.version>3.3.0_1</servicemix.bundles.jedis.version>
-        <google.guava.version>31.0.1-jre</google.guava.version>
+        <google.guava.version>27.0-jre</google.guava.version>
         <xercesImpl.version>2.8.1.wso2v2</xercesImpl.version>
         <commons.scxml.version>0.9.0.wso2v1</commons.scxml.version>
         <velocity.version>1.7</velocity.version>
-        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
-        <fasterxml.jackson.databind.version>2.14.2</fasterxml.jackson.databind.version>
+        <fasterxml.jackson.version>2.10.5</fasterxml.jackson.version>
+        <fasterxml.jackson.databind.version>2.10.5.1</fasterxml.jackson.databind.version>
         <fasterxml.jackson.core.version>2.9.8.wso2v1</fasterxml.jackson.core.version>
         <javax.validation-api>2.0.1.Final</javax.validation-api>
         <carbon.broker.version>3.3.12</carbon.broker.version>
@@ -1949,7 +1949,7 @@
         <reflection.version>0.9.11</reflection.version>
         <woodstox-core.version>6.2.1</woodstox-core.version>
         <apache.commons.version>2.8.0</apache.commons.version>
-        <apache.commons.lang3.version>3.12.0</apache.commons.lang3.version>
+        <apache.commons.lang3.version>3.10</apache.commons.lang3.version>
         <io.swagger.codegen.version>2.4.11</io.swagger.codegen.version>
 
         <maven.checkstyleplugin.version>2.17</maven.checkstyleplugin.version>
