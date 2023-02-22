@@ -214,8 +214,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
             inboundMessageContext.setTenantDomain(tenantDomain);
-            MessageContext messageContext = createSynapseMessageContext(tenantDomain);
-            validateCorsHeaders(ctx, req, inboundMessageContext, messageContext);
+            validateCorsHeaders(ctx, req, inboundMessageContext, tenantDomain);
 
             // This block is for the context check
             InboundProcessorResponseDTO responseDTO =
@@ -389,19 +388,13 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req,
-                                     InboundMessageContext inboundMessageContext, MessageContext messageContext) throws APISecurityException, AxisFault {
+                                     InboundMessageContext inboundMessageContext, String tenantDomain) throws APISecurityException, AxisFault {
         // Current implementation supports validating only the 'origin' header
         String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
         // Don't validate the 'origin' header if it's not present in the request
         if (requestOrigin == null) {
             return;
         }
-        messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
-        //Setting origin from the request to the message context
-        messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
-        //Introducing the boolean property handle origin validation in the sequence level
-        messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS,false);
-        Mediator corsSequence = getCorsSequence(messageContext);
         CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
         if (corsConfiguration == null || !corsConfiguration.isCorsConfigurationEnabled()) {
             return;
@@ -410,7 +403,14 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     corsConfiguration.getAccessControlAllowOrigins());
         if (allowedOrigin == null) {
             //For additional cors validation corsSequence will be mediated once the default cors validation is failed
+            MessageContext messageContext = createSynapseMessageContext(tenantDomain);
+            Mediator corsSequence = getCorsSequence(messageContext);
             if (corsSequence != null) {
+                messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
+                //Setting origin from the request to the message context
+                messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
+                //Introducing the boolean property handle origin validation in the sequence level
+                messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS,false);
                 corsSequence.mediate(messageContext);
                 boolean wsCorsOriginSuccess = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
                 if(wsCorsOriginSuccess){
@@ -419,6 +419,9 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 else {
                     handleCORSValidationFailure(ctx, req);
                 }
+            }
+            else {
+                handleCORSValidationFailure(ctx, req);
             }
         }
     }
@@ -844,7 +847,6 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     private Mediator getCorsSequence(MessageContext messageContext) throws AxisFault {
         Mediator corsSequence = messageContext.getSequence(APIConstants.CORS_SEQUENCE_NAME);
         return corsSequence;
-
     }
     protected boolean isCorsEnabled() {
         return APIUtil.isCORSEnabled();
