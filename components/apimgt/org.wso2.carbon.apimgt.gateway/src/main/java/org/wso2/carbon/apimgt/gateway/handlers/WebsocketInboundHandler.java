@@ -409,20 +409,15 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
                 //Setting origin from the request to the message context
                 messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
-                //Introducing the boolean property handle origin validation in the sequence level
+                //Introducing the boolean property to handle origin validation in the sequence level
                 messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS,false);
                 corsSequence.mediate(messageContext);
                 boolean wsCorsOriginSuccess = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
-                if(wsCorsOriginSuccess){
+                if (wsCorsOriginSuccess){
                     return;
                 }
-                else {
-                    handleCORSValidationFailure(ctx, req);
-                }
             }
-            else {
-                handleCORSValidationFailure(ctx, req);
-            }
+            handleCORSValidationFailure(ctx, req);
         }
     }
 
