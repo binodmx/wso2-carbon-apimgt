@@ -808,6 +808,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         }
         super.exceptionCaught(ctx, cause);
     }
+
     private static org.apache.synapse.MessageContext createSynapseMessageContext(String tenantDomain) throws AxisFault {
         org.apache.axis2.context.MessageContext axis2MsgCtx = createAxis2MessageContext();
         ServiceContext svcCtx = new ServiceContext();
@@ -829,6 +830,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         axis2MsgCtx.setEnvelope(envelope);
         return MessageContextCreatorForAxis2.getSynapseMessageContext(axis2MsgCtx);
     }
+
     private static org.apache.axis2.context.MessageContext createAxis2MessageContext() {
         org.apache.axis2.context.MessageContext axis2MsgCtx = new org.apache.axis2.context.MessageContext();
         axis2MsgCtx.setMessageID(UIDGenerator.generateURNString());
@@ -839,10 +841,12 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         axis2MsgCtx.setServerSide(true);
         return axis2MsgCtx;
     }
+
     private Mediator getCorsSequence(MessageContext messageContext) throws AxisFault {
         Mediator corsSequence = messageContext.getSequence(APIConstants.CORS_SEQUENCE_NAME);
         return corsSequence;
     }
+
     protected boolean isCorsEnabled() {
         return APIUtil.isCORSEnabled();
     }
