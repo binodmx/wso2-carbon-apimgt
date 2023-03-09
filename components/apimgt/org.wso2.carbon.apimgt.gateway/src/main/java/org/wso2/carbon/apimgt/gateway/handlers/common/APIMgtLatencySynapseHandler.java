@@ -43,7 +43,10 @@ public class APIMgtLatencySynapseHandler extends AbstractSynapseHandler {
                     ((Axis2MessageContext) messageContext).getAxis2MessageContext();
             Map headersMap =
                     (Map) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-            TracingSpan spanContext = Util.extract(tracer, headersMap);
+            TracingSpan spanContext = null;
+            if (headersMap != null) {
+                spanContext = Util.extract(tracer, headersMap);
+            }
             TracingSpan responseLatencySpan =
                     Util.startSpan(APIMgtGatewayConstants.RESPONSE_LATENCY, spanContext, tracer);
             Util.setTag(responseLatencySpan, APIMgtGatewayConstants.SPAN_KIND, APIMgtGatewayConstants.SERVER);
@@ -81,7 +84,9 @@ public class APIMgtLatencySynapseHandler extends AbstractSynapseHandler {
             TracingSpan backendLatencySpan =
                     (TracingSpan) messageContext.getProperty(APIMgtGatewayConstants.BACKEND_LATENCY_SPAN);
             GatewayUtils.setEndpointRelatedInformation(backendLatencySpan, messageContext);
-            Util.finishSpan(backendLatencySpan);
+            if(backendLatencySpan != null) {
+                Util.finishSpan(backendLatencySpan);
+            }
         }
         return true;
     }
@@ -92,7 +97,9 @@ public class APIMgtLatencySynapseHandler extends AbstractSynapseHandler {
             TracingSpan responseLatencySpan =
                     (TracingSpan) messageContext.getProperty(APIMgtGatewayConstants.RESPONSE_LATENCY);
             GatewayUtils.setAPIRelatedTags(responseLatencySpan, messageContext);
-            Util.finishSpan(responseLatencySpan);
+            if(responseLatencySpan != null) {
+                Util.finishSpan(responseLatencySpan);
+            }
         }
         return true;
     }
