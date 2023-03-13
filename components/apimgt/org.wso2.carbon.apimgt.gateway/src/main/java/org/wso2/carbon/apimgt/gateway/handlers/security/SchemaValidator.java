@@ -163,7 +163,7 @@ public class SchemaValidator extends AbstractHandler {
             return true;
         }
         contentType = objectResponse.toString();
-        if (!APIMgtGatewayConstants.APPLICATION_JSON.equals(contentType)) {
+        if (!contentType.contains(APIMgtGatewayConstants.APPLICATION_JSON)) {
             return true;
         }
         try {
@@ -326,7 +326,7 @@ public class SchemaValidator extends AbstractHandler {
         if (!messageContext.isResponse()) {
             schemaKey = extractSchemaFromRequest(messageContext);
         } else {
-            schemaKey = extractResponse(messageContext);
+            schemaKey = extractSchemaFromResponse(messageContext);
         }
         return schemaKey;
     }
@@ -384,17 +384,15 @@ public class SchemaValidator extends AbstractHandler {
      * @return response schema
      * @throws APIManagementException wrap and throw IOException
      */
-    private String extractResponse(MessageContext messageContext) throws APIManagementException {
+    private String extractSchemaFromResponse(MessageContext messageContext) throws APIManagementException {
         JsonElement resourceSchema;
         ObjectMapper mapper = new ObjectMapper();
         String name;
-
         String value;
         org.apache.axis2.context.MessageContext axis2MC = ((Axis2MessageContext)
                 messageContext).getAxis2MessageContext();
         String electedResource = messageContext.getProperty(APIMgtGatewayConstants.API_ELECTED_RESOURCE).toString();
         String reqMethod;
-
         Object method = messageContext.getProperty(APIMgtGatewayConstants.
                 ELECTED_REQUEST_METHOD);
         if (method == null) {
@@ -402,8 +400,9 @@ public class SchemaValidator extends AbstractHandler {
         } else {
             reqMethod = method.toString();
         }
-
         String responseStatus = axis2MC.getProperty(APIMgtGatewayConstants.HTTP_SC).toString();
+
+        // Check $..paths.[resourcePath].[method].responses.[responseCode].content.application/json.schema.$ref
         StringBuilder responseSchemaPath = new StringBuilder();
         responseSchemaPath.append(APIMgtGatewayConstants.PATHS).append(electedResource)
                 .append(APIMgtGatewayConstants.JSONPATH_SEPARATE).append(reqMethod.toLowerCase())
@@ -411,23 +410,23 @@ public class SchemaValidator extends AbstractHandler {
                 .append(APIMgtGatewayConstants.CONTENT)
                 .append(APIMgtGatewayConstants.JSON_CONTENT);
         JsonArray schema = JsonPath.read(swagger, responseSchemaPath.toString());
-
         if (schema.size() != 0) {
             return extractReference(schema.toString());
         } else {
+            // Check $..paths.[resourcePath].[method].responses.[responseCode].content.application/json.schema
             StringBuilder pathBuilder = new StringBuilder();
             pathBuilder.append(APIMgtGatewayConstants.PATHS).append(electedResource).
                     append(APIMgtGatewayConstants.JSONPATH_SEPARATE).append(reqMethod.toLowerCase()).
                     append(APIMgtGatewayConstants.JSON_RESPONSES).
                     append(responseStatus).append(APIMgtGatewayConstants.JSON_SCHEMA);
-
             schema = JsonPath.read(swagger, pathBuilder.toString());
             if (schema.size() != 0) {
                 value = schema.getAsJsonArray().get(0).toString();
             } else {
                 value = schema.toString();
             }
-            if (value.contains(APIMgtGatewayConstants.ITEMS)) {
+            if (value.contains(APIMgtGatewayConstants.JSONPATH_SEPARATE + APIMgtGatewayConstants.ITEMS)) {
+                // Check $..paths.[resourcePath].[method].responses.[responseCode].content.application/json.schema.items
                 StringBuilder requestSchemaPath = new StringBuilder();
                 requestSchemaPath.append(APIMgtGatewayConstants.PATHS).append(electedResource).
                         append(APIMgtGatewayConstants.JSONPATH_SEPARATE).append(reqMethod.toLowerCase()).
@@ -443,8 +442,17 @@ public class SchemaValidator extends AbstractHandler {
                 }
                 return value;
             }
+            if (!value.isEmpty() && !APIMgtGatewayConstants.EMPTY_ARRAY.equals(value)) {
+                if (value.contains(APIMgtGatewayConstants.SCHEMA_REFERENCE)) {
+                    JsonElement swaggerElement = new JsonParser().parse(value);
+                    generateSchema(swaggerElement);
+                    value = swaggerElement.toString();
+                }
+                return value;
+            }
         }
 
+        // Check $..paths.[resourcePath].[method].responses.[responseCode].schema
         StringBuilder resPath = new StringBuilder();
         resPath.append(APIMgtGatewayConstants.PATHS).append(electedResource).append(
                 APIMgtGatewayConstants.JSONPATH_SEPARATE).append(reqMethod.toLowerCase()).
@@ -474,6 +482,7 @@ public class SchemaValidator extends AbstractHandler {
                 return value;
             }
         } else {
+            // Check $..paths.[resourcePath].[method].responses.default
             StringBuilder responseDefaultPath = new StringBuilder();
             responseDefaultPath.append(APIMgtGatewayConstants.PATHS).append(electedResource).
                     append(APIMgtGatewayConstants.JSONPATH_SEPARATE).append(reqMethod.toLowerCase()).
