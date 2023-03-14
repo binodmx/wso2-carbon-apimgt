@@ -588,6 +588,9 @@
         <!-- Configuration to enable/disable CORS validation for WS APIs. If enabled, origin header is validated for
              CORS at WS handshake -->
         <EnableValidationForWS>{{apim.cors.enable_validation_for_ws}}</EnableValidationForWS>
+        <!-- Configuration to enable/disable mediation of the CORS sequence for WebSocket APIs. If enabled (true), the sequence
+             '_cors_request_handler_.xml' will be mediated after CORS validation and it can be used to additional validations of the same.  -->
+        <EnableWSAdditionalCORSValidation>false</EnableWSAdditionalCORSValidation>
     </CORSConfiguration>
 
     <!-- This property is there to configure velocity log output into existing Log4j carbon Logger.
