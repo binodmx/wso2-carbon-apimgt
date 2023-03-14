@@ -75,8 +75,8 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
 
         if (msg instanceof CloseWebSocketFrame) {
             if (((CloseWebSocketFrame) msg).statusCode() > 1001) {
-                log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
-                        ((CloseWebSocketFrame) msg).reasonText());
+                log.info(channelId + " -- ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode()
+                        + ", ERROR_MESSAGE = " + ((CloseWebSocketFrame) msg).reasonText());
                 if (APIUtil.isAnalyticsEnabled()) {
                     WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
                             inboundHandler().getUsageDataPublisher());
