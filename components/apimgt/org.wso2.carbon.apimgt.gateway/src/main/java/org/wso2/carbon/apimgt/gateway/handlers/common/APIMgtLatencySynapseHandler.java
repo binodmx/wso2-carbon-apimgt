@@ -41,17 +41,16 @@ public class APIMgtLatencySynapseHandler extends AbstractSynapseHandler {
         if (Util.tracingEnabled()) {
             org.apache.axis2.context.MessageContext axis2MessageContext =
                     ((Axis2MessageContext) messageContext).getAxis2MessageContext();
-            Map headersMap =
-                    (Map) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-            TracingSpan spanContext = null;
+            Map headersMap = (Map) axis2MessageContext.getProperty(
+                    org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
             if (headersMap != null) {
-                spanContext = Util.extract(tracer, headersMap);
+                TracingSpan spanContext = Util.extract(tracer, headersMap);
+                TracingSpan responseLatencySpan = Util.startSpan(APIMgtGatewayConstants.RESPONSE_LATENCY, spanContext,
+                        tracer);
+                Util.setTag(responseLatencySpan, APIMgtGatewayConstants.SPAN_KIND, APIMgtGatewayConstants.SERVER);
+                GatewayUtils.setRequestRelatedTags(responseLatencySpan, messageContext);
+                messageContext.setProperty(APIMgtGatewayConstants.RESPONSE_LATENCY, responseLatencySpan);
             }
-            TracingSpan responseLatencySpan =
-                    Util.startSpan(APIMgtGatewayConstants.RESPONSE_LATENCY, spanContext, tracer);
-            Util.setTag(responseLatencySpan, APIMgtGatewayConstants.SPAN_KIND, APIMgtGatewayConstants.SERVER);
-            GatewayUtils.setRequestRelatedTags(responseLatencySpan, messageContext);
-            messageContext.setProperty(APIMgtGatewayConstants.RESPONSE_LATENCY, responseLatencySpan);
         }
         return true;
     }
