@@ -1101,7 +1101,7 @@ public class GatewayUtils {
 
         Map headersMap =
                 (Map) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
-        if (headersMap.containsKey(APIConstants.ACTIVITY_ID)) {
+        if (headersMap != null && headersMap.containsKey(APIConstants.ACTIVITY_ID)) {
             Util.setTag(tracingSpan, APIMgtGatewayConstants.SPAN_ACTIVITY_ID,
                     (String) headersMap.get(APIConstants.ACTIVITY_ID));
         } else {
