@@ -16,11 +16,9 @@
  * under the License.
  */
 package org.wso2.carbon.apimgt.gateway;
-
 import org.wso2.carbon.apimgt.gateway.handlers.InboundMessageContext;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A gateway data holder to hold information of InboundMessageContext and connection which it associates with.
@@ -28,7 +26,7 @@ import java.util.Map;
 public class InboundMessageContextDataHolder {
 
     private static final InboundMessageContextDataHolder instance = new InboundMessageContextDataHolder();
-    private Map<String, InboundMessageContext> inboundMessageContextMap = new HashMap<>();
+    private Map<String, InboundMessageContext> inboundMessageContextMap = new ConcurrentHashMap<>();
 
     public static InboundMessageContextDataHolder getInstance() {
         return instance;
@@ -39,8 +37,13 @@ public class InboundMessageContextDataHolder {
     }
 
     public void addInboundMessageContextForConnection(String connectionId,
-            InboundMessageContext inboundMessageContext) {
+                                                      InboundMessageContext inboundMessageContext) {
         inboundMessageContextMap.put(connectionId, inboundMessageContext);
+    }
+
+    public InboundMessageContext putIfAbsentInboundMessageContextForConnection(String connectionId,
+                                                      InboundMessageContext inboundMessageContext) {
+        return inboundMessageContextMap.putIfAbsent(connectionId, inboundMessageContext);
     }
 
     public InboundMessageContext getInboundMessageContextForConnectionId(String connectionId) {
