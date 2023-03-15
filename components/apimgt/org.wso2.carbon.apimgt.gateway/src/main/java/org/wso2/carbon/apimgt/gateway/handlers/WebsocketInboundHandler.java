@@ -401,8 +401,9 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         }
         String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin,
                     corsConfiguration.getAccessControlAllowOrigins());
-        if (allowedOrigin == null) {
-            //For additional cors validation corsSequence will be mediated once the default cors validation is failed
+
+        // If the additional cors validation is enabled, engage the cors sequence
+        if (APIUtil.isAdditionalCorsValidationEnabled()) {
             MessageContext messageContext = createSynapseMessageContext(tenantDomain);
             Mediator corsSequence = getCorsSequence(messageContext);
             if (corsSequence != null) {
@@ -410,13 +411,17 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                 //Setting origin from the request to the message context
                 messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
                 //Introducing the boolean property to handle origin validation in the sequence level
-                messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS,false);
+                messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS, false);
                 corsSequence.mediate(messageContext);
                 boolean wsCorsOriginSuccess = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
-                if (wsCorsOriginSuccess){
-                    return;
+                if (!wsCorsOriginSuccess) {
+                    handleCORSValidationFailure(ctx, req);
                 }
+                return;
             }
+        }
+
+        if (allowedOrigin == null) {
             handleCORSValidationFailure(ctx, req);
         }
     }
@@ -424,30 +429,18 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
     private CORSConfiguration getCORSConfiguration(ChannelHandlerContext ctx, FullHttpRequest req,
                                                    InboundMessageContext inboundMessageContext)
             throws APISecurityException {
-        if (!APIUtil.isCORSValidationEnabledForWS()) {
-            return new CORSConfiguration(false, null,false,null, null);
-        }
         String errorMessage;
         SubscriptionDataStore datastore = SubscriptionDataHolder.getInstance()
                 .getTenantSubscriptionStore(inboundMessageContext.getTenantDomain());
-        Set<String> allowedOriginsConfigured = WebsocketUtil.getAllowedOriginsConfigured();
         if (datastore != null) {
             API api = datastore.getApiByContextAndVersion(inboundMessageContext.getApiContextUri(),
                     inboundMessageContext.getVersion());
+            // for websocket default version.
             if (api == null && APIConstants.DEFAULT_WEBSOCKET_VERSION.equals(inboundMessageContext.getVersion())) {
-                // for websocket default version.
                 api = datastore.getDefaultApiByContext(inboundMessageContext.getApiContextUri());
             }
             if (api != null) {
-                List<String> allowedOrigins = new ArrayList<>(allowedOriginsConfigured);
-                CORSConfiguration corsConfiguration = api.getCORSConfiguration();
-                if (corsConfiguration != null) {
-                    allowedOrigins.addAll(corsConfiguration.getAccessControlAllowOrigins());
-                    corsConfiguration.setAccessControlAllowOrigins(allowedOrigins);
-                    return corsConfiguration;
-                } else {
-                    return new CORSConfiguration(true, allowedOrigins, false, null, null);
-                }
+                return api.getCORSConfiguration();
             } else {
                 errorMessage = "API with context: " + inboundMessageContext.getApiContextUri() + " and version: "
                         + inboundMessageContext.getVersion() + " not found in Subscription datastore.";
