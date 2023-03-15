@@ -425,7 +425,23 @@ public class SchemaValidator extends AbstractHandler {
             } else {
                 value = schema.toString();
             }
-            if (value.contains(APIMgtGatewayConstants.JSONPATH_SEPARATE + APIMgtGatewayConstants.ITEMS)) {
+
+            // Added `enableAdvancedSchemaValidation` system property as a switch to roll back to previous behaviour
+            // where SchemaValidator ignored the schema validation if schema is not a $ref or schema contains $ref for
+            // a property. To switch back to the previous behaviour, set the system property
+            // `enableAdvancedSchemaValidation` to false.
+            Boolean isAdvancedSchemaValidationEnabled = true;
+            String itemsKey = APIMgtGatewayConstants.JSONPATH_SEPARATE + APIMgtGatewayConstants.ITEMS;
+            String enableAdvancedSchemaValidation =
+                    System.getProperty(APIMgtGatewayConstants.ENABLE_ADVANCED_SCHEMA_VALIDATION);
+            if (enableAdvancedSchemaValidation != null && !enableAdvancedSchemaValidation.isEmpty()) {
+                if (!Boolean.parseBoolean(enableAdvancedSchemaValidation)) {
+                    isAdvancedSchemaValidationEnabled = false;
+                    itemsKey = APIMgtGatewayConstants.ITEMS;
+                }
+            }
+
+            if (value.contains(itemsKey)) {
                 // Check $..paths.[resourcePath].[method].responses.[responseCode].content.application/json.schema.items
                 StringBuilder requestSchemaPath = new StringBuilder();
                 requestSchemaPath.append(APIMgtGatewayConstants.PATHS).append(electedResource).
@@ -442,7 +458,9 @@ public class SchemaValidator extends AbstractHandler {
                 }
                 return value;
             }
-            if (!value.isEmpty() && !APIMgtGatewayConstants.EMPTY_ARRAY.equals(value)) {
+
+            if (isAdvancedSchemaValidationEnabled && !value.isEmpty()
+                    && !APIMgtGatewayConstants.EMPTY_ARRAY.equals(value)) {
                 if (value.contains(APIMgtGatewayConstants.SCHEMA_REFERENCE)) {
                     JsonElement swaggerElement = new JsonParser().parse(value);
                     generateSchema(swaggerElement);
