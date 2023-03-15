@@ -52,14 +52,11 @@ public class APIMgtGatewayConstants {
     public static final String RESPONSE_EXECUTION_START_TIME = "response.execution.start.time";
     public static final String SYNAPSE_ENDPOINT_ADDRESS = "ENDPOINT_ADDRESS";
     public static final String DUMMY_ENDPOINT_ADDRESS = "dummy_endpoint_address";
-
     public static final String RESOURCE_PATTERN = "^/.+?/.+?([/?].+)$";
-
     public static final String METHOD_NOT_FOUND_ERROR_MSG = "Method not allowed for given API resource";
     public static final String RESOURCE_NOT_FOUND_ERROR_MSG = "No matching resource found for given API Request";
     public static final String REQUEST_TYPE_FAIL_MSG = "Neither request method nor content type is matched with" +
             " the validator.";
-
     public static final String BACKEND_LATENCY = "backend_latency";
     public static final String SECURITY_LATENCY = "security_latency";
     public static final String THROTTLING_LATENCY = "throttling_latency";
@@ -67,6 +64,7 @@ public class APIMgtGatewayConstants {
     public static final String RESPONSE_MEDIATION_LATENCY = "response_mediation_latency";
     public static final String OTHER_LATENCY = "other_latency";
     public static final String AM_CORRELATION_ID = "am.correlationID";
+    public static final String ENABLE_ADVANCED_SCHEMA_VALIDATION = "enableAdvancedSchemaValidation";
 
     /**
      * Constants for regex protector.
@@ -110,7 +108,6 @@ public class APIMgtGatewayConstants {
     public static final String WS_NOT_SECURED = "ws";
     public static final String WS_SECURED = "wss";
     public static final int WEB_SOCKET_API_AUTH_ERROR = 401;
-
     public static final String GATEWAY_TYPE = "SYNAPSE";
     public static final String SYNAPDE_GW_LABEL = "Synapse";
     public static final String CLIENT_USER_AGENT = "clientUserAgent";
@@ -209,7 +206,6 @@ public class APIMgtGatewayConstants {
     public static final String SPAN_APPLICATION_ID = "span.application.id";
     public static final String SPAN_APPLICATION_CONSUMER_KEY = "span.consumerkey";
     public static final String SPAN_ENDPOINT = "span.endpoint";
-
     public static final String TEST_KEY = "testkey";
 
     /**
@@ -225,4 +221,3 @@ public class APIMgtGatewayConstants {
     public static final String LOGIN_CONTEXT = "/logincontext";
     public static final String OAUTH2_CONTEXT = "/oauth2";
 }
-
