@@ -66,14 +66,11 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME)).set(System
                 .currentTimeMillis());
         String channelId = ctx.channel().id().asLongText();
-        InboundMessageContext inboundMessageContext;
-        if (InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(channelId)) {
-            inboundMessageContext = InboundMessageContextDataHolder.getInstance()
-                    .getInboundMessageContextForConnectionId(channelId);
-        } else {
-            inboundMessageContext = new InboundMessageContext();
-            InboundMessageContextDataHolder.getInstance()
-                    .addInboundMessageContextForConnection(channelId, inboundMessageContext);
+        InboundMessageContext inboundMessageContextN = new InboundMessageContext();
+        InboundMessageContext inboundMessageContext = InboundMessageContextDataHolder.getInstance()
+                .putIfAbsentInboundMessageContextForConnection(channelId, inboundMessageContextN);
+        if (inboundMessageContext == null) {
+            inboundMessageContext = inboundMessageContextN;
         }
 
         if (msg instanceof CloseWebSocketFrame) {
@@ -120,7 +117,6 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     outboundHandler().write(ctx, msg, promise);
                 }
             } else {
-                // If not a GraphQL API (Only a WebSocket API)
                 responseDTO = inboundMessageContext.isJWTToken() ?
                         WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
                         WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
