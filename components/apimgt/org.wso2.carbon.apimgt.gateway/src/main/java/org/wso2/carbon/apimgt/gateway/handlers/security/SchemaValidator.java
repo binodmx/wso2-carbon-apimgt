@@ -426,8 +426,10 @@ public class SchemaValidator extends AbstractHandler {
                 value = schema.toString();
             }
 
-            // Added `enableAdvancedSchemaValidation` property to roll back to previous behaviour where SchemaValidator
-            // ignored the schema validation if schema is not a $ref or schema contains $ref for a property.
+            // Added `enableAdvancedSchemaValidation` system property as a switch to roll back to previous behaviour
+            // where SchemaValidator ignored the schema validation if schema is not a $ref or schema contains $ref for
+            // a property. To switch back to the previous behaviour, set the system property
+            // `enableAdvancedSchemaValidation` to false.
             Boolean isAdvancedSchemaValidationEnabled = true;
             String itemsKey = APIMgtGatewayConstants.JSONPATH_SEPARATE + APIMgtGatewayConstants.ITEMS;
             String enableAdvancedSchemaValidation =
