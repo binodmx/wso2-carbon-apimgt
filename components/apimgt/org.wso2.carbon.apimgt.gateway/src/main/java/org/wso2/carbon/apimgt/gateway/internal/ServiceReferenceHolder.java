@@ -17,6 +17,7 @@
 package org.wso2.carbon.apimgt.gateway.internal;
 
 import org.apache.axis2.context.ConfigurationContext;
+import org.apache.synapse.config.SynapseConfiguration;
 import org.wso2.carbon.apimgt.gateway.handlers.security.jwt.generator.AbstractAPIMgtGatewayJWTGenerator;
 import org.wso2.carbon.apimgt.gateway.throttling.ThrottleDataHolder;
 import org.wso2.carbon.apimgt.gateway.throttling.publisher.ThrottleDataPublisher;
@@ -35,6 +36,7 @@ import org.wso2.carbon.apimgt.tracing.TracingTracer;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.endpoint.service.EndpointAdmin;
 import org.wso2.carbon.localentry.service.LocalEntryAdmin;
+import org.wso2.carbon.mediation.initializer.services.SynapseConfigurationService;
 import org.wso2.carbon.mediation.security.vault.MediationSecurityAdminService;
 import org.wso2.carbon.rest.api.service.RestApiAdmin;
 import org.wso2.carbon.sequences.services.SequenceAdmin;
@@ -68,6 +70,7 @@ public class ServiceReferenceHolder {
     private RevokedTokenService revokedTokenService;
     private APIThrottleDataService throttleDataService;
     private Set<String> activeTenants = new ConcurrentSkipListSet<>();
+    private SynapseConfigurationService synapseConfigurationService;
 
     private JWTValidationService jwtValidationService;
     private KeyManagerDataService keyManagerDataService;
@@ -314,5 +317,13 @@ public class ServiceReferenceHolder {
 
     public void setPerAPILogService(PerAPILogService perAPILogService) {
         this.perAPILogService = perAPILogService;
+    }
+
+    public SynapseConfigurationService getSynapseConfigurationService() {
+        return synapseConfigurationService;
+    }
+
+    public void setSynapseConfigurationService(SynapseConfigurationService synapseConfigurationService) {
+        this.synapseConfigurationService = synapseConfigurationService;
     }
 }
