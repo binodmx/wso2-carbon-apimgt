@@ -171,14 +171,11 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.REQUEST_START_TIME)).set(System
                 .currentTimeMillis());
         String channelId = ctx.channel().id().asLongText();
-        InboundMessageContext inboundMessageContext;
-        if (InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(channelId)) {
-            inboundMessageContext = InboundMessageContextDataHolder.getInstance()
-                    .getInboundMessageContextForConnectionId(channelId);
-        } else {
-            inboundMessageContext = new InboundMessageContext();
-            InboundMessageContextDataHolder.getInstance()
-                    .addInboundMessageContextForConnection(channelId, inboundMessageContext);
+        InboundMessageContext inboundMessageContextN = new InboundMessageContext();
+        InboundMessageContext inboundMessageContext = InboundMessageContextDataHolder.getInstance()
+                .putIfAbsentInboundMessageContextForConnection(channelId, inboundMessageContextN);
+        if (inboundMessageContext == null) {
+            inboundMessageContext = inboundMessageContextN;
         }
         inboundMessageContext.setUserIP(WebsocketUtil.getRemoteIP(ctx));
 
@@ -204,8 +201,10 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             inboundMessageContext.setVersion(getVersionFromUrl(inboundMessageContext.getUri()));
 
             if (log.isDebugEnabled()) {
-                log.debug(channelId + " -- Websocket API request [inbound]: " + req.method() + " " + apiContextUri + " " + req.protocolVersion());
-                log.debug(channelId + " -- Websocket API request [inbound] : Host: " + req.headers().get(APIConstants.SWAGGER_HOST));
+                log.debug(channelId + " -- Websocket API request [inbound]: " + req.method() + " "
+                        + apiContextUri + " " + req.protocolVersion() + " , channel = " + ctx.channel().toString());
+                log.debug(channelId + " -- Websocket API request [inbound] : Host: "
+                        + req.headers().get(APIConstants.SWAGGER_HOST) + " , channel = " + ctx.channel().toString());
             }
             String tenantDomain;
             if (req.getUri().contains("/t/")) {
@@ -238,7 +237,7 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             useragent = useragent != null ? useragent : "-";
             inboundMessageContext.setHeaders(inboundMessageContext.getHeaders().add(HttpHeaders.USER_AGENT, useragent));
 
-            responseDTO = validateOAuthHeader(req, inboundMessageContext);
+            responseDTO = validateOAuthHeader(req, inboundMessageContext, channelId);
             if (!responseDTO.isError()) {
                 responseDTO = WebsocketUtil.validateDenyPolicies(inboundMessageContext, usageDataPublisher);
                 if (!responseDTO.isError()) {
@@ -284,6 +283,11 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                             backendJwtHeader = prefix + backendJwtHeader;
                         }
                         ((FullHttpRequest) msg).headers().set(backendJwtHeader, inboundMessageContext.getToken());
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(channelId + " -- Creating the Websocket connection for the user: "
+                                + inboundMessageContext.getInfoDTO().getEndUserName() + " , channel = "
+                                + ctx.channel().toString());
                     }
                     ctx.fireChannelRead(msg);
 
@@ -493,7 +497,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
      * @return true if the access token is valid
      */
     public InboundProcessorResponseDTO validateOAuthHeader(FullHttpRequest req,
-                                                           InboundMessageContext inboundMessageContext) throws APISecurityException {
+                                                           InboundMessageContext inboundMessageContext,
+                                                           String channelId) throws APISecurityException {
 
         InboundProcessorResponseDTO responseDTO = new InboundProcessorResponseDTO();
 
@@ -558,7 +563,8 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
                 if (isJwtToken) {
-                    log.debug("Websocket API request [inbound] : The token was identified as a JWT token");
+                    log.debug(channelId + " -- Websocket API request [inbound] : The token was identified as a "
+                            + "JWT token");
                     responseDTO = WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext);
                 } else {
                     responseDTO = WebsocketUtil.authenticateOAuthToken(responseDTO, apiKey, inboundMessageContext);

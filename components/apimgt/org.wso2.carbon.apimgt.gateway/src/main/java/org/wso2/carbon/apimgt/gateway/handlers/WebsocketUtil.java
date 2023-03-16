@@ -377,8 +377,8 @@ public class WebsocketUtil extends GraphQLProcessor {
 		httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpResponse.content().readableBytes());
 		ctx.writeAndFlush(httpResponse);
 		if (log.isDebugEnabled()) {
-			log.debug("API request failed due to " + errorMessage + " for the websocket API: " + inboundMessageContext
-					.getApiContextUri());
+			log.debug(ctx.channel().id().asLongText() + " -- API request failed due to " + errorMessage
+					+ " for the websocket API: " + inboundMessageContext.getApiContextUri());
 		}
 		throw new APISecurityException(errorCode, errorMessage);
 	}

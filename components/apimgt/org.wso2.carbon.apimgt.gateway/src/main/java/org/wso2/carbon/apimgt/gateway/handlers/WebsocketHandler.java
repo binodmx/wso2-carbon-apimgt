@@ -66,20 +66,17 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
         ctx.channel().attr(AttributeKey.valueOf(APIMgtGatewayConstants.RESPONSE_START_TIME)).set(System
                 .currentTimeMillis());
         String channelId = ctx.channel().id().asLongText();
-        InboundMessageContext inboundMessageContext;
-        if (InboundMessageContextDataHolder.getInstance().getInboundMessageContextMap().containsKey(channelId)) {
-            inboundMessageContext = InboundMessageContextDataHolder.getInstance()
-                    .getInboundMessageContextForConnectionId(channelId);
-        } else {
-            inboundMessageContext = new InboundMessageContext();
-            InboundMessageContextDataHolder.getInstance()
-                    .addInboundMessageContextForConnection(channelId, inboundMessageContext);
+        InboundMessageContext inboundMessageContextN = new InboundMessageContext();
+        InboundMessageContext inboundMessageContext = InboundMessageContextDataHolder.getInstance()
+                .putIfAbsentInboundMessageContextForConnection(channelId, inboundMessageContextN);
+        if (inboundMessageContext == null) {
+            inboundMessageContext = inboundMessageContextN;
         }
 
         if (msg instanceof CloseWebSocketFrame) {
             if (((CloseWebSocketFrame) msg).statusCode() > 1001) {
-                log.info("ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode() + ", ERROR_MESSAGE = " +
-                        ((CloseWebSocketFrame) msg).reasonText());
+                log.info(channelId + " -- ERROR_CODE = " + ((CloseWebSocketFrame) msg).statusCode()
+                        + ", ERROR_MESSAGE = " + ((CloseWebSocketFrame) msg).reasonText());
                 if (APIUtil.isAnalyticsEnabled()) {
                     WebsocketUtil.publishFaultEvent((CloseWebSocketFrame) msg, inboundMessageContext,
                             inboundHandler().getUsageDataPublisher());
