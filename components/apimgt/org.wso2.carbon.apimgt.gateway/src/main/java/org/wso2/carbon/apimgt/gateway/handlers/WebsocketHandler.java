@@ -117,6 +117,7 @@ public class WebsocketHandler extends CombinedChannelDuplexHandler<WebsocketInbo
                     outboundHandler().write(ctx, msg, promise);
                 }
             } else {
+                // If not a GraphQL API (Only a WebSocket API)
                 responseDTO = inboundMessageContext.isJWTToken() ?
                         WebsocketUtil.authenticateWSAndGraphQLJWTToken(inboundMessageContext) :
                         WebsocketUtil.authenticateOAuthToken(responseDTO, inboundMessageContext.getApiKey(),
