@@ -63,6 +63,7 @@ import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
 import org.wso2.carbon.endpoint.service.EndpointAdmin;
 import org.wso2.carbon.localentry.service.LocalEntryAdmin;
+import org.wso2.carbon.mediation.initializer.services.SynapseConfigurationService;
 import org.wso2.carbon.mediation.security.vault.MediationSecurityAdminService;
 import org.wso2.carbon.rest.api.service.RestApiAdmin;
 import org.wso2.carbon.sequences.services.SequenceAdmin;
@@ -443,6 +444,24 @@ public class APIHandlerServiceComponent {
 
         log.debug("Un-setting KeyManagerDataService");
         ServiceReferenceHolder.getInstance().setKeyManagerDataService(null);
+    }
+
+    @Reference(
+            name = "application.mgt.synapse.dscomponent",
+            service = SynapseConfigurationService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetSynapseConfigurationService")
+    protected void setSynapseConfigurationService(SynapseConfigurationService synapseConfigurationService) {
+
+        log.debug("Setting SynapseConfigurationService");
+        ServiceReferenceHolder.getInstance().setSynapseConfigurationService(synapseConfigurationService);
+    }
+
+    protected void unsetSynapseConfigurationService(SynapseConfigurationService synapseConfigurationService) {
+
+        log.debug("Un-setting SynapseConfigurationService");
+        ServiceReferenceHolder.getInstance().setSynapseConfigurationService(null);
     }
 }
 
