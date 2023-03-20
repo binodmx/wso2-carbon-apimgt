@@ -281,7 +281,7 @@
                                 <bundleDef>com.google.code.gson:gson:${google.code.gson.version}</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.everit.json:org.everit.json.schema:${everit.version}
                                 </bundleDef>
-                                <bundleDef>org.wso2.orbit.com.jayway.jsonpath:json-path:${com.jayway.jsonpath.version}
+                                <bundleDef>org.wso2.orbit.com.jayway.jsonpath:json-path:${org.wso2.orbit.com.jayway.jsonpath.version}
                                 </bundleDef>
                                 <bundleDef>
                                     org.wso2.orbit.commons-text:commons-text:${org.wso2.orbit.commons-text.version}

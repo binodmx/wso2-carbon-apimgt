@@ -467,6 +467,7 @@
                             com.nimbusds.jwt.*; version="${com.nimbusds.version}",
                             com.nimbusds.jose.*; version="${com.nimbusds.version}",
                             org.apache.commons.codec.*,
+                            com.jayway.jsonpath.*; version="${com.jayway.jsonpath.version}",
                             *;resolution:=optional
                         </Import-Package>
                     </instructions>
