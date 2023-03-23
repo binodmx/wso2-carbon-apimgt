@@ -44,7 +44,7 @@
         "moment": "^2.22.2",
         "mui-datatables": "^2.3.0",
         "prop-types": "^15.5.10",
-        "qs": "^6.4.0",
+        "qs": "^6.11.1",
         "query-string": "6.8.2",
         "rc-notification": "^3.0.1",
         "rc-progress": "^2.5.2",
