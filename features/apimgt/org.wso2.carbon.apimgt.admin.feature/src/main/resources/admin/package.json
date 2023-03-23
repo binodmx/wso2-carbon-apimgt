@@ -35,7 +35,7 @@
         "moment": "^2.29.4",
         "mui-datatables": "^2.15.0",
         "prop-types": "^15.5.10",
-        "qs": "^6.9.4",
+        "qs": "^6.11.1",
         "rc-notification": "^3.0.1",
         "rc-progress": "^2.6.1",
         "react": "^16.13.1",
