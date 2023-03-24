@@ -90,13 +90,11 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.cache.Cache;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -387,43 +385,70 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
         WebsocketUtil.sendHandshakeErrorMessage(ctx, inboundMessageContext, responseDTO, errorMessage, errorCode);
     }
 
-    private void validateCorsHeaders(ChannelHandlerContext ctx, FullHttpRequest req,
-                                     InboundMessageContext inboundMessageContext, String tenantDomain) throws APISecurityException, AxisFault {
-        // Current implementation supports validating only the 'origin' header
-        String requestOrigin = req.headers().get(HttpHeaderNames.ORIGIN);
-        // Don't validate the 'origin' header if it's not present in the request
-        if (requestOrigin == null) {
+    /**
+     * Validate CORS headers for Websocket endpoints
+     * @param ctx
+     * @param req
+     * @param inboundMessageContext
+     * @param tenantDomain
+     * @throws APISecurityException
+     * @throws AxisFault
+     */
+    private void validateCorsHeaders(ChannelHandlerContext ctx,
+                                     FullHttpRequest req,
+                                     InboundMessageContext inboundMessageContext,
+                                     String tenantDomain) throws APISecurityException, AxisFault {
+        // If the origin header is not present in the request or the CORS validation is disabled for websocket
+        // endpoints in the deployment.toml skip CORS validation.
+        String origin = req.headers().get(HttpHeaderNames.ORIGIN);
+        if (origin == null || !APIUtil.isCORSValidationEnabledForWS()) {
             return;
         }
-        CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
-        if (corsConfiguration == null || !corsConfiguration.isCorsConfigurationEnabled()) {
-            return;
-        }
-        String allowedOrigin = assessAndGetAllowedOrigin(requestOrigin,
-                    corsConfiguration.getAccessControlAllowOrigins());
 
-        // If the additional cors validation is enabled, engage the cors sequence
-        if (APIUtil.isAdditionalCorsValidationEnabled()) {
-            MessageContext messageContext = createSynapseMessageContext(tenantDomain);
-            Mediator corsSequence = getCorsSequence(messageContext);
-            if (corsSequence != null) {
-                messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
-                //Setting origin from the request to the message context
-                messageContext.setProperty(APIConstants.WS_ORIGIN, requestOrigin);
-                //Introducing the boolean property to handle origin validation in the sequence level
-                messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS, false);
-                corsSequence.mediate(messageContext);
-                boolean wsCorsOriginSuccess = (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
-                if (!wsCorsOriginSuccess) {
-                    handleCORSValidationFailure(ctx, req);
-                }
+        CORSConfiguration corsConfiguration = getCORSConfiguration(ctx, req, inboundMessageContext);
+        if (corsConfiguration != null && corsConfiguration.isCorsConfigurationEnabled()) {
+            // If the per API cors configuration is enabled, validate the origin header against the configured origins.
+            String allowedOrigin = assessAndGetAllowedOrigin(origin, corsConfiguration.getAccessControlAllowOrigins());
+            if (allowedOrigin != null) {
                 return;
             }
-        }
 
-        if (allowedOrigin == null) {
+            // If the per API CORS validation is failed, but the mediation is enabled, invoke the mediation sequence
+            // and accept based on the result.
+            if (APIUtil.isAdditionalCorsValidationEnabled() && validateAdditionalCORS(origin, tenantDomain, false)) {
+                return;
+            }
             handleCORSValidationFailure(ctx, req);
+        } else {
+            // If the per API CORS configuration is disabled, then by default the request must be accepted. But if the
+            // mediation is enabled, invoke the mediation sequence and reject based on the result.
+            if (APIUtil.isAdditionalCorsValidationEnabled() && !validateAdditionalCORS(origin, tenantDomain, true)) {
+                handleCORSValidationFailure(ctx, req);
+            }
         }
+    }
+
+    /**
+     * This method will be used to validate the CORS configurations in the mediation level.
+     * @param origin Origin header value
+     * @param tenantDomain Tenant domain
+     * @param isAllowed Default state of the origin validation to be set to the message context
+     * @return - Whether the origin is allowed or not
+     * @throws AxisFault
+     */
+    private boolean validateAdditionalCORS(String origin, String tenantDomain, boolean isAllowed) throws AxisFault {
+        MessageContext messageContext = createSynapseMessageContext(tenantDomain);
+        Mediator corsSequence = getCorsSequence(messageContext);
+        if (corsSequence != null) {
+            messageContext.setProperty(APIConstants.CORS_CONFIGURATION_ENABLED, isCorsEnabled());
+            // Set the request origin to the message context
+            messageContext.setProperty(APIConstants.WS_ORIGIN, origin);
+            // Introducing the boolean property to handle origin validation in the sequence level
+            messageContext.setProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS, isAllowed);
+            corsSequence.mediate(messageContext);
+            return (Boolean) messageContext.getProperty(APIConstants.WS_CORS_ORIGIN_SUCCESS);
+        }
+        return isAllowed;
     }
 
     private CORSConfiguration getCORSConfiguration(ChannelHandlerContext ctx, FullHttpRequest req,
