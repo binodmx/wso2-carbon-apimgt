@@ -90,11 +90,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.cache.Cache;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -420,12 +416,43 @@ public class WebsocketInboundHandler extends ChannelInboundHandlerAdapter {
             }
             handleCORSValidationFailure(ctx, req);
         } else {
-            // If the per API CORS configuration is disabled, then by default the request must be accepted. But if the
-            // mediation is enabled, invoke the mediation sequence and reject based on the result.
-            if (APIUtil.isAdditionalCorsValidationEnabled() && !validateAdditionalCORS(origin, tenantDomain, true)) {
-                handleCORSValidationFailure(ctx, req);
+            // If the per API CORS configuration is disabled, consider the global CORS configuration.
+            List<String> globalAllowedOrigins = getAllowedOrigins(APIUtil.getAllowedOrigins());
+            // If the global CORS configuration accept all origins, then if additional CORS validation is enabled,
+            // invoke the CORS mediation sequence.
+
+            if (globalAllowedOrigins.contains("*")) {
+                // if the global cors configuration contains *, then invoke the cors sequence if additional cors validation is enabled.
+                if (APIUtil.isAdditionalCorsValidationEnabled() && !validateAdditionalCORS(origin, tenantDomain, true)) {
+                    handleCORSValidationFailure(ctx, req);
+                }
+            } else {
+                // if the global cors configuration s accept only specific origins, validate against those origins.
+                String allowedOrigins = assessAndGetAllowedOrigin(origin, globalAllowedOrigins);
+                if (allowedOrigins == null) {
+                    // If no allowed origins, invoke the cors sequence of the config is enabled.
+                    if (APIUtil.isAdditionalCorsValidationEnabled()) {
+                        if (!validateAdditionalCORS(origin, tenantDomain, true)) {
+                            handleCORSValidationFailure(ctx, req);
+                        }
+                    } else {
+                        handleCORSValidationFailure(ctx, req);
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * This method will convert the comma seperated allowed origin string to a list.
+     * @param allowedOrigins Comma seperated allowed origins
+     * @return List of allowed origins
+     */
+    private List<String> getAllowedOrigins(String allowedOrigins) {
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            return Arrays.asList(allowedOrigins.split(","));
+        }
+        return new ArrayList<>();
     }
 
     /**
