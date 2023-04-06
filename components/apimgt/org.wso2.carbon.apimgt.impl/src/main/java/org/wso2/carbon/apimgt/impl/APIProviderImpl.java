@@ -1333,8 +1333,8 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
         Map<String, Map<String, String>> failedGateways = new ConcurrentHashMap<>();
         API oldApi = getAPI(api.getId());
         String publishedDefaultVersion = getPublishedDefaultVersion(api.getId());
-        Gson gson = new Gson();
         api.setMonetizationStatus(oldApi.getMonetizationStatus());
+        Gson gson = new Gson();
         Map<String, String> oldMonetizationProperties = gson.fromJson(oldApi.getMonetizationProperties().toString(),
                 HashMap.class);
         if (oldMonetizationProperties != null && !oldMonetizationProperties.isEmpty()) {
