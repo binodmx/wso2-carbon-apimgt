@@ -432,7 +432,7 @@ class Credentials extends React.Component {
                                             </Button>
                                         </div>
                                     )}
-                                    {applicationsAvailable.length > 0 && throttlingPolicyList.length > 0 ? (
+                                    {applicationsAvailable.length > 0 && throttlingPolicyList.length > 0 && (
                                         <div className={classes.credentialBox}>
                                             <Typography variant='body2'>
                                                 <FormattedMessage
@@ -467,7 +467,8 @@ class Credentials extends React.Component {
                                                 {isSubscribing && <CircularProgress size={24} />}
                                             </Button>
                                         </div>
-                                    ) : (
+                                    )}
+                                    {throttlingPolicyList.length === 0 && (
                                         <GenericDisplayDialog
                                             heading={intl.formatMessage({
                                                 defaultMessage: 'Insufficient Permissions',
