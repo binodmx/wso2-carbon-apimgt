@@ -338,6 +338,8 @@ public final class APIUtil {
 
     private static final int ENTITY_EXPANSION_LIMIT = 0;
 
+    public static final String DISABLE_API_CONTEXT_VALIDATION = "disableApiContextValidation";
+
     private static final String DESCRIPTION = "Allows [1] request(s) per minute.";
 
     private static final int DEFAULT_TENANT_IDLE_MINS = 30;
@@ -362,6 +364,8 @@ public final class APIUtil {
     private static final String MIGRATION = "Migration";
     private static final String VERSION_3 = "3.0.0";
     private static final String META = "Meta";
+
+    private static final String contextRegex = "^[a-zA-Z0-9_${}/.;()-]+$";
     private static final String SUPER_TENANT_SUFFIX =
             APIConstants.EMAIL_DOMAIN_SEPARATOR + APIConstants.SUPER_TENANT_DOMAIN;
 
@@ -550,6 +554,84 @@ public final class APIUtil {
             throw new APIManagementException(msg, e);
         }
         return api;
+    }
+
+    /**
+     * This method is used to get the APIProvider instance for a given username
+     *
+     * @param context API Context of the API/API Product
+     * @throws APIManagementException If the context is not valid
+     */
+    public static void validateAPIContext(String context, String apiName) throws APIManagementException {
+        String disableAPIContextValidation = System.getProperty(DISABLE_API_CONTEXT_VALIDATION);
+        if (Boolean.parseBoolean(disableAPIContextValidation)) {
+            return;
+        }
+        Pattern pattern = Pattern.compile(contextRegex);
+        String errorMsg = "The API context cannot be a malformed one: ";
+
+        if (context == null || context.isEmpty()) {
+            log.error(errorMsg + "Context cannot be empty or null");
+            throw new APIManagementException(errorMsg + "Context cannot be empty or null");
+        }
+
+        if (context.endsWith("/")) {
+            log.error(errorMsg + "Context cannot end with '/' character");
+            throw new APIManagementException(errorMsg + "Context cannot end with '/' character");
+        }
+
+        Matcher matcher = pattern.matcher(context);
+
+        // if the context has allowed characters
+        if (matcher.matches()) {
+            context = context.startsWith("/") ? context : "/".concat(context);
+            String split[] = context.split("/");
+
+            for (String param : split) {
+                if (param != null && !APIConstants.VERSION_PLACEHOLDER.equals(param)) {
+                    if (param.contains(APIConstants.VERSION_PLACEHOLDER)) {
+                        errorMsg = errorMsg + " {version} cannot exist as a substring of a sub-context";
+                        log.error(errorMsg);
+                        throw new APIManagementException(errorMsg);
+                    } else if (param.contains("{") || param.contains("}")) {
+                        errorMsg = errorMsg + " { or } cannot exist as a substring of a sub-context";
+                        log.error(errorMsg);
+                        throw new APIManagementException(errorMsg);
+                    }
+                }
+            }
+
+            //check whether the parentheses are balanced
+            checkBalancedParentheses(context);
+        } else {
+            log.error(errorMsg + "Context cannot contain special characters");
+            throw new APIManagementException(errorMsg + "Context cannot contain special characters");
+        }
+    }
+
+    /**
+     * Check whether the parentheses are balanced
+     *
+     * @param input API Context
+     * @throws APIManagementException If parentheses are not balanced
+     */
+    public static void checkBalancedParentheses(String input) throws APIManagementException {
+        int count = 0;
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '(') {
+                count++;
+            } else if (input.charAt(i) == ')') {
+                count--;
+            }
+            if (count < 0) {
+                throw new APIManagementException(
+                        "The API context cannot be a malformed one: Context cannot contain unbalanced parentheses");
+            }
+        }
+        if (count != 0) {
+            throw new APIManagementException(
+                    "The API context cannot be a malformed one: Context cannot contain unbalanced parentheses");
+        }
     }
 
     /**

@@ -86,7 +86,7 @@ function actualContext({ context, version }) {
         }
     }
     if (version) {
-        initialContext = initialContext.replace('{version}', version);
+        initialContext = initialContext.replaceAll('{version}', version);
     }
     return initialContext;
 }
@@ -176,20 +176,54 @@ export default function DefaultAPIForm(props) {
                 break;
             }
             case 'context': {
-                const contextValidity = APIValidation.apiContext.required().validate(value, { abortEarly: false })
-                    .error;
+                let contextValidity = APIValidation.apiContext.required().validate(value, { abortEarly: false }).error;
                 const apiContext = value.includes('/') ? value : '/' + value;
+
                 if (contextValidity === null) {
-                    APIValidation.apiParameter.validate(field + ':' + apiContext).then((result) => {
-                        if (result.body.list.length > 0 && checkContext(value, result.body.list[0].context)) {
+                    const splitContext = apiContext.split('/');
+                    for (const param of splitContext) {
+                        if (param !== '{version}' && (param.includes('{') || param.includes('}'))) {
+                            contextValidity = APIValidation.apiContextWithoutKeyWords.required()
+                                .validate(value, { abortEarly: false }).error;
                             updateValidity({
                                 ...validity,
-                                context: { details: [{ message: apiContext + ' context already exists' }] },
+                                // eslint-disable-next-line max-len
+                                context: { details: [{ message: '{version} cannot exist as a substring in a path param' }] },
                             });
-                        } else {
-                            updateValidity({ ...validity, context: contextValidity, version: null });
                         }
-                    });
+                    }
+                    let charCount = 0;
+                    for (const a of apiContext) {
+                        if (a === '(') {
+                            charCount++;
+                        } else if (a === ')') {
+                            charCount--;
+                        }
+                        if (charCount < 0) {
+                            updateValidity({
+                                ...validity,
+                                // eslint-disable-next-line max-len
+                                context: { details: [{ message: 'Parentheses should be balanced in API context' }] },
+                            });
+                        }
+                    }
+                    if (charCount > 0) {
+                        updateValidity({
+                            ...validity,
+                            // eslint-disable-next-line max-len
+                            context: { details: [{ message: 'Parentheses should be balanced in API context' }] },
+                        });
+                    }
+                    if (contextValidity === null && charCount === 0) {
+                        APIValidation.apiParameter.validate(field + ':' + apiContext).then((result) => {
+                            if (result.body.list.length > 0 && checkContext(value, result.body.list[0].context)) {
+                                updateValidity({
+                                    ...validity,
+                                    context: { details: [{ message: apiContext + ' context already exists' }] },
+                                });
+                            }
+                        });
+                    }
                 } else {
                     updateValidity({ ...validity, context: contextValidity });
                 }

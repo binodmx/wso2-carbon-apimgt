@@ -155,6 +155,7 @@ public final class APIImportUtil {
             prevProvider = apiId.get(APIImportExportConstants.PROVIDER_ELEMENT).getAsString();
             apiName = apiId.get(APIImportExportConstants.API_NAME_ELEMENT).getAsString();
             apiVersion = apiId.get(APIImportExportConstants.VERSION_ELEMENT).getAsString();
+
             // Remove spaces of API Name/version if present
             if (apiName != null && apiVersion != null) {
                 apiId.addProperty(APIImportExportConstants.API_NAME_ELEMENT,
@@ -194,6 +195,11 @@ public final class APIImportUtil {
                 //Replace context to match with current provider
                 apiTypeWrapper = new ApiTypeWrapper(importedApi);
                 APIAndAPIProductCommonUtil.setCurrentProviderToAPIProperties(apiTypeWrapper, currentTenantDomain, prevTenantDomain);
+            }
+
+            // Validate API context
+            if (importedApi.getId() != null) {
+                APIUtil.validateAPIContext(importedApi.getContext(), importedApi.getId().getApiName());
             }
 
             // Validate the swagger definition if the API type is not Web Socket.
@@ -393,6 +399,11 @@ public final class APIImportUtil {
             throw new APIImportExportException(errorMessage, e);
         } catch (APIManagementException e) {
             String errorMessage = "Error while importing API: ";
+            if (e.getMessage().contains("The API context cannot be a malformed one")) {
+                errorMessage += importedApi.getId().getApiName() + " with context " + importedApi.getContext() + ": "
+                        + e.getMessage();
+                throw new APIImportExportException(errorMessage, e);
+            }
             if (importedApi != null) {
                 errorMessage += importedApi.getId().getApiName() + StringUtils.SPACE + APIConstants.API_DATA_VERSION
                         + ": " + importedApi.getId().getVersion();

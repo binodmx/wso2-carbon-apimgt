@@ -310,6 +310,7 @@ public class ApisApiServiceImpl implements ApisApiService {
                 }
             }
 
+            // When preparing the API, it internally handles the context validation
             API apiToAdd = prepareToCreateAPIByDTO(body);
             validateScopes(apiToAdd);
             //validate API categories
@@ -342,8 +343,11 @@ public class ApisApiServiceImpl implements ApisApiService {
             createdApiUri = new URI(RestApiConstants.RESOURCE_PATH_APIS + "/" + createdApiDTO.getId());
             return Response.created(createdApiUri).entity(createdApiDTO).build();
         } catch (APIManagementException e) {
-            String errorMessage = "Error while adding new API : " + body.getProvider() + "-" +
-                    body.getName() + "-" + body.getVersion() + " - " + e.getMessage();
+            String errorMessage = "Error while adding new API : " + body.getProvider() + "-" + body.getName() + "-"
+                    + body.getVersion() + " - " + e.getMessage();
+            if (e.getMessage().contains("The API context cannot be a malformed one")) {
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
             String errorMessage = "Error while retrieving API location : " + body.getProvider() + "-" +
@@ -372,6 +376,9 @@ public class ApisApiServiceImpl implements ApisApiService {
         //Make sure context starts with "/". ex: /pizza
         context = context.startsWith("/") ? context : ("/" + context);
 
+        // Validate the API Context
+        APIUtil.validateAPIContext(context, body.getName());
+
         if (!apiProvider.isClientCertificateBasedAuthenticationConfigured() && apiSecuritySchemes != null) {
             for (String apiSecurityScheme : apiSecuritySchemes) {
                 if (apiSecurityScheme.contains(APIConstants.API_SECURITY_MUTUAL_SSL)) {
@@ -395,9 +402,6 @@ public class ApisApiServiceImpl implements ApisApiService {
         }
         if (body.getContext() == null) {
             RestApiUtil.handleBadRequest("Parameter: \"context\" cannot be null", log);
-        }
-        if (body.getContext().endsWith("/")) {
-            RestApiUtil.handleBadRequest("Context cannot end with '/' character", log);
         }
 
         if (apiProvider.isApiNameWithDifferentCaseExist(body.getName())) {
@@ -3125,6 +3129,11 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
             return Response.ok().entity(updatedSwagger).build();
         } catch (APIManagementException e) {
+            if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                String errorMessage =
+                        "Error while updating the swagger definition of API: " + apiId + " - " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             //Auth failure occurs when cross tenant accessing APIs. Sends 404, since we don't need
             // to expose the existence of the resource
             if (RestApiUtil.isDueToResourceNotFound(e) || RestApiUtil.isDueToAuthorizationFailure(e)) {
@@ -3478,6 +3487,10 @@ public class ApisApiServiceImpl implements ApisApiService {
         try {
             validationResponseMap = validateOpenAPIDefinition(url, fileInputStream, fileDetail, returnContent);
         } catch (APIManagementException e) {
+            if(RestApiUtil.isDueToInvalidAPIContext(e)) {
+                String errorMessage = "Error while updating the swagger definition of API: " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError("Error occurred while validating API Definition", e, log);
         }
 
@@ -3511,6 +3524,10 @@ public class ApisApiServiceImpl implements ApisApiService {
         try {
             validationResponseMap = validateOpenAPIDefinition(url, fileInputStream, fileDetail, true);
         } catch (APIManagementException e) {
+            if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                String errorMessage = "Error while updating the swagger definition of API: " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError("Error occurred while validating API Definition", e, log);
         }
 
@@ -3587,8 +3604,11 @@ public class ApisApiServiceImpl implements ApisApiService {
             URI createdApiUri = new URI(RestApiConstants.RESOURCE_PATH_APIS + "/" + createdApiDTO.getId());
             return Response.created(createdApiUri).entity(createdApiDTO).build();
         } catch (APIManagementException e) {
-            String errorMessage = "Error while adding new API : " + apiDTOFromProperties.getProvider() + "-" +
-                    apiDTOFromProperties.getName() + "-" + apiDTOFromProperties.getVersion() + " - " + e.getMessage();
+            String errorMessage = "Error while adding new API : " + apiDTOFromProperties.getProvider() + "-"
+                    + apiDTOFromProperties.getName() + "-" + apiDTOFromProperties.getVersion() + " - " + e.getMessage();
+            if (e.getMessage().contains("Invalid Context")) {
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
             String errorMessage = "Error while retrieving API location : " + apiDTOFromProperties.getProvider() + "-" +
@@ -3687,6 +3707,7 @@ public class ApisApiServiceImpl implements ApisApiService {
     public Response importWSDLDefinition(InputStream fileInputStream, Attachment fileDetail, String url,
             String additionalProperties, String implementationType, MessageContext messageContext)
             throws APIManagementException {
+        APIDTO additionalPropertiesAPI = null;
         try {
             WSDLValidationResponse validationResponse = validateWSDLAndReset(fileInputStream, fileDetail, url);
 
@@ -3697,7 +3718,6 @@ public class ApisApiServiceImpl implements ApisApiService {
             boolean isSoapToRestConvertedAPI = APIDTO.TypeEnum.SOAPTOREST.toString().equals(implementationType);
             boolean isSoapAPI = APIDTO.TypeEnum.SOAP.toString().equals(implementationType);
 
-            APIDTO additionalPropertiesAPI = null;
             APIDTO createdApiDTO;
             URI createdApiUri;
 
@@ -3727,6 +3747,14 @@ public class ApisApiServiceImpl implements ApisApiService {
             return Response.created(createdApiUri).entity(createdApiDTO).build();
         } catch (IOException | URISyntaxException e) {
             RestApiUtil.handleInternalServerError("Error occurred while importing WSDL", e, log);
+        } catch (APIManagementException e) {
+            String errorMessage = "Error while adding new API : " + additionalPropertiesAPI.getProvider() + "-"
+                    + additionalPropertiesAPI.getName() + "-" + additionalPropertiesAPI.getVersion() + " - "
+                    + e.getMessage();
+            if (e.getMessage().contains("Invalid Context")) {
+                throw new APIManagementException(errorMessage,
+                        ExceptionCodes.from(ExceptionCodes.API_CONTEXT_MALFORMED_EXCEPTION, e.getMessage()));
+            }
         }
         return null;
     }
@@ -4149,8 +4177,12 @@ public class ApisApiServiceImpl implements ApisApiService {
             URI createdApiUri = new URI(RestApiConstants.RESOURCE_PATH_APIS + "/" + createdApiDTO.getId());
             return Response.created(createdApiUri).entity(createdApiDTO).build();
         } catch (APIManagementException e) {
-            String errorMessage = "Error while adding new API : " + additionalPropertiesAPI.getProvider() + "-" +
-                additionalPropertiesAPI.getName() + "-" + additionalPropertiesAPI.getVersion() + " - " + e.getMessage();
+            String errorMessage = "Error while adding new API : " + additionalPropertiesAPI.getProvider() + "-"
+                    + additionalPropertiesAPI.getName() + "-" + additionalPropertiesAPI.getVersion() + " - "
+                    + e.getMessage();
+            if (e.getMessage().contains("The API context cannot be a malformed one")) {
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
             String errorMessage = "Error while retrieving API location : " + additionalPropertiesAPI.getProvider() + "-"
@@ -4352,6 +4384,9 @@ public class ApisApiServiceImpl implements ApisApiService {
                 RestApiUtil.handleInternalServerError("Error while reading file content", e, log);
             }
         }
+
+        // Validate API Context
+        APIUtil.validateAPIContext(validationResponse.getInfo().getContext(), validationResponse.getInfo().getName());
         responseDTO = APIMappingUtil.getOpenAPIDefinitionValidationResponseFromModel(validationResponse,
                 returnContent);
 

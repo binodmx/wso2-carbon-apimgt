@@ -827,6 +827,7 @@ public class APIMappingUtil {
         if (context.endsWith("/" + RestApiConstants.API_VERSION_PARAM)) {
             context = context.replace("/" + RestApiConstants.API_VERSION_PARAM, "");
         }
+
         dto.setContext(context);
         dto.setCreatedTime(model.getCreatedTime());
         dto.setLastUpdatedTime(Long.toString(model.getLastUpdated().getTime()));
@@ -1633,7 +1634,7 @@ public class APIMappingUtil {
     }
 
     public static OpenAPIDefinitionValidationResponseDTO getOpenAPIDefinitionValidationResponseFromModel(
-            APIDefinitionValidationResponse model, boolean returnContent) {
+            APIDefinitionValidationResponse model, boolean returnContent) throws APIManagementException {
 
         OpenAPIDefinitionValidationResponseDTO responseDTO = new OpenAPIDefinitionValidationResponseDTO();
         responseDTO.setIsValid(model.isValid());
@@ -1641,6 +1642,7 @@ public class APIMappingUtil {
         if (model.isValid()) {
             APIDefinitionValidationResponse.Info modelInfo = model.getInfo();
             if (modelInfo != null) {
+                APIUtil.validateAPIContext(modelInfo.getContext(), modelInfo.getName());
                 OpenAPIDefinitionValidationResponseInfoDTO infoDTO =
                         new OpenAPIDefinitionValidationResponseInfoDTO();
                 infoDTO.setOpenAPIVersion(modelInfo.getOpenAPIVersion());
