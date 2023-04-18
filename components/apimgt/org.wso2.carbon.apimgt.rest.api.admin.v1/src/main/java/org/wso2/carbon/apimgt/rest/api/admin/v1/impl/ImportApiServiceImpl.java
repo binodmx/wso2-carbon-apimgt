@@ -118,6 +118,9 @@ public class ImportApiServiceImpl implements ImportApiService {
                         e, log);
             } else if (RestApiUtil.isDueToInvalidOpenAPIDefinition(e)) {
                 RestApiUtil.handleInternalServerError(e.getMessage(), e, log);
+            } else if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                String errorMessage = "Error while importing API. Invalid API context: " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
             }
             RestApiUtil.handleInternalServerError("Error while importing API", e, log);
         }
@@ -191,6 +194,9 @@ public class ImportApiServiceImpl implements ImportApiService {
             } else if (RestApiUtil.isDueToResourceNotFound(e)) {
                 RestApiUtil.handleResourceNotFoundError("Requested " + RestApiConstants.RESOURCE_API_PRODUCT
                         + " not found", e, log);
+            } else if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                String errorMessage = "Error importing API Product. Invalid API context: " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
             }
             RestApiUtil.handleInternalServerError("Error while importing API Product", e, log);
         }
