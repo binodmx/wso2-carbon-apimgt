@@ -399,11 +399,6 @@ public final class APIImportUtil {
             throw new APIImportExportException(errorMessage, e);
         } catch (APIManagementException e) {
             String errorMessage = "Error while importing API: ";
-            if (e.getMessage().contains("The API context cannot be a malformed one")) {
-                errorMessage += importedApi.getId().getApiName() + " with context " + importedApi.getContext() + ": "
-                        + e.getMessage();
-                throw new APIImportExportException(errorMessage, e);
-            }
             if (importedApi != null) {
                 errorMessage += importedApi.getId().getApiName() + StringUtils.SPACE + APIConstants.API_DATA_VERSION
                         + ": " + importedApi.getId().getVersion();

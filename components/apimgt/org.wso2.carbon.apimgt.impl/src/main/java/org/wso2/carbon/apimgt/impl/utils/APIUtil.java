@@ -557,9 +557,10 @@ public final class APIUtil {
     }
 
     /**
-     * This method is used to get the APIProvider instance for a given username
+     * This method is used to validate the API Context
      *
-     * @param context API Context of the API/API Product
+     * @param context Context of the API
+     * @param apiName API Name
      * @throws APIManagementException If the context is not valid
      */
     public static void validateAPIContext(String context, String apiName) throws APIManagementException {
@@ -568,16 +569,17 @@ public final class APIUtil {
             return;
         }
         Pattern pattern = Pattern.compile(contextRegex);
-        String errorMsg = "The API context cannot be a malformed one: ";
+        String errorMsg = "API context is malformed: ";
 
         if (context == null || context.isEmpty()) {
-            log.error(errorMsg + "Context cannot be empty or null");
-            throw new APIManagementException(errorMsg + "Context cannot be empty or null");
+            log.error(errorMsg + "Context cannot be empty or null of API " + apiName + "");
+            throw new APIManagementException(errorMsg + "Context cannot be empty or null in API " + apiName);
         }
 
         if (context.endsWith("/")) {
-            log.error(errorMsg + "Context cannot end with '/' character");
-            throw new APIManagementException(errorMsg + "Context cannot end with '/' character");
+            log.error(errorMsg + "Context '" + context + "' cannot end with '/' character of API " + apiName);
+            throw new APIManagementException(
+                    errorMsg + "Context '" + context + "' cannot end with '/' character in API " + apiName);
         }
 
         Matcher matcher = pattern.matcher(context);
@@ -590,11 +592,13 @@ public final class APIUtil {
             for (String param : split) {
                 if (param != null && !APIConstants.VERSION_PLACEHOLDER.equals(param)) {
                     if (param.contains(APIConstants.VERSION_PLACEHOLDER)) {
-                        errorMsg = errorMsg + " {version} cannot exist as a substring of a sub-context";
+                        errorMsg = errorMsg + " {version} cannot exist as a substring of a sub-context '" + context
+                                + "' in API " + apiName;
                         log.error(errorMsg);
                         throw new APIManagementException(errorMsg);
                     } else if (param.contains("{") || param.contains("}")) {
-                        errorMsg = errorMsg + " { or } cannot exist as a substring of a sub-context";
+                        errorMsg = errorMsg + " { or } cannot exist as a substring of a sub-context '" + context
+                                + "' in API " + apiName;
                         log.error(errorMsg);
                         throw new APIManagementException(errorMsg);
                     }
@@ -604,8 +608,9 @@ public final class APIUtil {
             //check whether the parentheses are balanced
             checkBalancedParentheses(context);
         } else {
-            log.error(errorMsg + "Context cannot contain special characters");
-            throw new APIManagementException(errorMsg + "Context cannot contain special characters");
+            log.error(errorMsg + "Context '" + context + "' cannot contain special characters in API " + apiName);
+            throw new APIManagementException(
+                    errorMsg + "Context '" + context + "' cannot contain special characters in API " + apiName);
         }
     }
 
@@ -625,12 +630,12 @@ public final class APIUtil {
             }
             if (count < 0) {
                 throw new APIManagementException(
-                        "The API context cannot be a malformed one: Context cannot contain unbalanced parentheses");
+                        "API context is malformed: Context '" + input + "' cannot contain unbalanced parentheses");
             }
         }
         if (count != 0) {
             throw new APIManagementException(
-                    "The API context cannot be a malformed one: Context cannot contain unbalanced parentheses");
+                    "API context is malformed: Context '" + input + "' cannot contain unbalanced parentheses");
         }
     }
 

@@ -3606,7 +3606,7 @@ public class ApisApiServiceImpl implements ApisApiService {
         } catch (APIManagementException e) {
             String errorMessage = "Error while adding new API : " + apiDTOFromProperties.getProvider() + "-"
                     + apiDTOFromProperties.getName() + "-" + apiDTOFromProperties.getVersion() + " - " + e.getMessage();
-            if (e.getMessage().contains("Invalid Context")) {
+            if (e.getMessage().contains("API context is malformed")) {
                 RestApiUtil.handleBadRequest(errorMessage, e, log);
             }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
@@ -3751,10 +3751,11 @@ public class ApisApiServiceImpl implements ApisApiService {
             String errorMessage = "Error while adding new API : " + additionalPropertiesAPI.getProvider() + "-"
                     + additionalPropertiesAPI.getName() + "-" + additionalPropertiesAPI.getVersion() + " - "
                     + e.getMessage();
-            if (e.getMessage().contains("Invalid Context")) {
+            if (e.getMessage().contains("API context is malformed")) {
                 throw new APIManagementException(errorMessage,
                         ExceptionCodes.from(ExceptionCodes.API_CONTEXT_MALFORMED_EXCEPTION, e.getMessage()));
             }
+            throw new APIManagementException(errorMessage, e);
         }
         return null;
     }
