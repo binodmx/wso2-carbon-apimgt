@@ -472,6 +472,9 @@ public class ApiProductsApiServiceImpl implements ApiProductsApiService {
                 RestApiUtil.handleResourceNotFoundError(RestApiConstants.RESOURCE_API_PRODUCT, apiProductId, log);
             }
 
+            // Validate API Context
+            APIUtil.validateAPIContext(body.getContext(), body.getName());
+
             List<String> apiSecurity = body.getSecurityScheme();
             //validation for tiers
             List<String> tiersFromDTO = body.getPolicies();
@@ -522,6 +525,10 @@ public class ApiProductsApiServiceImpl implements ApiProductsApiService {
             return Response.ok().entity(updatedProductDTO).build();
         } catch (APIManagementException | FaultGatewaysException e) {
             String errorMessage = "Error while updating API Product : " + apiProductId;
+            if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                errorMessage += " with Context: " + body.getContext() + " - " + e.getMessage();
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         }
         return null;
@@ -720,12 +727,17 @@ public class ApiProductsApiServiceImpl implements ApiProductsApiService {
                 body.setVisibility(VisibilityEnum.PUBLIC);
             }
 
+            // Validate API Context
+            APIUtil.validateAPIContext(context, body.getName());
+
             //Remove the /{version} from the context.
             if (context.endsWith("/" + RestApiConstants.API_VERSION_PARAM)) {
                 context = context.replace("/" + RestApiConstants.API_VERSION_PARAM, "");
             }
+
             //Make sure context starts with "/". ex: /pizzaProduct
             context = context.startsWith("/") ? context : ("/" + context);
+
             //Check whether the context already exists
             if (apiProvider.isContextExist(context)) {
                 RestApiUtil.handleBadRequest("Error occurred while adding API Product. API Product with the context " + context
@@ -755,6 +767,9 @@ public class ApiProductsApiServiceImpl implements ApiProductsApiService {
         } catch (APIManagementException | FaultGatewaysException e) {
             String errorMessage = "Error while adding new API Product : " + provider + "-" + body.getName()
                     + " - " + e.getMessage();
+            if (RestApiUtil.isDueToInvalidAPIContext(e)) {
+                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
             String errorMessage = "Error while retrieving API Product location : " + provider + "-"

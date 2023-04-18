@@ -827,6 +827,7 @@ public class APIMappingUtil {
         if (context.endsWith("/" + RestApiConstants.API_VERSION_PARAM)) {
             context = context.replace("/" + RestApiConstants.API_VERSION_PARAM, "");
         }
+
         dto.setContext(context);
         dto.setCreatedTime(model.getCreatedTime());
         dto.setLastUpdatedTime(Long.toString(model.getLastUpdated().getTime()));

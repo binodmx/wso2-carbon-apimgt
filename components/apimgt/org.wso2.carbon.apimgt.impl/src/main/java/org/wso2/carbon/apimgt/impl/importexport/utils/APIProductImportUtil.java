@@ -136,11 +136,18 @@ public class APIProductImportUtil {
                     throw new APIMgtAuthorizationFailedException(errorMessage);
                 }
                 importedApiProduct = new Gson().fromJson(configElement, APIProduct.class);
+
+                // Validate APIProduct Context
+                APIUtil.validateAPIContext(importedApiProduct.getContext(), importedApiProduct.getId().getName());
             } else {
                 String currentUserWithDomain = APIUtil.replaceEmailDomain(currentUser);
                 apiProductId.addProperty(APIImportExportConstants.PROVIDER_ELEMENT, currentUserWithDomain);
 
                 importedApiProduct = new Gson().fromJson(configElement, APIProduct.class);
+
+                // Validate APIProduct Context
+                APIUtil.validateAPIContext(importedApiProduct.getContext(), importedApiProduct.getId().getName());
+
                 // Replace context to match with current provider
                 apiTypeWrapper = new ApiTypeWrapper(importedApiProduct);
                 APIAndAPIProductCommonUtil.setCurrentProviderToAPIProperties(apiTypeWrapper, currentTenantDomain, prevTenantDomain);
@@ -408,6 +415,9 @@ public class APIProductImportUtil {
                 JsonElement configElement = new JsonParser().parse(jsonContent);
                 api = new Gson().fromJson(configElement, API.class);
 
+                if (api.getId() != null) {
+                    APIUtil.validateAPIContext(api.getContext(), api.getId().getApiName());
+                }
                 swaggerContent = APIAndAPIProductCommonUtil.loadSwaggerFile(apiDirectoryPath);
                 APIDefinition apiDefinition = OASParserUtil.getOASParser(swaggerContent);
                 Set<URITemplate> apiUriTemplates = apiDefinition.getURITemplates(swaggerContent);
@@ -444,6 +454,9 @@ public class APIProductImportUtil {
                     APIIdentifier emailReplacedAPIIdentifier = new APIIdentifier(apiProviderInCurrentTenantDomain,
                             apiName, apiVersion);
                     api = apiProvider.getAPI(emailReplacedAPIIdentifier);
+
+                    // Validate API Context
+                    APIUtil.validateAPIContext(api.getContext(), api.getId().getApiName());
 
                     filterInvalidProductResources(api.getUriTemplates(), apiProductResource, invalidProductResources);
                 }
