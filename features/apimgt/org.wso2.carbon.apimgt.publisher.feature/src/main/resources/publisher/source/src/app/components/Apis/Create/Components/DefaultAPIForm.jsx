@@ -201,7 +201,6 @@ export default function DefaultAPIForm(props) {
                                 });
                             }
                         }
-                        
                     }
                     let charCount = 0;
                     if (contextValidity === null) {
