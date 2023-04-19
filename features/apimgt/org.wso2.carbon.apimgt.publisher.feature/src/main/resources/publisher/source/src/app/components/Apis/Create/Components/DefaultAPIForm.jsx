@@ -182,37 +182,50 @@ export default function DefaultAPIForm(props) {
                 if (contextValidity === null) {
                     const splitContext = apiContext.split('/');
                     for (const param of splitContext) {
-                        if (param !== '{version}' && (param.includes('{') || param.includes('}'))) {
-                            contextValidity = APIValidation.apiContextWithoutKeyWords.required()
-                                .validate(value, { abortEarly: false }).error;
-                            updateValidity({
-                                ...validity,
-                                // eslint-disable-next-line max-len
-                                context: { details: [{ message: '{version} cannot exist as a substring in a path param' }] },
-                            });
+                        if (param !== null && param !== '{version}') {
+                            if (param.includes('{version}')) {
+                                contextValidity = APIValidation.apiContextWithoutKeyWords.required()
+                                    .validate(value, { abortEarly: false }).error;
+                                updateValidity({
+                                    ...validity,
+                                    // eslint-disable-next-line max-len
+                                    context: { details: [{ message: '{version} cannot exist as a substring in a path param' }] },
+                                });
+                            } else if (param.includes('{') || param.includes('}')) {
+                                contextValidity = APIValidation.apiContextWithoutKeyWords.required()
+                                    .validate(value, { abortEarly: false }).error;
+                                updateValidity({
+                                    ...validity,
+                                    // eslint-disable-next-line max-len
+                                    context: { details: [{ message: '{ or } cannot exist as a substring in a path param' }] },
+                                });
+                            }
                         }
+                        
                     }
                     let charCount = 0;
-                    for (const a of apiContext) {
-                        if (a === '(') {
-                            charCount++;
-                        } else if (a === ')') {
-                            charCount--;
+                    if (contextValidity === null) {
+                        for (const a of apiContext) {
+                            if (a === '(') {
+                                charCount++;
+                            } else if (a === ')') {
+                                charCount--;
+                            }
+                            if (charCount < 0) {
+                                updateValidity({
+                                    ...validity,
+                                    // eslint-disable-next-line max-len
+                                    context: { details: [{ message: 'Parentheses should be balanced in API context' }] },
+                                });
+                            }
                         }
-                        if (charCount < 0) {
+                        if (charCount > 0) {
                             updateValidity({
                                 ...validity,
                                 // eslint-disable-next-line max-len
                                 context: { details: [{ message: 'Parentheses should be balanced in API context' }] },
                             });
                         }
-                    }
-                    if (charCount > 0) {
-                        updateValidity({
-                            ...validity,
-                            // eslint-disable-next-line max-len
-                            context: { details: [{ message: 'Parentheses should be balanced in API context' }] },
-                        });
                     }
                     if (contextValidity === null && charCount === 0) {
                         APIValidation.apiParameter.validate(field + ':' + apiContext).then((result) => {
