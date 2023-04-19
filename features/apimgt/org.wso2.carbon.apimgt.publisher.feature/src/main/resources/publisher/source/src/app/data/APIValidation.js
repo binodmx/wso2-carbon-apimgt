@@ -139,6 +139,11 @@ const definition = {
         .error((errors) => {
             return errors.map((error) => ({ ...error, message: 'Context ' + getMessage(error.type, 200) }));
         }),
+    apiContextWithoutKeyWords: Joi.string().max(200).regex(/^[^{}]*$/)
+    .required()
+    .error((errors) => {
+        return errors.map((error) => ({ ...error, message: 'Context ' + getMessage(error.type, 200) }));
+    }),
     role: roleSchema.systemRole().role(),
     scope: scopeSchema.scopes().scope(),
     url: Joi.string().uri({ scheme: ['http', 'https'] }).error((errors) => {
