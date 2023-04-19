@@ -4386,8 +4386,6 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
         }
 
-        // Validate API Context
-        APIUtil.validateAPIContext(validationResponse.getInfo().getContext(), validationResponse.getInfo().getName());
         responseDTO = APIMappingUtil.getOpenAPIDefinitionValidationResponseFromModel(validationResponse,
                 returnContent);
 
