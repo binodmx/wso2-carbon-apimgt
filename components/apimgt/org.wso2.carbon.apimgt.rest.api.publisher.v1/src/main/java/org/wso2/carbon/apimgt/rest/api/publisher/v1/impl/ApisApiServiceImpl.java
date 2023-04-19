@@ -3129,11 +3129,6 @@ public class ApisApiServiceImpl implements ApisApiService {
             }
             return Response.ok().entity(updatedSwagger).build();
         } catch (APIManagementException e) {
-            if (RestApiUtil.isDueToInvalidAPIContext(e)) {
-                String errorMessage =
-                        "Error while updating the swagger definition of API: " + apiId + " - " + e.getMessage();
-                RestApiUtil.handleBadRequest(errorMessage, e, log);
-            }
             //Auth failure occurs when cross tenant accessing APIs. Sends 404, since we don't need
             // to expose the existence of the resource
             if (RestApiUtil.isDueToResourceNotFound(e) || RestApiUtil.isDueToAuthorizationFailure(e)) {
