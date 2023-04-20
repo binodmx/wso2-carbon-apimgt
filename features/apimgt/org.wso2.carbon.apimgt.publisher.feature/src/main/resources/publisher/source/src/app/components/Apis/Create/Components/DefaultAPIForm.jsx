@@ -233,6 +233,8 @@ export default function DefaultAPIForm(props) {
                                     ...validity,
                                     context: { details: [{ message: apiContext + ' context already exists' }] },
                                 });
+                            } else {
+                                updateValidity({ ...validity, context: contextValidity });
                             }
                         });
                     }
