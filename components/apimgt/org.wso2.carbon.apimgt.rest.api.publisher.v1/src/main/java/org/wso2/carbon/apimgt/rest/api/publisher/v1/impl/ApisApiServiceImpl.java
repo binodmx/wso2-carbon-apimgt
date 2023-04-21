@@ -4176,8 +4176,8 @@ public class ApisApiServiceImpl implements ApisApiService {
             String errorMessage = "Error while adding new API : " + additionalPropertiesAPI.getProvider() + "-"
                     + additionalPropertiesAPI.getName() + "-" + additionalPropertiesAPI.getVersion() + " - "
                     + e.getMessage();
-            if (e.getMessage().contains("The API context cannot be a malformed one")) {
-                RestApiUtil.handleBadRequest(errorMessage, e, log);
+            if (e.getMessage().contains("API context is malformed")) {
+                RestApiUtil.handleBadRequest(e.getMessage(), e, log);
             }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
