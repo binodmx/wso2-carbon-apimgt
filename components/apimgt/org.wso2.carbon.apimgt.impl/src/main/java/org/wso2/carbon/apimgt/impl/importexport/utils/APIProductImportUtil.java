@@ -269,6 +269,9 @@ public class APIProductImportUtil {
             throw new APIImportExportException(errorMessage, e);
         } catch (APIManagementException e) {
             String errorMessage = "Error while importing API Product: ";
+            if (e.getMessage().contains("API context is malformed")) {
+                throw new APIImportExportException(e.getMessage(), e);
+            }
             if (importedApiProduct != null) {
                 errorMessage += importedApiProduct.getId().getName() + StringUtils.SPACE + APIConstants.API_DATA_VERSION
                         + ": " + importedApiProduct.getId().getVersion();

@@ -768,7 +768,7 @@ public class ApiProductsApiServiceImpl implements ApiProductsApiService {
             String errorMessage = "Error while adding new API Product : " + provider + "-" + body.getName()
                     + " - " + e.getMessage();
             if (RestApiUtil.isDueToInvalidAPIContext(e)) {
-                RestApiUtil.handleBadRequest(errorMessage, e, log);
+                RestApiUtil.handleBadRequest(e.getMessage(), e, log);
             }
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         } catch (URISyntaxException e) {
