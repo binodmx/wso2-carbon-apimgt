@@ -45,9 +45,9 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -64,6 +64,7 @@ public class GatewayJMSMessageListener implements MessageListener {
             .getInstance().getAPIManagerConfiguration().getGatewayArtifactSynchronizerProperties();
     private final ScheduledExecutorService artifactRetrievalScheduler = Executors.newScheduledThreadPool( 10,
             new ArtifactsRetrieverThreadFactory());
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "DeploymentThread"));
 
     public void onMessage(Message message) {
 
@@ -160,7 +161,7 @@ public class GatewayJMSMessageListener implements MessageListener {
                         }
                     };
                 }
-                artifactRetrievalScheduler.schedule(task, 1, TimeUnit.MILLISECONDS);
+                executor.submit(task);
                 if (debugEnabled) {
                     log.debug("Event with ID " + gatewayEvent.getEventId() + " is received and " +
                             gatewayEvent.getApiId() + " is successfully deployed/undeployed");
