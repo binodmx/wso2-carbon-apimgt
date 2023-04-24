@@ -64,7 +64,7 @@ public class GatewayJMSMessageListener implements MessageListener {
             .getInstance().getAPIManagerConfiguration().getGatewayArtifactSynchronizerProperties();
     private final ScheduledExecutorService artifactRetrievalScheduler = Executors.newScheduledThreadPool( 10,
             new ArtifactsRetrieverThreadFactory());
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "DeploymentThread"));
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "GatewayArtifactDeploymentThread"));
 
     public void onMessage(Message message) {
 
