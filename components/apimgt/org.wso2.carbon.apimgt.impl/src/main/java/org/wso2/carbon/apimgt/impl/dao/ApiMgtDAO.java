@@ -1534,7 +1534,6 @@ public class ApiMgtDAO {
         PreparedStatement getIncludedApisInProduct = null;
         PreparedStatement getSubscribedApisAndProducts = null;
         ResultSet resultSet = null;
-        ResultSet resultSet1 = null;
         Set<String> scopeKeysSet = new HashSet<>();
         Set<Integer> apiIdSet = new HashSet<>();
         int tenantId = APIUtil.getTenantId(subscriber.getName());
@@ -1545,15 +1544,16 @@ public class ApiMgtDAO {
             getSubscribedApisAndProducts.setInt(1, tenantId);
             getSubscribedApisAndProducts.setInt(2, applicationId);
             resultSet = getSubscribedApisAndProducts.executeQuery();
+            String getIncludedApisInProductQuery = SQLConstants.GET_INCLUDED_APIS_IN_PRODUCT_SQL;
+            getIncludedApisInProduct = conn.prepareStatement(getIncludedApisInProductQuery);
             while (resultSet.next()) {
                 int apiId = resultSet.getInt("API_ID");
-                String getIncludedApisInProductQuery = SQLConstants.GET_INCLUDED_APIS_IN_PRODUCT_SQL;
-                getIncludedApisInProduct = conn.prepareStatement(getIncludedApisInProductQuery);
                 getIncludedApisInProduct.setInt(1, apiId);
-                resultSet1 = getIncludedApisInProduct.executeQuery();
-                while (resultSet1.next()) {
-                    int includedApiId = resultSet1.getInt("API_ID");
-                    apiIdSet.add(includedApiId);
+                try (ResultSet resultSet1 = getIncludedApisInProduct.executeQuery()) {
+                    while (resultSet1.next()) {
+                        int includedApiId = resultSet1.getInt("API_ID");
+                        apiIdSet.add(includedApiId);
+                    }
                 }
                 apiIdSet.add(apiId);
             }
@@ -1578,7 +1578,7 @@ public class ApiMgtDAO {
             handleException("Failed to retrieve scopes for application subscription ", e);
         } finally {
             APIMgtDBUtil.closeAllConnections(getSubscribedApisAndProducts, null, resultSet);
-            APIMgtDBUtil.closeAllConnections(getIncludedApisInProduct, null, resultSet1);
+            APIMgtDBUtil.closeAllConnections(getIncludedApisInProduct, null, null);
         }
         return scopeKeysSet;
     }
@@ -9686,7 +9686,6 @@ public class ApiMgtDAO {
         Connection conn = null;
         ResultSet resultSet = null;
         ResultSet resultSet1 = null;
-        ResultSet resultSet2 = null;
         PreparedStatement ps = null;
         PreparedStatement getSubscribedApisAndProducts = null;
         PreparedStatement getIncludedApisInProduct = null;
@@ -9699,15 +9698,16 @@ public class ApiMgtDAO {
             getSubscribedApisAndProducts = conn.prepareStatement(sqlQueryForGetSubscribedApis);
             getSubscribedApisAndProducts.setString(1, consumerKey);
             resultSet1 = getSubscribedApisAndProducts.executeQuery();
+            String getIncludedApisInProductQuery = SQLConstants.GET_INCLUDED_APIS_IN_PRODUCT_SQL;
+            getIncludedApisInProduct = conn.prepareStatement(getIncludedApisInProductQuery);
             while (resultSet1.next()) {
                 int apiId = resultSet1.getInt("API_ID");
-                String getIncludedApisInProductQuery = SQLConstants.GET_INCLUDED_APIS_IN_PRODUCT_SQL;
-                getIncludedApisInProduct = conn.prepareStatement(getIncludedApisInProductQuery);
                 getIncludedApisInProduct.setInt(1, apiId);
-                resultSet2 = getIncludedApisInProduct.executeQuery();
-                while (resultSet2.next()) {
-                    int includedApiId = resultSet2.getInt("API_ID");
-                    apiIdSet.add(includedApiId);
+                try (ResultSet resultSet2 = getIncludedApisInProduct.executeQuery()) {
+                    while (resultSet2.next()) {
+                        int includedApiId = resultSet2.getInt("API_ID");
+                        apiIdSet.add(includedApiId);
+                    }
                 }
                 apiIdSet.add(apiId);
             }
@@ -9735,7 +9735,7 @@ public class ApiMgtDAO {
         } finally {
             APIMgtDBUtil.closeAllConnections(ps, conn, resultSet);
             APIMgtDBUtil.closeAllConnections(getSubscribedApisAndProducts, null, resultSet1);
-            APIMgtDBUtil.closeAllConnections(getIncludedApisInProduct, null, resultSet2);
+            APIMgtDBUtil.closeAllConnections(getIncludedApisInProduct, null, null);
         }
         return null;
     }
