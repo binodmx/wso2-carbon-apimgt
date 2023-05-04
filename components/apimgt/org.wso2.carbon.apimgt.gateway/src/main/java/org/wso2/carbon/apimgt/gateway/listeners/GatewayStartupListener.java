@@ -188,24 +188,36 @@ public class GatewayStartupListener extends AbstractAxis2ConfigurationContextObs
         }
 
         long retryDuration = gatewayArtifactSynchronizerProperties.getRetryDuartion();
+        int maxRetryCount = gatewayArtifactSynchronizerProperties.getMaxRetryCount();
         double reconnectionProgressionFactor = 2.0;
         long maxReconnectDuration = 1000 * 60 * 60; // 1 hour
-
-        while (true) {
-            boolean isArtifactsDeployed = deployArtifactsAtStartup(tenantDomain);
-            if (isArtifactsDeployed) {
-                log.info("Synapse Artifacts deployed Successfully in the Gateway");
-                break;
-            } else {
-                retryDuration = (long) (retryDuration * reconnectionProgressionFactor);
-                if (retryDuration > maxReconnectDuration) {
-                    retryDuration = maxReconnectDuration;
+        int retryCount = 0;
+        boolean retry = true;
+        while (retry) {
+            try {
+                boolean isArtifactsDeployed = deployArtifactsAtStartup(tenantDomain);
+                if (isArtifactsDeployed) {
+                    log.info("Synapse Artifacts deployed Successfully in the Gateway");
+                    retry = false;
+                } else {
+                    throw new ArtifactSynchronizerException("Unable to deploy synapse artifacts at gateway");
                 }
-                log.error("Unable to deploy synapse artifacts at gateway. Next retry in " + (retryDuration / 1000)
-                        + " seconds");
-                try {
-                    Thread.sleep(retryDuration);
-                } catch (InterruptedException ignore) {
+            } catch (ArtifactSynchronizerException e) {
+                retryCount++;
+                if (retryCount <= maxRetryCount) {
+                    log.error("Unable to deploy synapse artifacts at gateway. Retry Attempt " + retryCount
+                            + " in " + (retryDuration / 1000) + " seconds");
+                    try {
+                        Thread.sleep(retryDuration);
+                        retryDuration = (long) (retryDuration * reconnectionProgressionFactor);
+                        if (retryDuration > maxReconnectDuration) {
+                            retryDuration = maxReconnectDuration;
+                        }
+                    } catch (InterruptedException ignore) {
+                        // Ignore
+                    }
+                } else {
+                    throw e;
                 }
             }
         }
