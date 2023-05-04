@@ -20,6 +20,7 @@ package org.wso2.carbon.apimgt.gateway.listeners;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.apimgt.api.ExceptionCodes;
 import org.wso2.carbon.apimgt.gateway.InMemoryAPIDeployer;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.gateway.jwt.RevokedJWTTokensRetriever;
@@ -203,18 +204,23 @@ public class GatewayStartupListener extends AbstractAxis2ConfigurationContextObs
                     throw new ArtifactSynchronizerException("Unable to deploy synapse artifacts at gateway");
                 }
             } catch (ArtifactSynchronizerException e) {
-                retryCount++;
-                if (retryCount <= maxRetryCount) {
-                    log.error("Unable to deploy synapse artifacts at gateway. Retry Attempt " + retryCount
-                            + " in " + (retryDuration / 1000) + " seconds");
-                    try {
-                        Thread.sleep(retryDuration);
-                        retryDuration = (long) (retryDuration * reconnectionProgressionFactor);
-                        if (retryDuration > maxReconnectDuration) {
-                            retryDuration = maxReconnectDuration;
+                if (!e.getErrorHandler().equals(ExceptionCodes.ARTIFACT_SYNC_HTTP_REQUEST_FAILED)) {
+                    retryCount++;
+                    if (retryCount <= maxRetryCount) {
+                        log.error("Unable to deploy synapse artifacts at gateway. Retry Attempt " + retryCount + " in "
+                                + (retryDuration / 1000) + " seconds");
+                        try {
+                            Thread.sleep(retryDuration);
+                            retryDuration = (long) (retryDuration * reconnectionProgressionFactor);
+                            if (retryDuration > maxReconnectDuration) {
+                                retryDuration = maxReconnectDuration;
+                            }
+                        } catch (InterruptedException ignore) {
+                            // Ignore
                         }
-                    } catch (InterruptedException ignore) {
-                        // Ignore
+                    } else {
+                        log.error("Unable to deploy synapse artifacts at gateway. Maximum retry count exceeded.");
+                        throw e;
                     }
                 } else {
                     throw e;

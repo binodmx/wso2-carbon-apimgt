@@ -145,10 +145,14 @@ public class InMemoryAPIDeployer {
                         }
                     }
                     return true;
-                } catch (ArtifactSynchronizerException | IOException e ) {
+                } catch (IOException e) {
                     String msg = "Error  deploying APIs to the Gateway ";
                     log.error(msg, e);
                     throw new ArtifactSynchronizerException(msg, e);
+                } catch (ArtifactSynchronizerException e){
+                    String msg = "Error  deploying APIs to the Gateway ";
+                    log.error(msg, e);
+                    throw e;
                 } finally {
                     MessageContext.destroyCurrentMessageContext();
                     PrivilegedCarbonContext.endTenantFlow();

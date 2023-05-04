@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.wso2.carbon.apimgt.api.ExceptionCodes;
 import org.wso2.carbon.apimgt.api.model.Label;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
@@ -130,11 +131,11 @@ public class DBRetriever implements ArtifactRetriever {
         } catch (IOException e) {
             String msg = "Error while executing the http client";
             log.error(msg, e);
-            throw new ArtifactSynchronizerException(msg, e);
+            throw new ArtifactSynchronizerException(msg, e, ExceptionCodes.ARTIFACT_SYNC_HTTP_REQUEST_FAILED);
         } catch (DataLoadingException e) {
             String msg = "Error while retrieving artifacts";
             log.error(msg, e);
-            throw new ArtifactSynchronizerException(msg, e);
+            throw new ArtifactSynchronizerException(msg, e, ExceptionCodes.ARTIFACT_SYNC_HTTP_REQUEST_FAILED);
         }
     }
 

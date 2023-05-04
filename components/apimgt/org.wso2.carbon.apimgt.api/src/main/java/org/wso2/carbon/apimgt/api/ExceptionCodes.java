@@ -388,7 +388,9 @@ ExceptionCodes implements ErrorHandler {
             400, "API context or log level is missing"),
     CORRELATION_CONFIG_PROPERTY_NOT_SUPPORTED(901403, "Bad Request", 400, "Requested component does not have a corresponding property"),
     CORRELATION_CONFIG_BAD_REQUEST(901403, "Bad Request", 400, "Request body can not have empty elements"),
-    CORRELATION_CONFIG_BAD_REQUEST_INVALID_NAME(902021, "Bad Request", 400, "Request body contains invalid correlation component name");
+    CORRELATION_CONFIG_BAD_REQUEST_INVALID_NAME(902021, "Bad Request", 400, "Request body contains invalid correlation component name"),
+    // Artifact synchronise related
+    ARTIFACT_SYNC_HTTP_REQUEST_FAILED(901410, "Error while retrieving artifacts", 500, "Error while executing HTTP request to retrieve artifacts");
 
 
     private final long errorCode;

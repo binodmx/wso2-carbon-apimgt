@@ -703,6 +703,7 @@ public final class APIUtil {
                         // Ignore
                     }
                 } else {
+                    log.error("Failed retrieving artifacts from remote endpoint. Maximum retry count exceeded.");
                     throw ex;
                 }
             }
