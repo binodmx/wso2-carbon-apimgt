@@ -17,6 +17,7 @@ public class GatewayArtifactSynchronizerProperties {
     private long retryDuartion = 15000 ;
     private String gatewayStartup = "sync";
     private long eventWaitingTime = 1;
+    private int maxRetryCount = 5;
 
 
     public String getSaverName() {
@@ -118,5 +119,15 @@ public class GatewayArtifactSynchronizerProperties {
     public void  setGatewayStartup(String gatewayStartup) {
 
         this.gatewayStartup = gatewayStartup;
+    }
+
+    public int getMaxRetryCount() {
+
+        return maxRetryCount;
+    }
+
+    public void  setMaxRetryCount(int retryCount) {
+
+        this.maxRetryCount = retryCount;
     }
 }

@@ -30,12 +30,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.wso2.carbon.apimgt.api.ExceptionCodes;
 import org.wso2.carbon.apimgt.api.model.Label;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.dao.ApiMgtDAO;
 import org.wso2.carbon.apimgt.impl.dto.EventHubConfigurationDto;
 import org.wso2.carbon.apimgt.impl.dto.GatewayArtifactSynchronizerProperties;
 import org.wso2.carbon.apimgt.impl.gatewayartifactsynchronizer.exception.ArtifactSynchronizerException;
+import org.wso2.carbon.apimgt.impl.gatewayartifactsynchronizer.exception.DataLoadingException;
 import org.wso2.carbon.apimgt.impl.internal.ServiceReferenceHolder;
 import org.wso2.carbon.apimgt.impl.utils.APIUtil;
 import java.io.IOException;
@@ -93,6 +95,10 @@ public class DBRetriever implements ArtifactRetriever {
             String msg = "Error while executing the http client";
             log.error(msg, e);
             throw new ArtifactSynchronizerException(msg, e);
+        } catch (DataLoadingException e) {
+            String msg = "Error while retrieving artifacts";
+            log.error(msg, e);
+            throw new ArtifactSynchronizerException(msg, e);
         }
     }
 
@@ -125,7 +131,11 @@ public class DBRetriever implements ArtifactRetriever {
         } catch (IOException e) {
             String msg = "Error while executing the http client";
             log.error(msg, e);
-            throw new ArtifactSynchronizerException(msg, e);
+            throw new ArtifactSynchronizerException(msg, e, ExceptionCodes.ARTIFACT_SYNC_HTTP_REQUEST_FAILED);
+        } catch (DataLoadingException e) {
+            String msg = "Error while retrieving artifacts";
+            log.error(msg, e);
+            throw new ArtifactSynchronizerException(msg, e, ExceptionCodes.ARTIFACT_SYNC_HTTP_REQUEST_FAILED);
         }
     }
 
@@ -175,10 +185,15 @@ public class DBRetriever implements ArtifactRetriever {
             String msg = "Error while executing the http client";
             log.error(msg, e);
             throw new ArtifactSynchronizerException(msg, e);
+        } catch (DataLoadingException e) {
+            String msg = "Error while retrieving artifacts";
+            log.error(msg, e);
+            throw new ArtifactSynchronizerException(msg, e);
         }
     }
 
-    private CloseableHttpResponse invokeService(String endpoint) throws IOException, ArtifactSynchronizerException {
+    private CloseableHttpResponse invokeService(String endpoint) throws IOException, ArtifactSynchronizerException,
+            DataLoadingException {
         HttpGet method = new HttpGet(endpoint);
         URL url = new URL(endpoint);
         String username = eventHubConfigurationDto.getUsername();
