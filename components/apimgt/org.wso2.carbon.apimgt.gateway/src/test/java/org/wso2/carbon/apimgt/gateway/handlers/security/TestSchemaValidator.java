@@ -93,7 +93,7 @@ public class TestSchemaValidator {
     @Test
     public void testValidRequestPostPet() throws IOException, XMLStreamException {
         // Happy Path: Valid Pet
-        setMockedRequest("POST", "/pet", "<jsonObject>" +
+        setMockedRequest("POST", "/pet", "/pet", "<jsonObject>" +
                 "<id>123</id><name>Doggie</name>" +
                 "<photoUrls>https://mydog_1.jpg</photoUrls><photoUrls>https://mydog_2.jpg</photoUrls>" +
                 "<category><id>2</id><name>dog</name></category>" +
@@ -106,7 +106,7 @@ public class TestSchemaValidator {
     @Test
     public void testValidRequestPostStoreOrder() throws IOException, XMLStreamException {
         // Happy Path: Valid Store Order: Valid date
-        setMockedRequest("POST", "/store/order", "<jsonObject>" +
+        setMockedRequest("POST", "/store/order", "/store/order", "<jsonObject>" +
                 "<id>123</id><petId>22</petId><quantity>8</quantity><shipDate>2020-05-14T10:29:24.160Z</shipDate>" +
                 "<status>placed</status><complete>false</complete>" +
                 "</jsonObject>");
@@ -116,7 +116,7 @@ public class TestSchemaValidator {
     @Test
     public void testValidRequestPostArrayOfUsers() throws IOException, XMLStreamException {
         // Happy Path: Valid Array of Users
-        setMockedRequest("POST", "/user/createWithArray", "<jsonArray><jsonElement>" +
+        setMockedRequest("POST", "/user/createWithArray", "/user/createWithArray", "<jsonArray><jsonElement>" +
                 "<id>1234</id><username>andy</username><firstName>Andy</firstName>" +
                 "<lastName>Fernando</lastName><email>andy@abc.com</email><password>pw1234</password>" +
                 "<phone>01234567890</phone><userStatus>3</userStatus></jsonElement>" +
@@ -130,7 +130,7 @@ public class TestSchemaValidator {
     @Test
     public void testBadRequestInvalidEnum() throws IOException, XMLStreamException {
         // Invalid Enum
-        setMockedRequest("POST", "/pet", "<jsonObject>" +
+        setMockedRequest("POST", "/pet", "/pet", "<jsonObject>" +
                 "<id>123</id><name>Doggie</name>" +
                 "<photoUrls>https://mydog_1.jpg</photoUrls><photoUrls>https://mydog_2.jpg</photoUrls>" +
                 "<category><id>2</id><name>dog</name></category>" +
@@ -143,7 +143,7 @@ public class TestSchemaValidator {
     @Test
     public void testBadRequestInvalidInt() throws IOException, XMLStreamException {
         // Invalid Int
-        setMockedRequest("POST", "/pet", "<jsonObject>" +
+        setMockedRequest("POST", "/pet", "/pet", "<jsonObject>" +
                 "<id>INVALID-INT</id><name>Doggie</name>" +
                 "<photoUrls>https://mydog_1.jpg</photoUrls><photoUrls>https://mydog_2.jpg</photoUrls>" +
                 "<category><id>2</id><name>dog</name></category>" +
@@ -156,7 +156,7 @@ public class TestSchemaValidator {
     @Test
     public void testBadRequestInvalidString() throws IOException, XMLStreamException {
         // Invalid String: name of pet
-        setMockedRequest("POST", "/pet", "<jsonObject>" +
+        setMockedRequest("POST", "/pet", "/pet", "<jsonObject>" +
                 "<id>123</id><name>1234</name>" +
                 "<photoUrls>https://mydog_1.jpg</photoUrls><photoUrls>https://mydog_2.jpg</photoUrls>" +
                 "<category><id>2</id><name>dog</name></category>" +
@@ -169,7 +169,7 @@ public class TestSchemaValidator {
     @Test
     public void testBadRequestInvalidDate() throws IOException, XMLStreamException {
         // Invalid date
-        setMockedRequest("POST", "/store/order", "<jsonObject>" +
+        setMockedRequest("POST", "/store/order", "/store/order", "<jsonObject>" +
                 "<id>123</id><petId>22</petId><quantity>8</quantity><shipDate>2020-05-14</shipDate>" +
                 "<status>placed</status><complete>false</complete>" +
                 "</jsonObject>");
@@ -179,12 +179,48 @@ public class TestSchemaValidator {
     @Test
     public void testBadRequestMissRequiredField() throws IOException, XMLStreamException {
         // Missing required field - Name of Pet
-        setMockedRequest("POST", "/pet", "<jsonObject>" +
+        setMockedRequest("POST", "/pet", "/pet", "<jsonObject>" +
                 "<id>123</id>" +
                 "<photoUrls>https://mydog_1.jpg</photoUrls><photoUrls>https://mydog_2.jpg</photoUrls>" +
                 "<category><id>2</id><name>dog</name></category>" +
                 "<tags><id>12</id><name>Black</name></tags><tags><id>43</id><name>German Shepherd</name></tags>" +
                 "<status>available</status>" +
+                "</jsonObject>");
+        assertBadRequest();
+    }
+
+    @Test
+    public void testValidRequestResourceWithOnlySlash() throws IOException, XMLStreamException {
+        // Happy path - testing resource with only slash
+        setMockedRequest("POST", "/", "/","<jsonObject>" +
+                "<pet>dog</pet>" +
+                "</jsonObject>");
+        assertValidRequest();
+    }
+
+    @Test
+    public void testBadRequestResourceWithOnlySlash() throws IOException, XMLStreamException {
+        // Missing required field - pet tag
+        setMockedRequest("POST", "/", "/", "<jsonObject>" +
+                "<pets>dog</pets>" +
+                "</jsonObject>");
+        assertBadRequest();
+    }
+
+    @Test
+    public void testValidRequestResourceWithTrailingSlash() throws IOException, XMLStreamException {
+        // Happy path - testing resource with trailing slash
+        setMockedRequest("POST", "/pet/sample", "/pet/sample/", "<jsonObject>" +
+                "<pet>dog</pet>" +
+                "</jsonObject>");
+        assertValidRequest();
+    }
+
+    @Test
+    public void testBadRequestResourceWithTrailingSlash() throws IOException, XMLStreamException {
+        // Missing required field - pet tag
+        setMockedRequest("POST", "/pet/sample", "/pet/sample/", "<jsonObject>" +
+                "<pets>dog</pets>" +
                 "</jsonObject>");
         assertBadRequest();
     }
@@ -200,7 +236,7 @@ public class TestSchemaValidator {
         Mockito.verify(messageContext).setProperty(APIMgtGatewayConstants.THREAT_FOUND, true);
     }
 
-    private void setMockedRequest(String httpMethod, String resourcePath, String xmlMessage) throws XMLStreamException, IOException {
+    private void setMockedRequest(String httpMethod, String resourcePath, String subPath, String xmlMessage) throws XMLStreamException, IOException {
         SOAPFactory fac = OMAbstractFactory.getSOAP12Factory();
         SOAPEnvelope env = fac.createSOAPEnvelope();
         fac.createSOAPBody(env);
@@ -229,7 +265,7 @@ public class TestSchemaValidator {
         Mockito.when((String) messageContext.getProperty((APIMgtGatewayConstants.API_ELECTED_RESOURCE))).
                 thenReturn(resourcePath);
         Mockito.when((String) messageContext.getProperty(RESTConstants.REST_SUB_REQUEST_PATH)).
-                thenReturn(resourcePath);
+                thenReturn(subPath);
         Mockito.when(synapseConfiguration.getLocalRegistry()).thenReturn(map);
         Mockito.when(map.get(ApiId)).thenReturn(entry);
         Mockito.when((String) entry.getValue()).thenReturn(swaggerValue);
