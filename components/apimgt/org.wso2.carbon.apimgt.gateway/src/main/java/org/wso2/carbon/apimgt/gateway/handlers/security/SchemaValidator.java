@@ -342,7 +342,7 @@ public class SchemaValidator extends AbstractHandler {
                 messageContext).getAxis2MessageContext();
         String resourcePath = messageContext.getProperty(APIMgtGatewayConstants.API_ELECTED_RESOURCE).toString();
         String subPath = messageContext.getProperty(RESTConstants.REST_SUB_REQUEST_PATH).toString();
-        if (!"/".equals(subPath) && "/".equals(subPath.substring(subPath.length() - 1))) {
+        if (!"/".equals(resourcePath) && "/".equals(subPath.substring(subPath.length() - 1))) {
             resourcePath = resourcePath + "/";
         }
 
