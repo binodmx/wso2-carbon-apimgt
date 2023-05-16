@@ -230,12 +230,12 @@ export default function AddRoleWizard(props) {
                                                     const trimmedValue = value.trim();
                                                     if (!trimmedValue) {
                                                         setValidation({ role: "Role name can't be empty!" });
-                                                    } else if (permissionMappings[trimmedValue]) {
+                                                    } else if (permissionMappings[value]) {
                                                         setValidation({ role: 'Permission mapping exist' });
                                                     } else {
                                                         setValidation({ role: false });
                                                     }
-                                                    setNewRole(trimmedValue);
+                                                    setNewRole(value);
                                                 }}
                                                 onKeyDown={(event) => (event.which === 13
                                                     || event.keyCode === 13
