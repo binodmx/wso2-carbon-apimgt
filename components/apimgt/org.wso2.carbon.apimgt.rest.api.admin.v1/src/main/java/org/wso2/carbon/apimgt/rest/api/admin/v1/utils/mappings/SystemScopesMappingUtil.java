@@ -80,7 +80,7 @@ public class SystemScopesMappingUtil {
                 roleScopeDTO.setName(mapping.getKey());
                 String roles = scopeRoleMapping.get(mapping.getKey());
                 List<String> roleList = new ArrayList<String>(Arrays.asList((roles
-                        .replaceAll("\\s+", "")).split(",")));
+                        .replaceAll(", ", ",")).split(",")));
                 roleScopeDTO.setRoles(roleList);
                 roleScopeDTO.setDescription(mapping.getValue().get(0));
                 roleScopeDTO.setTag(mapping.getValue().get(1));
@@ -105,7 +105,7 @@ public class SystemScopesMappingUtil {
         for (ScopeDTO scope : body.getList()) {
             JSONObject scopeRoleJson = new JSONObject();
             String roles = scope.getRoles().toString().replaceAll("\\[", "").
-                    replaceAll("\\]", "").replaceAll("\\s", "");
+                    replaceAll("\\]", "");
             if ( !roles.isEmpty()) {
                 scopeRoleJson.put("Name", scope.getName());
                 scopeRoleJson.put("Roles", roles);
