@@ -288,6 +288,7 @@ class TokenManager extends React.Component {
                     additionalProperties: this.getDefaultAdditionalProperties(selectedKM),
                 },
                 selectedTab: newSelectedTab,
+                mode: null,
                 importDisabled: false,
             });
         }
