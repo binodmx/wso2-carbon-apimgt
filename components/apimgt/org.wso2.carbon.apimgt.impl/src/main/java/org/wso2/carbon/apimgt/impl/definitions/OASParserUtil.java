@@ -36,6 +36,7 @@ import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
 import io.swagger.parser.util.DeserializationUtils;
+import io.swagger.parser.util.SwaggerDeserializationResult;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.core.util.Json;
@@ -875,7 +876,8 @@ public class OASParserUtil {
         String apiDefinitionProcessed = apiDefinition;
         if (!apiDefinition.trim().startsWith("{")) {
             try {
-                JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition);
+                JsonNode jsonNode = DeserializationUtils.readYamlTree(apiDefinition,
+                        new SwaggerDeserializationResult());
                 apiDefinitionProcessed = jsonNode.toString();
             } catch (IOException e) {
                 throw new APIManagementException("Error while reading API definition yaml", e);
@@ -1010,6 +1012,8 @@ public class OASParserUtil {
 
         //this is to ignore "responseSchema" in response schema objects
         mapper.addMixIn(Response.class, ResponseSchemaMixin.class);
+
+        mapper.addMixIn(Operation.class, OperationMixin.class);
         try {
             return new String(mapper.writeValueAsBytes(swaggerObj));
         } catch (JsonProcessingException e) {
@@ -1039,7 +1043,8 @@ public class OASParserUtil {
                 String responseStrProcessed = responseStr;
                 if (!responseStr.trim().startsWith("{")) {
                     try {
-                        JsonNode jsonNode = DeserializationUtils.readYamlTree(responseStr);
+                        JsonNode jsonNode = DeserializationUtils.readYamlTree(responseStr,
+                                new SwaggerDeserializationResult());
                         responseStrProcessed = jsonNode.toString();
                     } catch (IOException e) {
                         throw new APIManagementException("Error while reading API definition yaml", e);
