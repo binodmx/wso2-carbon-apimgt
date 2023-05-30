@@ -37,6 +37,7 @@ import org.wso2.carbon.apimgt.impl.APIManagerConfiguration;
 import org.wso2.carbon.apimgt.impl.dto.BasicAuthValidationInfoDTO;
 import org.wso2.carbon.apimgt.gateway.internal.ServiceReferenceHolder;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.TreeMap;
 
 @RunWith(PowerMockRunner.class)
@@ -123,6 +124,27 @@ public class BasicAuthAuthenticatorTest {
     }
 
     @Test
+    public void testextractBasicAuthCredentialsWithSpecialChars() throws Exception {
+        char[] symbolicCharacter = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-', '+', '=', '{', '[',
+                '}', ']', '|', '\\', ':', ';', '"', '\'', '<', ',', '>', '.', '?', '/'};
+
+        for (int i = 0; i < symbolicCharacter.length; i++) {
+            String endpointUsername = "user";
+            char[] endpointPassword = {'a', 'b', 'c', 'd', symbolicCharacter[i], 'e', 'f', 'g', 'h', 'i', 'j', 'k'};
+            byte[] userNamePasswordByteArray = (endpointUsername + ":" + String.valueOf(endpointPassword)).getBytes();
+            String encodedUserNamePassword = DatatypeConverter.printBase64Binary(userNamePasswordByteArray);
+            String basicAuthHeader = "Basic " + encodedUserNamePassword;
+            String[] credentials = basicAuthAuthenticator.extractBasicAuthCredentials(basicAuthHeader);
+            Assert.assertEquals("The extracted username does not match with " +
+                    "the actual value : " + endpointUsername, endpointUsername, credentials[0]);
+            Assert.assertEquals("The extracted password does not match with the actual " +
+                            "value : " + String.valueOf(endpointPassword), String.valueOf(endpointPassword),
+                    credentials[1]);
+        }
+    }
+
+
+        @Test
     public void testAuthenticateWithoutAuthorizationHeader() {
         TreeMap transportHeaders = new TreeMap();
         Mockito.when(axis2MsgCntxt.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS)).thenReturn(transportHeaders);
