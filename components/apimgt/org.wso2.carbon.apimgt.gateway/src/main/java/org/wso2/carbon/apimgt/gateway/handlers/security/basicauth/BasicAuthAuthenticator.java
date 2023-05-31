@@ -244,7 +244,7 @@ public class BasicAuthAuthenticator implements Authenticator {
      * @return a String array containing username and password
      * @throws APISecurityException in case of invalid authorization header or no header
      */
-    protected String[] extractBasicAuthCredentials(String basicAuthHeader) throws APISecurityException {
+    private String[] extractBasicAuthCredentials(String basicAuthHeader) throws APISecurityException {
         if (basicAuthHeader == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Basic Authentication: No Basic Auth Header found");
