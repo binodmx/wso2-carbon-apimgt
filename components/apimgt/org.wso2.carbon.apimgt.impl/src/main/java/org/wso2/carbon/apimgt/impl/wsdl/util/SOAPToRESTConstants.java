@@ -59,6 +59,9 @@ public class SOAPToRESTConstants {
     public static final String XSDS = "xsds";
     public static final String XSD = "xsd";
 
+    public static final String SOAP_RPC_MESSAGE_TYPE = "rpc";
+    public static final String SOAP_DOCUMENT_MESSAGE_TYPE = "document";
+
     public final class Swagger {
         public static final String DEFINITIONS = "definitions";
         public static final String DEFINITIONS_ROOT = "#/definitions/";
@@ -82,6 +85,9 @@ public class SOAPToRESTConstants {
         public static final String NAMESPACE = "namespace";
         public static final String WSO2_SOAP = "x-wso2-soap";
         public static final String SOAP_VERSION= "x-soap-version";
+
+        public static final String SOAP_MESSAGE_TYPE = "x-soap-message-type";
+        public static final String SOAP_STYLE = "x-soap-style";
 
     }
 
