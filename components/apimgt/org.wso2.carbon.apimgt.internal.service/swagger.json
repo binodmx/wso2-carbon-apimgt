@@ -1262,6 +1262,9 @@
           },
           "applicableLevel" : {
             "type" : "string"
+          },
+          "defaultLimit" : {
+            "$ref" : "#/definitions/ThrottleLimit"
           }
         }
       } ]
@@ -1282,6 +1285,9 @@
           "items" : {
             "$ref" : "#/definitions/Condition"
           }
+        },
+        "defaultLimit" : {
+          "$ref" : "#/definitions/ThrottleLimit"
         }
       }
     },

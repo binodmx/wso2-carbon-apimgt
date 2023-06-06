@@ -265,7 +265,7 @@ public class SubscriptionValidationDAO {
         try (
                 Connection conn = APIMgtDBUtil.getConnection();
                 PreparedStatement ps =
-                        conn.prepareStatement(SubscriptionValidationSQLConstants.GET_ALL_APPLICATION_POLICIES_SQL);
+                        conn.prepareStatement(SubscriptionValidationSQLConstants.GET_ALL_API_POLICIES_SQL);
                 ResultSet resultSet = ps.executeQuery();
         ) {
             populateApiPolicyList(applicationPolicies, resultSet);
@@ -669,7 +669,10 @@ public class SubscriptionValidationDAO {
                     apiPolicy.setName(resultSet.getString("NAME"));
                     apiPolicy.setQuotaType(resultSet.getString("DEFAULT_QUOTA_TYPE"));
                     apiPolicy.setTenantId(resultSet.getInt("TENANT_ID"));
+                    String tenantDomain = APIUtil.getTenantDomainFromTenantId(apiPolicy.getTenantId());
+                    apiPolicy.setTenantDomain(tenantDomain);
                     apiPolicy.setApplicableLevel(resultSet.getString("APPLICABLE_LEVEL"));
+                    setCommonProperties(apiPolicy, resultSet);
                     apiPolicies.add(apiPolicy);
                 }
                 APIPolicyConditionGroup apiPolicyConditionGroup = new APIPolicyConditionGroup();
@@ -686,6 +689,7 @@ public class SubscriptionValidationDAO {
                 }
                 ConditionDTO[] conditionDTOS = conditionGroupDTO.getConditions();
                 apiPolicyConditionGroup.setConditionDTOS(Arrays.asList(conditionDTOS));
+                setCommonProperties(apiPolicyConditionGroup, resultSet);
                 apiPolicy.addConditionGroup(apiPolicyConditionGroup);
                 temp.put(policyId, apiPolicy);
             }
@@ -892,6 +896,29 @@ public class SubscriptionValidationDAO {
                 quotaPolicy.setLimit(bandLimit);
             }
             policy.setQuotaPolicy(quotaPolicy);
+        }
+    }
+
+    private void setCommonProperties(APIPolicyConditionGroup apiPolicyConditionGroup, ResultSet resultSet)
+            throws SQLException {
+        QuotaPolicy quotaPolicy = new QuotaPolicy();
+        quotaPolicy.setType(resultSet.getString(ThrottlePolicyConstants.COLUMN_QUOTA_POLICY_TYPE));
+        if (quotaPolicy.getType() != null) {
+            if (PolicyConstants.REQUEST_COUNT_TYPE.equalsIgnoreCase(quotaPolicy.getType())) {
+                RequestCountLimit reqLimit = new RequestCountLimit();
+                reqLimit.setUnitTime(resultSet.getInt(ThrottlePolicyConstants.COLUMN_UNIT_TIME));
+                reqLimit.setTimeUnit(resultSet.getString(ThrottlePolicyConstants.COLUMN_TIME_UNIT));
+                reqLimit.setRequestCount(resultSet.getInt(ThrottlePolicyConstants.COLUMN_QUOTA));
+                quotaPolicy.setLimit(reqLimit);
+            } else if (PolicyConstants.BANDWIDTH_TYPE.equalsIgnoreCase(quotaPolicy.getType())) {
+                BandwidthLimit bandLimit = new BandwidthLimit();
+                bandLimit.setUnitTime(resultSet.getInt(ThrottlePolicyConstants.COLUMN_UNIT_TIME));
+                bandLimit.setTimeUnit(resultSet.getString(ThrottlePolicyConstants.COLUMN_TIME_UNIT));
+                bandLimit.setDataAmount(resultSet.getInt(ThrottlePolicyConstants.COLUMN_QUOTA));
+                bandLimit.setDataUnit(resultSet.getString(ThrottlePolicyConstants.COLUMN_QUOTA_UNIT));
+                quotaPolicy.setLimit(bandLimit);
+            }
+            apiPolicyConditionGroup.setQuotaPolicy(quotaPolicy);
         }
     }
 
