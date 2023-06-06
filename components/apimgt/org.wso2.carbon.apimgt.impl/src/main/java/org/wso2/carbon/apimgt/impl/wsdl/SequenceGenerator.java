@@ -138,8 +138,6 @@ public class SequenceGenerator {
                     namespace = (String) ((LinkedHashMap) vendorExtensionObj).get("namespace");
                     soapVersion = (String) ((LinkedHashMap) vendorExtensionObj)
                             .get(SOAPToRESTConstants.Swagger.SOAP_VERSION);
-                    soapV = (String) ((LinkedHashMap) vendorExtensionObj)
-                            .get(SOAPToRESTConstants.Swagger.SOAP_VERSION);
                     soapMessageType = (String) ((LinkedHashMap) vendorExtensionObj)
                             .get(SOAPToRESTConstants.Swagger.SOAP_MESSAGE_TYPE);
                     soapStyle = (String) ((LinkedHashMap) vendorExtensionObj)
