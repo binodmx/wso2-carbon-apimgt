@@ -37,6 +37,8 @@ public class WSDLSOAPOperation {
     private List<ModelImpl> inputParameterModel;
     private List<ModelImpl> outputParameterModel;
 
+    private String messageType;
+
     public WSDLSOAPOperation() {
     }
 
@@ -126,5 +128,13 @@ public class WSDLSOAPOperation {
 
     public void setOutputParameterModel(List<ModelImpl> outputParameterModel) {
         this.outputParameterModel = outputParameterModel;
+    }
+
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(String messageType) {
+        this.messageType = messageType;
     }
 }
