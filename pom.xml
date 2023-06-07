@@ -1001,10 +1001,6 @@
                         <groupId>org.wso2.orbit.org.opensaml</groupId>
                         <artifactId>opensaml</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>ua.parser.wso2</groupId>
-                        <artifactId>ua-parser</artifactId>
-                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -1308,6 +1304,11 @@
                 <groupId>org.wso2.carbon.event-processing</groupId>
                 <artifactId>org.wso2.carbon.event.processor.stub</artifactId>
                 <version>${event.processor.stub.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.io.swagger</groupId>
+                <artifactId>swagger-parser</artifactId>
+                <version>${swagger.parser.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.io.swagger</groupId>
@@ -1683,7 +1684,17 @@
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger3.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2</artifactId>
+                <version>${swagger3.core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-core</artifactId>
                 <version>${swagger3.core.version}</version>
             </dependency>
             <dependency>
@@ -1913,24 +1924,23 @@
         <swagger.codegen.version>2.3.1.wso2v2</swagger.codegen.version>
         <swagger.inflector.version>1.0.16.wso2v1</swagger.inflector.version>
         <swagger.inflector.oas3.version>2.0.5.wso2v1</swagger.inflector.oas3.version>
-        <swagger.parser.version>1.0.65.wso2v1</swagger.parser.version>
-        <swagger.parser.v3.version>2.1.13.wso2v1</swagger.parser.v3.version>
-        <swagger.core.version>1.6.9</swagger.core.version>
-        <swagger.models.version>1.6.9</swagger.models.version>
-        <swagger.annotations.version>1.6.9</swagger.annotations.version>
+        <swagger.parser.version>1.0.51.wso2v1</swagger.parser.version>
+        <swagger.parser.v3.version>2.0.20.wso2v1</swagger.parser.v3.version>
+        <swagger.core.version>1.6.1</swagger.core.version>
+        <swagger.models.version>1.6.1</swagger.models.version>
+        <swagger.annotations.version>1.6.1</swagger.annotations.version>
         <servicemix.bundles.jedis.version>3.3.0_1</servicemix.bundles.jedis.version>
         <google.guava.version>27.0-jre</google.guava.version>
         <xercesImpl.version>2.8.1.wso2v2</xercesImpl.version>
         <commons.scxml.version>0.9.0.wso2v1</commons.scxml.version>
         <velocity.version>1.7</velocity.version>
-        <fasterxml.jackson.version>2.15.0</fasterxml.jackson.version>
-        <fasterxml.jackson.version.range>(2.5.0,2.15.0]</fasterxml.jackson.version.range>
-        <fasterxml.jackson.databind.version>2.15.0</fasterxml.jackson.databind.version>
-        <fasterxml.jackson.core.version>2.15.0</fasterxml.jackson.core.version>
+        <fasterxml.jackson.version>2.10.5</fasterxml.jackson.version>
+        <fasterxml.jackson.databind.version>2.10.5.1</fasterxml.jackson.databind.version>
+        <fasterxml.jackson.core.version>2.9.8.wso2v1</fasterxml.jackson.core.version>
         <javax.validation-api>2.0.1.Final</javax.validation-api>
         <carbon.broker.version>3.3.12</carbon.broker.version>
         <waffle-jna.version>1.6.wso2v6</waffle-jna.version>
-        <version.snake.yaml>2.0</version.snake.yaml>
+        <version.snake.yaml>1.26</version.snake.yaml>
         <wsdl4j.version>1.6.3.wso2v3</wsdl4j.version>
         <slf4j.test.version>1.7.29</slf4j.test.version>
         <reflection.version>0.9.11</reflection.version>
