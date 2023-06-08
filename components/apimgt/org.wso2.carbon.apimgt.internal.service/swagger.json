@@ -1226,6 +1226,11 @@
       "title" : "ApplicationPolicy List"
     },
     "ApplicationPolicy" : {
+      "properties" : {
+        "defaultLimit" : {
+          "$ref" : "#/definitions/ThrottleLimit"
+        }
+      },
       "allOf" : [ {
         "$ref" : "#/definitions/Policy"
       } ]

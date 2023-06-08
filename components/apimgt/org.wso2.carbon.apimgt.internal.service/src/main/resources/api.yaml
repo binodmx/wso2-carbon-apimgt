@@ -1011,6 +1011,9 @@ definitions:
   ApplicationPolicy:
     allOf:
       - $ref: '#/definitions/Policy'
+    properties:
+      defaultLimit:
+        $ref: '#/definitions/ThrottleLimit'
   #-----------------------------------------------------
   # The Api Policy List resource
   #-----------------------------------------------------
