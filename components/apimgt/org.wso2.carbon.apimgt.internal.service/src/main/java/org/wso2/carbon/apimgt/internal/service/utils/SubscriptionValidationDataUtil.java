@@ -382,6 +382,7 @@ public class SubscriptionValidationDataUtil {
         if (model != null) {
             for (APIPolicy apiPolicyModel : model) {
                 ApiPolicyDTO policyDTO = new ApiPolicyDTO();
+                policyDTO.setId(apiPolicyModel.getId());
                 policyDTO.setName(apiPolicyModel.getName());
                 policyDTO.setQuotaType(apiPolicyModel.getQuotaType());
                 policyDTO.setTenantId(apiPolicyModel.getTenantId());
