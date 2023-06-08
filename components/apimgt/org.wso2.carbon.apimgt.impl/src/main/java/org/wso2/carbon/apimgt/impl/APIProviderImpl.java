@@ -128,6 +128,7 @@ import org.wso2.carbon.apimgt.impl.notification.exception.NotificationException;
 import org.wso2.carbon.apimgt.impl.notifier.events.APIEvent;
 import org.wso2.carbon.apimgt.impl.notifier.events.APIPolicyEvent;
 import org.wso2.carbon.apimgt.impl.notifier.events.ApplicationPolicyEvent;
+import org.wso2.carbon.apimgt.impl.notifier.events.GlobalPolicyEvent;
 import org.wso2.carbon.apimgt.impl.notifier.events.ScopeEvent;
 import org.wso2.carbon.apimgt.impl.notifier.events.SubscriptionEvent;
 import org.wso2.carbon.apimgt.impl.notifier.events.SubscriptionPolicyEvent;
@@ -6400,6 +6401,13 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
 
                 publishKeyTemplateEvent(globalPolicy.getKeyTemplate(), "add");
                 policyLevel = PolicyConstants.POLICY_LEVEL_GLOBAL;
+
+                GlobalPolicy retrievedPolicy = apiMgtDAO.getGlobalPolicy(globalPolicy.getPolicyName());
+                GlobalPolicyEvent globalPolicyEvent = new GlobalPolicyEvent(UUID.randomUUID().toString(),
+                        System.currentTimeMillis(), APIConstants.EventType.POLICY_CREATE.name(), tenantId,
+                        globalPolicy.getTenantDomain(), retrievedPolicy.getPolicyId(),
+                        globalPolicy.getPolicyName());
+                APIUtil.sendNotification(globalPolicyEvent, APIConstants.NotifierType.POLICY.name());
             } else {
                 String msg = "Policy type " + policy.getClass().getName() + " is not supported";
                 log.error(msg);
@@ -6724,6 +6732,13 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                 executionFlows.put(policyFile, policyString);
                 policiesToUndeploy.add(policyFile);
                 policyLevel = PolicyConstants.POLICY_LEVEL_GLOBAL;
+
+                GlobalPolicy retrievedPolicy = apiMgtDAO.getGlobalPolicy(globalPolicy.getPolicyName());
+                GlobalPolicyEvent globalPolicyEvent = new GlobalPolicyEvent(UUID.randomUUID().toString(),
+                        System.currentTimeMillis(), APIConstants.EventType.POLICY_UPDATE.name(), tenantId,
+                        globalPolicy.getTenantDomain(), retrievedPolicy.getPolicyId(),
+                        globalPolicy.getPolicyName());
+                APIUtil.sendNotification(globalPolicyEvent, APIConstants.NotifierType.POLICY.name());
             } else {
                 String msg = "Policy type " + policy.getClass().getName() + " is not supported";
                 log.error(msg);
@@ -6839,6 +6854,10 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
                 policyFile = PolicyConstants.POLICY_LEVEL_GLOBAL + "_" + policyName;
                 policyFileNames.add(policyFile);
             }
+            GlobalPolicyEvent globalPolicyEvent = new GlobalPolicyEvent(UUID.randomUUID().toString(),
+                    System.currentTimeMillis(), APIConstants.EventType.POLICY_DELETE.name(), tenantId,
+                    globalPolicy.getTenantDomain(), globalPolicy.getPolicyId(), globalPolicy.getPolicyName());
+            APIUtil.sendNotification(globalPolicyEvent, APIConstants.NotifierType.POLICY.name());
         }
 
         ThrottlePolicyDeploymentManager manager = ThrottlePolicyDeploymentManager.getInstance();
