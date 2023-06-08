@@ -31,6 +31,7 @@ import org.wso2.carbon.apimgt.api.model.subscription.APIPolicyConditionGroup;
 import org.wso2.carbon.apimgt.api.model.subscription.Application;
 import org.wso2.carbon.apimgt.api.model.subscription.ApplicationKeyMapping;
 import org.wso2.carbon.apimgt.api.model.subscription.ApplicationPolicy;
+import org.wso2.carbon.apimgt.api.model.subscription.GlobalPolicy;
 import org.wso2.carbon.apimgt.api.model.subscription.Policy;
 import org.wso2.carbon.apimgt.api.model.subscription.Subscription;
 import org.wso2.carbon.apimgt.api.model.subscription.SubscriptionPolicy;
@@ -47,6 +48,8 @@ import org.wso2.carbon.apimgt.internal.service.dto.ApplicationKeyMappingListDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ApplicationListDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ApplicationPolicyDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ApplicationPolicyListDTO;
+import org.wso2.carbon.apimgt.internal.service.dto.GlobalPolicyDTO;
+import org.wso2.carbon.apimgt.internal.service.dto.GlobalPolicyListDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.GroupIdDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ScopeDTO;
 import org.wso2.carbon.apimgt.internal.service.dto.ScopesListDTO;
@@ -484,5 +487,32 @@ public class SubscriptionValidationDataUtil {
             scopeDTO.setRoles(Arrays.asList(roles.split(",")));
         }
         return scopeDTO;
+    }
+
+    /**
+     * Converts a list of global policy objects into a global policy list DTO object
+     *
+     * @param globalPolicies list of global policy objects
+     * @return global policy list DTO
+     */
+    public static GlobalPolicyListDTO fromGlobalPolicyToGlobalPolicyListDTO(List<GlobalPolicy> globalPolicies) {
+        GlobalPolicyListDTO globalPolicyListDTO = new GlobalPolicyListDTO();
+        if (globalPolicies != null) {
+            for (GlobalPolicy globalPolicy : globalPolicies) {
+                GlobalPolicyDTO globalPolicyDTO = new GlobalPolicyDTO();
+                globalPolicyDTO.setId(globalPolicy.getId());
+                globalPolicyDTO.setName(globalPolicy.getName());
+                globalPolicyDTO.setTenantId(globalPolicy.getTenantId());
+                globalPolicyDTO.setTenantDomain(globalPolicy.getTenantDomain());
+                globalPolicyDTO.setSiddhiQuery(globalPolicy.getSiddhiQuery());
+                globalPolicyDTO.setKeyTemplate(globalPolicy.getKeyTemplate());
+
+                globalPolicyListDTO.getList().add(globalPolicyDTO);
+            }
+            globalPolicyListDTO.setCount(globalPolicies.size());
+        } else {
+            globalPolicyListDTO.setCount(0);
+        }
+        return globalPolicyListDTO;
     }
 }
