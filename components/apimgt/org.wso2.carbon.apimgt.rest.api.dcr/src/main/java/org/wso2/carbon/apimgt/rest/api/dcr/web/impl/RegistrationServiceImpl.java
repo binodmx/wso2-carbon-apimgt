@@ -212,9 +212,11 @@ public class RegistrationServiceImpl implements RegistrationService {
                     }
                     response = Response.status(Response.Status.OK).entity(returnedAPP).build();
                 } else {
-                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload owner: "
-                            + owner);
                     String errMsg = "Application name: "+ applicationName + " already exits.";
+                    if (log.isDebugEnabled()) {
+                        log.debug("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload " +
+                                "owner: " + owner + " and " + errMsg);
+                    }
                     errorDTO = RestApiUtil.getErrorDTO(RestApiConstants.STATUS_CONFLICT_MESSAGE_RESOURCE_ALREADY_EXISTS,
                             409L, errMsg);
                     response = Response.status(Response.Status.CONFLICT).entity(errorDTO).build();
