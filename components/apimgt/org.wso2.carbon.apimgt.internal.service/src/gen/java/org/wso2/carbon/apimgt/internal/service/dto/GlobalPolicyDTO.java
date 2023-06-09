@@ -3,7 +3,6 @@ package org.wso2.carbon.apimgt.internal.service.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.wso2.carbon.apimgt.internal.service.dto.PolicyDTO;
-import org.wso2.carbon.apimgt.internal.service.dto.ThrottleLimitDTO;
 import javax.validation.constraints.*;
 
 
@@ -15,18 +14,19 @@ import org.wso2.carbon.apimgt.rest.api.util.annotations.Scope;
 
 
 
-public class ApplicationPolicyDTO   {
+public class GlobalPolicyDTO   {
   
     private Integer id = null;
     private Integer tenantId = null;
     private String tenantDomain = null;
     private String name = null;
     private String quotaType = null;
-    private ThrottleLimitDTO defaultLimit = null;
+    private String siddhiQuery = null;
+    private String keyTemplate = null;
 
   /**
    **/
-  public ApplicationPolicyDTO id(Integer id) {
+  public GlobalPolicyDTO id(Integer id) {
     this.id = id;
     return this;
   }
@@ -43,7 +43,7 @@ public class ApplicationPolicyDTO   {
 
   /**
    **/
-  public ApplicationPolicyDTO tenantId(Integer tenantId) {
+  public GlobalPolicyDTO tenantId(Integer tenantId) {
     this.tenantId = tenantId;
     return this;
   }
@@ -60,7 +60,7 @@ public class ApplicationPolicyDTO   {
 
   /**
    **/
-  public ApplicationPolicyDTO tenantDomain(String tenantDomain) {
+  public GlobalPolicyDTO tenantDomain(String tenantDomain) {
     this.tenantDomain = tenantDomain;
     return this;
   }
@@ -77,7 +77,7 @@ public class ApplicationPolicyDTO   {
 
   /**
    **/
-  public ApplicationPolicyDTO name(String name) {
+  public GlobalPolicyDTO name(String name) {
     this.name = name;
     return this;
   }
@@ -94,7 +94,7 @@ public class ApplicationPolicyDTO   {
 
   /**
    **/
-  public ApplicationPolicyDTO quotaType(String quotaType) {
+  public GlobalPolicyDTO quotaType(String quotaType) {
     this.quotaType = quotaType;
     return this;
   }
@@ -111,19 +111,36 @@ public class ApplicationPolicyDTO   {
 
   /**
    **/
-  public ApplicationPolicyDTO defaultLimit(ThrottleLimitDTO defaultLimit) {
-    this.defaultLimit = defaultLimit;
+  public GlobalPolicyDTO siddhiQuery(String siddhiQuery) {
+    this.siddhiQuery = siddhiQuery;
     return this;
   }
 
   
   @ApiModelProperty(value = "")
-  @JsonProperty("defaultLimit")
-  public ThrottleLimitDTO getDefaultLimit() {
-    return defaultLimit;
+  @JsonProperty("siddhiQuery")
+  public String getSiddhiQuery() {
+    return siddhiQuery;
   }
-  public void setDefaultLimit(ThrottleLimitDTO defaultLimit) {
-    this.defaultLimit = defaultLimit;
+  public void setSiddhiQuery(String siddhiQuery) {
+    this.siddhiQuery = siddhiQuery;
+  }
+
+  /**
+   **/
+  public GlobalPolicyDTO keyTemplate(String keyTemplate) {
+    this.keyTemplate = keyTemplate;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "")
+  @JsonProperty("keyTemplate")
+  public String getKeyTemplate() {
+    return keyTemplate;
+  }
+  public void setKeyTemplate(String keyTemplate) {
+    this.keyTemplate = keyTemplate;
   }
 
 
@@ -135,31 +152,33 @@ public class ApplicationPolicyDTO   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ApplicationPolicyDTO applicationPolicy = (ApplicationPolicyDTO) o;
-    return Objects.equals(id, applicationPolicy.id) &&
-        Objects.equals(tenantId, applicationPolicy.tenantId) &&
-        Objects.equals(tenantDomain, applicationPolicy.tenantDomain) &&
-        Objects.equals(name, applicationPolicy.name) &&
-        Objects.equals(quotaType, applicationPolicy.quotaType) &&
-        Objects.equals(defaultLimit, applicationPolicy.defaultLimit);
+    GlobalPolicyDTO globalPolicy = (GlobalPolicyDTO) o;
+    return Objects.equals(id, globalPolicy.id) &&
+        Objects.equals(tenantId, globalPolicy.tenantId) &&
+        Objects.equals(tenantDomain, globalPolicy.tenantDomain) &&
+        Objects.equals(name, globalPolicy.name) &&
+        Objects.equals(quotaType, globalPolicy.quotaType) &&
+        Objects.equals(siddhiQuery, globalPolicy.siddhiQuery) &&
+        Objects.equals(keyTemplate, globalPolicy.keyTemplate);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, tenantId, tenantDomain, name, quotaType, defaultLimit);
+    return Objects.hash(id, tenantId, tenantDomain, name, quotaType, siddhiQuery, keyTemplate);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ApplicationPolicyDTO {\n");
+    sb.append("class GlobalPolicyDTO {\n");
     
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
     sb.append("    tenantDomain: ").append(toIndentedString(tenantDomain)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    quotaType: ").append(toIndentedString(quotaType)).append("\n");
-    sb.append("    defaultLimit: ").append(toIndentedString(defaultLimit)).append("\n");
+    sb.append("    siddhiQuery: ").append(toIndentedString(siddhiQuery)).append("\n");
+    sb.append("    keyTemplate: ").append(toIndentedString(keyTemplate)).append("\n");
     sb.append("}");
     return sb.toString();
   }

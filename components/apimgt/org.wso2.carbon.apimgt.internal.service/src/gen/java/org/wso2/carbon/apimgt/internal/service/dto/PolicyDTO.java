@@ -17,6 +17,7 @@ public class PolicyDTO   {
   
     private Integer id = null;
     private Integer tenantId = null;
+    private String tenantDomain = null;
     private String name = null;
     private String quotaType = null;
 
@@ -52,6 +53,23 @@ public class PolicyDTO   {
   }
   public void setTenantId(Integer tenantId) {
     this.tenantId = tenantId;
+  }
+
+  /**
+   **/
+  public PolicyDTO tenantDomain(String tenantDomain) {
+    this.tenantDomain = tenantDomain;
+    return this;
+  }
+
+  
+  @ApiModelProperty(value = "")
+  @JsonProperty("tenantDomain")
+  public String getTenantDomain() {
+    return tenantDomain;
+  }
+  public void setTenantDomain(String tenantDomain) {
+    this.tenantDomain = tenantDomain;
   }
 
   /**
@@ -100,13 +118,14 @@ public class PolicyDTO   {
     PolicyDTO policy = (PolicyDTO) o;
     return Objects.equals(id, policy.id) &&
         Objects.equals(tenantId, policy.tenantId) &&
+        Objects.equals(tenantDomain, policy.tenantDomain) &&
         Objects.equals(name, policy.name) &&
         Objects.equals(quotaType, policy.quotaType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, tenantId, name, quotaType);
+    return Objects.hash(id, tenantId, tenantDomain, name, quotaType);
   }
 
   @Override
@@ -116,6 +135,7 @@ public class PolicyDTO   {
     
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
+    sb.append("    tenantDomain: ").append(toIndentedString(tenantDomain)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     sb.append("    quotaType: ").append(toIndentedString(quotaType)).append("\n");
     sb.append("}");

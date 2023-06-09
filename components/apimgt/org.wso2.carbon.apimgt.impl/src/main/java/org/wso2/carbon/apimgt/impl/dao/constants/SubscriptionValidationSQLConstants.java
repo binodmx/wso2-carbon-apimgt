@@ -101,15 +101,19 @@ public class SubscriptionValidationSQLConstants {
 
     public static final String GET_ALL_SUBSCRIPTION_POLICIES_SQL =
             "SELECT " +
-                    "   APS.POLICY_ID," +
-                    "   APS.NAME," +
-                    "   APS.RATE_LIMIT_COUNT," +
-                    "   APS.RATE_LIMIT_TIME_UNIT," +
-                    "   APS.QUOTA_TYPE," +
-                    "   APS.STOP_ON_QUOTA_REACH," +
-                    "   APS.TENANT_ID," +
-                    "   APS.MAX_DEPTH," +
-                    "   APS.MAX_COMPLEXITY" +
+                    "   APS.POLICY_ID AS POLICY_ID, " +
+                    "   APS.NAME AS POLICY_NAME, " +
+                    "   APS.RATE_LIMIT_COUNT AS RATE_LIMIT_COUNT, " +
+                    "   APS.RATE_LIMIT_TIME_UNIT AS RATE_LIMIT_TIME_UNIT, " +
+                    "   APS.QUOTA_TYPE AS QUOTA_TYPE, " +
+                    "   APS.STOP_ON_QUOTA_REACH AS STOP_ON_QUOTA_REACH, " +
+                    "   APS.TENANT_ID AS TENANT_ID, " +
+                    "   APS.MAX_DEPTH AS MAX_DEPTH, " +
+                    "   APS.MAX_COMPLEXITY AS MAX_COMPLEXITY, " +
+                    "   APS.QUOTA AS QUOTA, " +
+                    "   APS.QUOTA_UNIT AS QUOTA_UNIT, " +
+                    "   APS.UNIT_TIME AS UNIT_TIME, " +
+                    "   APS.TIME_UNIT AS TIME_UNIT " +
                     " FROM " +
                     "   AM_POLICY_SUBSCRIPTION APS";
 
@@ -118,9 +122,37 @@ public class SubscriptionValidationSQLConstants {
                     "   POLICY_ID," +
                     "   NAME," +
                     "   QUOTA_TYPE," +
-                    "   TENANT_ID " +
+                    "   TENANT_ID, " +
+                    "   QUOTA, " +
+                    "   QUOTA_UNIT, " +
+                    "   UNIT_TIME, " +
+                    "   TIME_UNIT " +
                     "FROM " +
                     "   AM_POLICY_APPLICATION";
+
+    public static final String GET_ALL_API_POLICIES_SQL =
+            "SELECT" +
+                    "   POLICY.POLICY_ID," +
+                    "   POLICY.NAME," +
+                    "   POLICY.TENANT_ID," +
+                    "   POLICY.DEFAULT_QUOTA_TYPE," +
+                    "   POLICY.DEFAULT_QUOTA," +
+                    "   POLICY.DEFAULT_QUOTA_UNIT," +
+                    "   POLICY.DEFAULT_UNIT_TIME," +
+                    "   POLICY.DEFAULT_TIME_UNIT," +
+                    "   POLICY.APPLICABLE_LEVEL," +
+                    "   COND.CONDITION_GROUP_ID," +
+                    "   COND.QUOTA_TYPE," +
+                    "   COND.QUOTA AS QUOTA," +
+                    "   COND.QUOTA_UNIT AS QUOTA_UNIT," +
+                    "   COND.UNIT_TIME AS UNIT_TIME," +
+                    "   COND.TIME_UNIT AS TIME_UNIT" +
+                    " FROM" +
+                    "   AM_API_THROTTLE_POLICY POLICY " +
+                    " LEFT JOIN " +
+                    "   AM_CONDITION_GROUP COND " +
+                    " ON " +
+                    "   POLICY.POLICY_ID = COND.POLICY_ID";
 
     public static final String GET_ALL_APIS_SQL =
             "SELECT " +
@@ -267,7 +299,12 @@ public class SubscriptionValidationSQLConstants {
                     "   APS.STOP_ON_QUOTA_REACH AS STOP_ON_QUOTA_REACH," +
                     "   APS.TENANT_ID AS TENANT_ID," +
                     "   APS.MAX_DEPTH AS MAX_DEPTH,"+
-                    "   APS.MAX_COMPLEXITY AS MAX_COMPLEXITY" +
+                    "   APS.MAX_COMPLEXITY AS MAX_COMPLEXITY," +
+                    "   APS.QUOTA_TYPE AS QUOTA_TYPE, " +
+                    "   APS.QUOTA AS QUOTA, " +
+                    "   APS.QUOTA_UNIT AS QUOTA_UNIT, " +
+                    "   APS.UNIT_TIME AS UNIT_TIME, " +
+                    "   APS.TIME_UNIT AS TIME_UNIT " +
                     " FROM " +
                     "   AM_POLICY_SUBSCRIPTION APS" +
                     " WHERE " +
@@ -283,7 +320,12 @@ public class SubscriptionValidationSQLConstants {
                     "   APS.STOP_ON_QUOTA_REACH AS STOP_ON_QUOTA_REACH, " +
                     "   APS.TENANT_ID AS TENANT_ID, " +
                     "   APS.MAX_DEPTH AS MAX_DEPTH, " +
-                    "   APS.MAX_COMPLEXITY AS MAX_COMPLEXITY" +
+                    "   APS.MAX_COMPLEXITY AS MAX_COMPLEXITY," +
+                    "   APS.QUOTA_TYPE AS QUOTA_TYPE, " +
+                    "   APS.QUOTA AS QUOTA, " +
+                    "   APS.QUOTA_UNIT AS QUOTA_UNIT, " +
+                    "   APS.UNIT_TIME AS UNIT_TIME, " +
+                    "   APS.TIME_UNIT AS TIME_UNIT " +
                     " FROM " +
                     "   AM_POLICY_SUBSCRIPTION APS" +
                     " WHERE " +
@@ -296,7 +338,11 @@ public class SubscriptionValidationSQLConstants {
                     "   POLICY_ID," +
                     "   NAME," +
                     "   QUOTA_TYPE," +
-                    "   TENANT_ID " +
+                    "   TENANT_ID, " +
+                    "   QUOTA, " +
+                    "   QUOTA_UNIT, " +
+                    "   UNIT_TIME, " +
+                    "   TIME_UNIT " +
                     "FROM " +
                     "   AM_POLICY_APPLICATION" +
                     " WHERE " +
@@ -308,9 +354,17 @@ public class SubscriptionValidationSQLConstants {
                     "   POLICY.NAME," +
                     "   POLICY.TENANT_ID," +
                     "   POLICY.DEFAULT_QUOTA_TYPE," +
+                    "   POLICY.DEFAULT_QUOTA," +
+                    "   POLICY.DEFAULT_QUOTA_UNIT," +
+                    "   POLICY.DEFAULT_UNIT_TIME," +
+                    "   POLICY.DEFAULT_TIME_UNIT," +
                     "   POLICY.APPLICABLE_LEVEL," +
                     "   COND.CONDITION_GROUP_ID," +
-                    "   COND.QUOTA_TYPE" +
+                    "   COND.QUOTA_TYPE," +
+                    "   COND.QUOTA AS QUOTA," +
+                    "   COND.QUOTA_UNIT AS QUOTA_UNIT," +
+                    "   COND.UNIT_TIME AS UNIT_TIME," +
+                    "   COND.TIME_UNIT AS TIME_UNIT" +
                     " FROM" +
                     "   AM_API_THROTTLE_POLICY POLICY " +
                     " LEFT JOIN " +
@@ -342,7 +396,11 @@ public class SubscriptionValidationSQLConstants {
                     "   POLICY_ID," +
                     "   NAME," +
                     "   QUOTA_TYPE," +
-                    "   TENANT_ID " +
+                    "   TENANT_ID, " +
+                    "   QUOTA, " +
+                    "   QUOTA_UNIT, " +
+                    "   UNIT_TIME, " +
+                    "   TIME_UNIT " +
                     "FROM " +
                     "   AM_POLICY_APPLICATION" +
                     " WHERE " +
@@ -370,9 +428,17 @@ public class SubscriptionValidationSQLConstants {
                     "   POLICY.NAME," +
                     "   POLICY.TENANT_ID," +
                     "   POLICY.DEFAULT_QUOTA_TYPE," +
+                    "   POLICY.DEFAULT_QUOTA AS DEFAULT_QUOTA," +
+                    "   POLICY.DEFAULT_QUOTA_UNIT AS DEFAULT_QUOTA_UNIT," +
+                    "   POLICY.DEFAULT_UNIT_TIME AS DEFAULT_UNIT_TIME," +
+                    "   POLICY.DEFAULT_TIME_UNIT AS DEFAULT_TIME_UNIT," +
                     "   POLICY.APPLICABLE_LEVEL," +
                     "   COND.CONDITION_GROUP_ID," +
-                    "   COND.QUOTA_TYPE" +
+                    "   COND.QUOTA_TYPE," +
+                    "   COND.QUOTA AS QUOTA," +
+                    "   COND.QUOTA_UNIT AS QUOTA_UNIT," +
+                    "   COND.UNIT_TIME AS UNIT_TIME," +
+                    "   COND.TIME_UNIT AS TIME_UNIT" +
                     " FROM" +
                     "   AM_API_THROTTLE_POLICY POLICY " +
                     " LEFT JOIN " +
@@ -741,4 +807,39 @@ public class SubscriptionValidationSQLConstants {
                     "   API.API_ID = PROD.API_ID AND" +
                     "   API.API_ID = ?";
 
+    public static final String GET_ALL_GLOBAL_POLICIES_SQL =
+            " SELECT " +
+                    "   POLICY_ID," +
+                    "   NAME," +
+                    "   TENANT_ID," +
+                    "   KEY_TEMPLATE," +
+                    "   SIDDHI_QUERY" +
+                    " FROM " +
+                    "   AM_POLICY_GLOBAL";
+
+    public static final String GET_TENANT_GLOBAL_POLICIES_SQL =
+            " SELECT " +
+                    "   POLICY_ID," +
+                    "   NAME," +
+                    "   TENANT_ID," +
+                    "   KEY_TEMPLATE," +
+                    "   SIDDHI_QUERY" +
+                    " FROM " +
+                    "   AM_POLICY_GLOBAL" +
+                    " WHERE " +
+                    "   TENANT_ID = ? ";
+
+    public static final String GET_GLOBAL_POLICY_SQL =
+            " SELECT " +
+                    "   POLICY_ID," +
+                    "   NAME," +
+                    "   TENANT_ID," +
+                    "   KEY_TEMPLATE," +
+                    "   SIDDHI_QUERY" +
+                    " FROM " +
+                    "   AM_POLICY_GLOBAL" +
+                    " WHERE " +
+                    "   NAME = ? AND" +
+                    "   TENANT_ID = ? ";
+                    
 }
