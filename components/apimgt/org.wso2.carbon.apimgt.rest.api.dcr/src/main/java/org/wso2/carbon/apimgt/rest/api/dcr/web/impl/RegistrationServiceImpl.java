@@ -203,17 +203,21 @@ public class RegistrationServiceImpl implements RegistrationService {
                             (RestApiConstants.STATUS_BAD_REQUEST_MESSAGE_DEFAULT, 500L, errorMsg);
                     response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
                             entity(errorDTO).build();
-                } else if (returnedAPP.getAppOwner() != null && !returnedAPP.getAppOwner()
-                        .equals(owner + "@" + loggedInUserTenantDomain)) {
-                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload owner: "
-                            + owner);
-                    response = Response.status(Response.Status.FORBIDDEN).entity("Application name: "
-                            + applicationName + " already exits.").build();
-                } else {
+                } else if ((authUserName.equals(returnedAPP.getAppOwner())) ||
+                        (isUserSuperAdmin(authUserName) && owner != null && owner.equals(returnedAPP.getAppOwner()))) {
+                    // Permitting only the owner of the application to create/get the OAuth app and admin user to
+                    // create/get the app info if the created app owner equals the payload app owner.
                     if (log.isDebugEnabled()) {
                         log.debug("OAuth app " + profile.getClientName() + " creation successful.");
                     }
                     response = Response.status(Response.Status.OK).entity(returnedAPP).build();
+                } else {
+                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload owner: "
+                            + owner);
+                    String errMsg = "Application name: "+ applicationName + " already exits.";
+                    errorDTO = RestApiUtil.getErrorDTO(RestApiConstants.STATUS_CONFLICT_MESSAGE_RESOURCE_ALREADY_EXISTS,
+                            409L, errMsg);
+                    response = Response.status(Response.Status.CONFLICT).entity(errorDTO).build();
                 }
             } else {
                 String errorMsg = "Logged in user '" + authUserName + "' and application owner '" +
@@ -316,7 +320,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             appToReturn = this.fromAppDTOToApplicationInfo(consumerAppDTO.getOauthConsumerKey(),
                     consumerAppDTO.getApplicationName(), consumerAppDTO.getCallbackUrl(),
-                    consumerAppDTO.getOauthConsumerSecret(), saasApp, consumerAppDTO.getUsername(), valueMap);
+                    consumerAppDTO.getOauthConsumerSecret(), saasApp,
+                    MultitenantUtils.getTenantAwareUsername(consumerAppDTO.getUsername()), valueMap);
 
         } catch (IdentityOAuthAdminException e) {
             log.error("error occurred while trying to get OAuth Application data", e);
