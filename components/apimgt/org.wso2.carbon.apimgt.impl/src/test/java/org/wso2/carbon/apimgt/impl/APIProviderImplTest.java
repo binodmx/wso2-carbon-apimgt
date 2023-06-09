@@ -3087,11 +3087,14 @@ public class APIProviderImplTest {
     public void testAddPolicy_GlobalType() throws RegistryException, UserStoreException, APIManagementException,
             APITemplateException {
         GlobalPolicy policy = getPolicyGlobalLevel();
+        policy.setPolicyId(3);
+        policy.setTenantDomain("carbon.super");
         ThrottlePolicyDeploymentManager manager = Mockito.mock(ThrottlePolicyDeploymentManager.class);
         PowerMockito.when(ThrottlePolicyDeploymentManager.getInstance()).thenReturn(manager);
         APIProviderImplWrapper apiProvider = new APIProviderImplWrapper(apimgtDAO,scopesDAO, null, null);
         String policyString = apiProvider.getThrottlePolicyTemplateBuilder().getThrottlePolicyForGlobalLevel(policy);
         Mockito.when(manager.validateExecutionPlan(policyString)).thenReturn(true);
+        Mockito.when(apimgtDAO.getGlobalPolicy(policy.getPolicyName())).thenReturn(null).thenReturn(policy);
         apiProvider.addPolicy(policy);
     }
 
