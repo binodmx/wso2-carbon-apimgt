@@ -203,6 +203,12 @@ public class RegistrationServiceImpl implements RegistrationService {
                             (RestApiConstants.STATUS_BAD_REQUEST_MESSAGE_DEFAULT, 500L, errorMsg);
                     response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
                             entity(errorDTO).build();
+                } else if (returnedAPP.getAppOwner() != null && !returnedAPP.getAppOwner()
+                        .equals(owner + "@" + loggedInUserTenantDomain)) {
+                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from logged in user: "
+                            + authUserName);
+                    response = Response.status(Response.Status.FORBIDDEN).entity("Application name: "
+                            + applicationName + " already exits.").build();
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("OAuth app " + profile.getClientName() + " creation successful.");
@@ -310,7 +316,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             appToReturn = this.fromAppDTOToApplicationInfo(consumerAppDTO.getOauthConsumerKey(),
                     consumerAppDTO.getApplicationName(), consumerAppDTO.getCallbackUrl(),
-                    consumerAppDTO.getOauthConsumerSecret(), saasApp, null, valueMap);
+                    consumerAppDTO.getOauthConsumerSecret(), saasApp, consumerAppDTO.getUsername(), valueMap);
 
         } catch (IdentityOAuthAdminException e) {
             log.error("error occurred while trying to get OAuth Application data", e);
