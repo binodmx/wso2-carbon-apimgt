@@ -2531,7 +2531,8 @@ public final class APIConstants {
     public enum PolicyType {
         API,
         APPLICATION,
-        SUBSCRIPTION
+        SUBSCRIPTION,
+        GLOBAL
     }
 
     public static class NotificationEvent {
