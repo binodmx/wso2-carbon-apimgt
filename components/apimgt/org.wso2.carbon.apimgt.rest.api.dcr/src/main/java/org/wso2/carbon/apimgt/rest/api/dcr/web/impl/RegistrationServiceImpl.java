@@ -205,8 +205,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                             entity(errorDTO).build();
                 } else if (returnedAPP.getAppOwner() != null && !returnedAPP.getAppOwner()
                         .equals(owner + "@" + loggedInUserTenantDomain)) {
-                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from logged in user: "
-                            + authUserName);
+                    log.info("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload owner: "
+                            + owner);
                     response = Response.status(Response.Status.FORBIDDEN).entity("Application name: "
                             + applicationName + " already exits.").build();
                 } else {
