@@ -960,12 +960,12 @@ public class OAS3Parser extends APIDefinition {
         }
         SecurityScheme securityScheme = securitySchemes.get(OPENAPI_SECURITY_SCHEMA_KEY);
         if (securityScheme == null || !SecurityScheme.Type.OAUTH2.equals(securityScheme.getType())) {
-            securityScheme = new SecurityScheme();
-            if (!SecurityScheme.Type.OAUTH2.equals(securityScheme.getType())) {
+            if (securityScheme != null) {
                 log.warn(securityScheme.getType()
                                  + " is not a supported type for the default security scheme. Setting scheme type to "
                                  + SecurityScheme.Type.OAUTH2);
             }
+            securityScheme = new SecurityScheme();
             securityScheme.setType(SecurityScheme.Type.OAUTH2);
             securitySchemes.put(OPENAPI_SECURITY_SCHEMA_KEY, securityScheme);
             List<SecurityRequirement> security = new ArrayList<SecurityRequirement>();
