@@ -959,7 +959,12 @@ public class OAS3Parser extends APIDefinition {
             openAPI.getComponents().setSecuritySchemes(securitySchemes);
         }
         SecurityScheme securityScheme = securitySchemes.get(OPENAPI_SECURITY_SCHEMA_KEY);
-        if (securityScheme == null) {
+        if (securityScheme == null || !SecurityScheme.Type.OAUTH2.equals(securityScheme.getType())) {
+            if (securityScheme != null) {
+                log.warn(securityScheme.getType()
+                                 + " is not a supported type for the default security scheme. Setting scheme type to "
+                                 + SecurityScheme.Type.OAUTH2);
+            }
             securityScheme = new SecurityScheme();
             securityScheme.setType(SecurityScheme.Type.OAUTH2);
             securitySchemes.put(OPENAPI_SECURITY_SCHEMA_KEY, securityScheme);
@@ -1440,15 +1445,18 @@ public class OAS3Parser extends APIDefinition {
                     SecurityScheme defaultSecurityScheme = openAPI.getComponents().getSecuritySchemes()
                             .get(OPENAPI_SECURITY_SCHEMA_KEY);
                     if (defaultSecurityScheme != null) {
-                        OAuthFlow oAuthFlow = defaultSecurityScheme.getFlows().getImplicit();
-                        String authUrl = oAuthFlow.getAuthorizationUrl();
-                        if (StringUtils.isBlank(authUrl)) {
-                            oAuthFlow.setAuthorizationUrl(OPENAPI_DEFAULT_AUTHORIZATION_URL);
-                        }
-                        Scopes scopes = oAuthFlow.getScopes();
-                        if (scopes == null) {
-                            Scopes newScopes = new Scopes();
-                            oAuthFlow.setScopes(newScopes);
+                        OAuthFlows oAuthFlows = defaultSecurityScheme.getFlows();
+                        if (oAuthFlows != null) {
+                            OAuthFlow oAuthFlow = oAuthFlows.getImplicit();
+                            String authUrl = oAuthFlow.getAuthorizationUrl();
+                            if (StringUtils.isBlank(authUrl)) {
+                                oAuthFlow.setAuthorizationUrl(OPENAPI_DEFAULT_AUTHORIZATION_URL);
+                            }
+                            Scopes scopes = oAuthFlow.getScopes();
+                            if (scopes == null) {
+                                Scopes newScopes = new Scopes();
+                                oAuthFlow.setScopes(newScopes);
+                            }
                         }
                     }
                 }
