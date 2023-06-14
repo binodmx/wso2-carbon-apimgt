@@ -212,14 +212,13 @@ public class RegistrationServiceImpl implements RegistrationService {
                     }
                     response = Response.status(Response.Status.OK).entity(returnedAPP).build();
                 } else {
-                    String errMsg = "Application name: "+ applicationName + " already exits.";
+                    String errMsg = "Access is forbidden to the application";
                     if (log.isDebugEnabled()) {
                         log.debug("OAuth app owner: " + returnedAPP.getAppOwner() + " is different from payload " +
                                 "owner: " + owner + " and " + errMsg);
                     }
-                    errorDTO = RestApiUtil.getErrorDTO(RestApiConstants.STATUS_CONFLICT_MESSAGE_RESOURCE_ALREADY_EXISTS,
-                            409L, errMsg);
-                    response = Response.status(Response.Status.CONFLICT).entity(errorDTO).build();
+                    errorDTO = RestApiUtil.getErrorDTO(RestApiConstants.STATUS_FORBIDDEN_MESSAGE_DEFAULT, 403L, errMsg);
+                    response = Response.status(Response.Status.FORBIDDEN).entity(errorDTO).build();
                 }
             } else {
                 String errorMsg = "Logged in user '" + authUserName + "' and application owner '" +
