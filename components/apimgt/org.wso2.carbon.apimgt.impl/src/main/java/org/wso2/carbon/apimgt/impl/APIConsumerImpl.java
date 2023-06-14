@@ -3124,6 +3124,11 @@ public class APIConsumerImpl extends AbstractAPIManager implements APIConsumer {
                     APIConstants.SubscriptionStatus.TIER_UPDATE_PENDING, requestedThrottlingPolicy);
 
             boolean isTenantFlowStarted = false;
+
+            tenantDomain = MultitenantUtils.getTenantDomain(APIUtil.
+                    replaceEmailDomainBack(identifier.getProviderName()));
+            tenantId = APIUtil.getTenantIdFromTenantDomain(tenantDomain);
+
             if (tenantDomain != null && !MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 isTenantFlowStarted = startTenantFlowForTenantDomain(tenantDomain);
             }
