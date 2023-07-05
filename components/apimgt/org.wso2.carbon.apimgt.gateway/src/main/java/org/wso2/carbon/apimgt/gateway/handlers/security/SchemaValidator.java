@@ -536,7 +536,7 @@ public class SchemaValidator extends AbstractHandler {
      *
      * @param entry Array reference to be replaced from actual value.
      */
-    private void generateArraySchemas(Map.Entry<String, JsonElement> entry) {
+    private void generateArraySchemas(Map.Entry<String, JsonElement> entry) throws APIManagementException {
         JsonElement entryRef;
         JsonElement ref;
         JsonElement schemaProperty;
@@ -553,6 +553,8 @@ public class SchemaValidator extends AbstractHandler {
                     ref = extractSchemaObject(entryRef);
                     nodeList.remove(i);
                     nodeList.add(i, ref);
+                } else if (entryRef.isJsonObject()) {
+                    generateSchema(entryRef);
                 }
             }
             Gson gson = new Gson();
