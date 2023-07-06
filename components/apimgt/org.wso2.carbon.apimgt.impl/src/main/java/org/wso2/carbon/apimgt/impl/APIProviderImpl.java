@@ -6670,7 +6670,7 @@ class APIProviderImpl extends AbstractAPIManager implements APIProvider {
 
                 APIManagerConfiguration config = getAPIManagerConfiguration();
                 if (log.isDebugEnabled()) {
-                    log.debug("Calling invalidation cache for API Policy for tenant ");
+                    log.debug("Calling invalidation cache for API Policy for tenant " + apiPolicy.getTenantDomain());
                 }
                 String policyContext = APIConstants.POLICY_CACHE_CONTEXT + "/t/" + apiPolicy.getTenantDomain()
                         + "/";
