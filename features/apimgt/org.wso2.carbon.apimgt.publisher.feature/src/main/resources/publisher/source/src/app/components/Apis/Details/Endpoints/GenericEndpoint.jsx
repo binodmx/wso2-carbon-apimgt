@@ -204,17 +204,19 @@ function GenericEndpoint(props) {
                                             settings
                                             </Icon>
                                         </IconButton>
-                                        <IconButton
-                                            className={classes.iconButton}
-                                            aria-label='Security'
-                                            onClick={() => setESConfigOpen(type, esCategory)}
-                                            disabled={(isRestricted(['apim:api_create'], api))}
-                                            data-testid={`${id || 'generic'}-endpoint-security-icon-btn`}
-                                        >
-                                            <Icon>
-                                            security
-                                            </Icon>
-                                        </IconButton>
+                                        {(type === 'load_balance' || type === 'failover') ? (<div />) : (
+                                            <IconButton
+                                                className={classes.iconButton}
+                                                aria-label='Security'
+                                                onClick={() => setESConfigOpen(type, esCategory)}
+                                                disabled={(isRestricted(['apim:api_create'], api))}
+                                                data-testid={`${id || 'generic'}-endpoint-security-icon-btn`}
+                                            >
+                                                <Icon>
+                                                security
+                                                </Icon>
+                                            </IconButton>
+                                        )}
                                     </>
                                 )}
                             {(index > 0) ? <Divider className={classes.divider} /> : <div />}
