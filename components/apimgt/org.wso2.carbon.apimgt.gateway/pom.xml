@@ -357,7 +357,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.wso2.orbit.com.fasterxml.jackson.core:jackson-core</classpathDependencyExclude>
+                        <classpathDependencyExclude>io.swagger.parser.v3:swagger-parser-v2-converter</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <systemProperties>
                         <property>
